@@ -10,7 +10,7 @@ emoncms_db = "emoncms" # The name of your emoncms (or other) database.
 # Used for Sprinkler Bypass
 sprinkler_bypass = "Yes"
 sprinkler_type = "Rachio"	# Timer or Rachio
-rachio_url = 'curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer jhdjhf-8738783473-kfkshfks-9374873487" https://api.rach.io/1/public/device/59f8edcb-9149-421a-bbd0-8a7fb8f696b7/current_schedule'
+rachio_url = 'curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer jhdjhf-8738783473-kfkshfks-9374873487" https://api.rach.io/1/public/device/59f8edcb-9149-42saddsadsdasd-6b7/current_schedule'
 
 ############################################################################################################################
 ########## Runtime checking and maximum fill times
