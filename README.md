@@ -16,6 +16,8 @@ There is a manual fill button that allows me to fill the pool when I want to fil
 
 I am not a programmer and this is just some fun stuff that I have been working on in my spare time. Eventually I will expand this to include a full monitoring system of the pool chemicals and other automation including a web interface to view all of the system parameters.
 
+Currrently the only notifications that are included are logging and pushbullet.
+
 
 
 Based on the following hardware:
