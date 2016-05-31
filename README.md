@@ -20,8 +20,8 @@ I am not a programmer and this is just some fun stuff that I have been working o
 
 Based on the following hardware:
 
-Raspberry Pi 3
-LowPowerLabs MightyHat (http://lowpowerlab.com/mightyhat)
-eTape Resistive Liquid Measuring tape (http://www.milonetech.com)
+Raspberry Pi 3<br>
+LowPowerLabs MightyHat (http://lowpowerlab.com/mightyhat)<br>
+eTape Resistive Liquid Measuring tape (http://www.milonetech.com)<br>
 OpenEnergyMonitor emonTH & emonPi (http://www.openenergymonitor.org)
 
