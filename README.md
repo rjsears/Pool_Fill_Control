@@ -21,10 +21,7 @@ I am not a programmer and this is just some fun stuff that I have been working o
 Based on the following hardware:
 
 Raspberry Pi 3
-
 LowPowerLabs MightyHat (http://lowpowerlab.com/mightyhat)
-
 eTape Resistive Liquid Measuring tape (http://www.milonetech.com)
-
 OpenEnergyMonitor emonTH & emonPi (http://www.openenergymonitor.org)
 
