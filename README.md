@@ -18,6 +18,13 @@ I am not a programmer and this is just some fun stuff that I have been working o
 
 Currrently the only notifications that are included are logging and pushbullet.
 
+V2.4 now includes 5 different system status LEDs. These include:
+ - Sprinklers Running (BLUE)
+ - Pool Pump Running (YELLOW) (requires some type of external power monitor)
+ - System OK (GREEN)
+ - System ERROR (RED)
+ - Pool Filling (BLUE)
+
 
 
 Based on the following hardware:
