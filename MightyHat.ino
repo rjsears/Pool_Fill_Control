@@ -3,7 +3,7 @@
 // to listen for information from a python script running on a Pi3 and to output specific information to the
 // LCD when instructed to do so.
 //
-// 2016-05-30
+// 2016-06-03
 // 
 // **********************************************************************************************************
 // MightyHat gateway base unit sketch that works with MightyHat with onboard RFM69W/RFM69HW
@@ -66,7 +66,7 @@
 #define SERIAL_BAUD 115200
 #define DEBUG_EN     //comment out if you don't want any serial verbose output (keep out in real use)
 
-#define BTN_LED_RED     6 // Was 9
+// #define BTN_LED_RED     6 // Was 9
 #define BTN_LED_GRN     6  // This will indicate when Pi has power
 
 
@@ -75,7 +75,7 @@
 #define POWER_LED_RED()    { digitalWrite(BTN_LED_GRN, HIGH); }
 #define POWER_LED_GRN()    { digitalWrite(BTN_LED_GRN, HIGH); }
 #define POWER_LED_ORANGE() { digitalWrite(BTN_LED_GRN, HIGH); }
-#define POWER_LED_OFF()    { digitalWrite(BTN_LED_GRN, LOW); digitalWrite(BTN_LED_RED, LOW); }
+#define POWER_LED_OFF()    { digitalWrite(BTN_LED_GRN, LOW);  }
 
 
 /*
@@ -392,7 +392,7 @@ void setupPowerControl(){
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(SIG_BOOTOK, INPUT);
   pinMode(SIG_SHUTOFF, OUTPUT);
-  pinMode(BTN_LED_RED, OUTPUT);
+//  pinMode(BTN_LED_RED, OUTPUT);
   pinMode(BTN_LED_GRN, OUTPUT);
   pinMode(LATCH_EN, OUTPUT);
   digitalWrite(LATCH_EN, LOW);
@@ -508,7 +508,7 @@ void handlePowerControl() {
           in += .00628;
 
           out = sin(in) * 127.5 + 127.5;
-          analogWrite(BTN_LED_RED, out);
+          analogWrite(BTN_LED_GRN, out);
           delayMicroseconds(1500);
           
           //account for force-shutdown action (if button held for ForcedShutoffDelay, then force shutdown regardless)
@@ -535,7 +535,7 @@ void handlePowerControl() {
                 if (in > 6.283) in = 0;
                 in += .00628;
                 out = sin(in) * 127.5 + 127.5;
-                analogWrite(BTN_LED_RED,out);
+                analogWrite(BTN_LED_GRN,out);
                 delayMicroseconds(300);
               }
 
@@ -577,7 +577,7 @@ void handlePowerControl() {
         {
           if (millis()-NOW2 > 100)
           {
-            analogWrite(BTN_LED_RED, 255 - ((millis()-NOW)/100)*analogstep);
+            analogWrite(BTN_LED_GRN, 255 - ((millis()-NOW)/100)*analogstep);
             NOW2 = millis();
           }
           if (millis()-NOW > ForcedShutoffDelay-SHUTDOWNHOLDTIME)
