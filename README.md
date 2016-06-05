@@ -34,7 +34,7 @@ V2.5 (2016-06-04)
  - Centralized all Pushbullet notifications
  - Various bug fixes
 
-
+<br>
 
 
 Based on the following hardware:
