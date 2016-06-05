@@ -24,7 +24,7 @@ V2.4 now includes 5 different system status LEDs. These include:
  - System OK (GREEN)
  - System ERROR (RED)
  - Pool Filling (BLUE)
-
+<br><br>
  
 V2.5 (2016-06-04)
  - Added additional DPDT switch that physically breaks power to the sprinkler fill valve
