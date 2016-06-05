@@ -4,7 +4,7 @@
 ##############################################################
 # Swimming Pool Fill Control Script for a Raspberry Pi 3
 #
-# V2.4 (2016-06-03)
+# V2.5 (2016-06-04)
 # Richard J. Sears
 # richard@sears.net
 ##############################################################
@@ -100,6 +100,17 @@
 #     3) GREEN - System Run
 #     4) RED - System "ERROR"
 #     5) BLUE2 - Pool "FILLING"
+#
+# V2.5 (2016-06-04)
+# - Added additional DPDT switch to physically interrupt sprinkler
+#   solenoid between relay and solenoid and added additional RED
+#   LED to indicate when the sprinkler valve has been disabled.
+#   When switch is used, power is physically removed from the fill
+#   valve and we shut off the relay and send notifications as well
+#   as write some log entries.
+#
+# - Various bug fixes
+# - Cleaned up and centralized notifications.
 ##############################################################
 
 
@@ -171,7 +182,8 @@ PUMP_RUN_LED = 13
 SYSTEM_RUN_LED = 21
 SYSTEM_ERROR_LED = 16
 POOL_FILLING_LED = 12
-
+POOL_FILL_VALVE_DISABLED = 3 
+POOL_FILL_VALVE_DISABLED_LED = 4 
 
 
 
@@ -193,11 +205,13 @@ GPIO.setup(SYSTEM_ERROR_LED, GPIO.OUT)
 GPIO.output(SYSTEM_ERROR_LED, False)
 GPIO.setup(POOL_FILLING_LED, GPIO.OUT)
 GPIO.output(POOL_FILLING_LED, False)
-
-
+GPIO.setup(POOL_FILL_VALVE_DISABLED, GPIO.IN)
+GPIO.setup(POOL_FILL_VALVE_DISABLED_LED, GPIO.OUT)
+GPIO.output(POOL_FILL_VALVE_DISABLED_LED, False)
 
 ## Set the Button LED initially off
 MANUAL_FILL_BUTTON_LED_ON = False
+
 
 ## Setup and initially set some global variables
 global current_run_time
@@ -213,45 +227,100 @@ overfill_alert_sent = "No"
 global pool_pump_running_watts
 pool_pump_running_watts = 0
 global sprinkler_status
+global pool_fill_valve_disabled
+global pool_fill_valve_alert_sent
+pool_fill_valve_alert_sent = "No"
+
+
+
+# Manage blinking some LEDs
+def blink_led(pin, numTimes, speed):
+    for i in range(0, numTimes):
+        GPIO.output(pin, True)
+        time.sleep(speed)
+        GPIO.output(pin, False)
+        time.sleep(speed)
+
+
+# Manage our LEDs
+def led_control(led, onoff):
+    if onoff == "ON": 
+        GPIO.output(led, True)  
+    elif onoff =="OFF":
+        GPIO.output(led, False)
+
+
 
 # This is where we set up our notifications. I use Pushbullet which is free and very powerful. Visit http://www.pushbullet.com for a free account.
 # Once you have your free account, enter your API information in the alerting.py file and restart the script.
 pb = Pushbullet(alerting.pushbilletAPI)
 
-
-def send_notification(fill_status):
+def send_notification(status):
     global alertsent
     global overfill_alert_sent
-    if fill_status == "FILLING" and alertsent == "No":
+    global pool_fill_valve_alert_sent
+    if status == "FILLING" and alertsent == "No":
         push = pb.push_note("Swimming Pool is Refilling Automatically",
                             "Your swimming pool water level is low and is being refilled.")
         alertsent = "Yes"
         logger.info('PushBullet Notification Sent  - Pool is Automatically Refilling')
-    elif fill_status == "DONE_FILLING" and alertsent == "Yes":
+    elif status == "DONE_FILLING" and alertsent == "Yes":
         push = pb.push_note("Swimming Pool Level OK",
                             "Swimming pool water level back to normal. Automatic Refilling Complete.")
         alertsent == "No"
         logger.info('PushBullet Notification Sent - Pool is done refilling Automatically')
-    elif fill_status == "MANUAL_FILL":
+    elif status == "MANUAL_FILL":
         push = pb.push_note("Swimming Pool Manual Fill", "Your swimming pool is being manually filled")
         logger.info('PushBullet Notification Sent - Manual Fill Started')
-    elif fill_status == "MANUAL_FILL_COMPLETE":
+    elif status == "MANUAL_FILL_COMPLETE":
         push = pb.push_note("Swimming Pool Manual Fill Complete",
                             "Manaul fill of your swimming pool has been completed")
         logger.info('PushBullet Notification Sent - Manual Fill Complete')
-    elif fill_status == "POOL_OVERFILL" and overfill_alert_sent == "No":
+    elif status == "POOL_OVERFILL" and overfill_alert_sent == "No":
         push = pb.push_note("Swimming Pool Fill Failure",
                             "Your swimming pool might be overfilling! The valve has been DISABLED, you need to reenable it!")
         logger.error('PushBullet Notification Sent - Pool might be overfilling')
+    elif status == "POOL_FILL_VALVE_DISABLED" and pool_fill_valve_alert_sent == "No":
+        push = pb.push_note("Pool Fill Valve - DISABLED",
+                            "Your swimming pool fill valve has been manually DISABLED, you need to reenable it to fill your pool!")
+        logger.error('PushBullet Notification Sent - Pool fill valve manually disabled')
+	pool_fill_valve_alert_sent == "Yes"
+    elif status == "POOL_FILL_VALVE_REENABLED" and pool_fill_valve_alert_sent == "Yes":
+        push = pb.push_note("Pool Fill Valve - ENABLED",
+                            "Your swimming pool fill valve has been REENABLED!")
+        logger.error('PushBullet Notification Sent - Pool fill valve manually reenabled')
+	pool_fill_valve_alert_sent == "No"
+    elif status == "STARTUP_OK":
+        push = pb.push_note("Pool Fill Control - Startup",
+                            "Your Pool Filling Control system has started successfully!")
+        logger.debug('PushBullet Notification Sent - Pool fill control started successfully')
+	pool_fill_valve_alert_sent == "No"
+
 
 
 ## Go ahead and send a notification that we started OK!
 if (alerting.PoolAlerting) == "True":
-    push = pb.push_note("Pool Fill Control - Startup", "Your Pool Filling Control has started successfully!")
+    send_notification('STARTUP_OK')
+
 
 ## If we have a MightyHat with an LCD screen, we can output a message there as well....
 if pooldb.MightyHat == "True":
     ser.write('PFC_START_OK')
+
+
+## Let take a quick look at the switch that controls our fill valve. Has it been disabled? If so, send a notification
+## and log the error.
+pool_fill_valve_disabled = GPIO.input(POOL_FILL_VALVE_DISABLED)
+if (pool_fill_valve_disabled) == True:
+    logger.error('Pool Fill Valve has been DISABLED. System is OFFLINE. Reenable Pool Fill Valve to fill your pool!')
+    led_control(POOL_FILL_VALVE_DISABLED_LED, "ON")
+    logger.debug("POOL_FILL_VALVE_DISABLED_LED should be ON. This is a RED LED.")
+    if (alerting.PoolAlerting) == "True":
+        send_notification('POOL_FILL_VALVE_DISABLED')
+    if pooldb.MightyHat == "True":
+        ser.write('PFC_MANUALLY_DISABLED')
+
+
 
 
 def get_sprinkler_status():
@@ -301,6 +370,7 @@ def get_sprinkler_status():
 # This turns the sprinkler valve on or off when called
 def fill_pool_auto(fill_now):
     global pool_is_filling
+    global current_run_time
     if fill_now == "START":
         GPIO.output(POOL_FILL_RELAY, False)  # Turns on the sprinkler valve
         pool_is_filling = "Auto"
@@ -318,6 +388,7 @@ def fill_pool_auto(fill_now):
         logger.info('Pool AUTOMATIC fill completed.')
         led_control(POOL_FILLING_LED, "OFF")
         logger.debug('POOL_FILLING_LED should be OFF. This is a BLUE LED')
+        current_run_time = 0
         if pooldb.MightyHat == "True":
             ser.write('PFC_FILL_DONE')
             logger.debug('Pool filling complete (PFC_FILL_DONE) sent to MightyHat')
@@ -334,11 +405,19 @@ def fill_pool_auto(fill_now):
         if pooldb.MightyHat == "True":
             ser.write('PFC_OVERFILL')
             logger.debug('Pool Automatic Fill Force Stopped (PFC_OVERFILL) sent to MightyHat')
-
+    elif fill_now == "MANUAL_VALVE_DISABLED":
+        GPIO.output(POOL_FILL_RELAY, True)  # Shuts off the sprinkler valve
+        pool_is_filling = "No"
+        logger.warning('Pool AUTOMATIC fill FORCE STOPPED - Fill Valve has been manually disabled.')
+        led_control(POOL_FILLING_LED, "OFF")
+        logger.debug('POOL_FILLING_LED should be OFF. This is a BLUE LED')
+        led_control(SYSTEM_ERROR_LED, "ON")
+        logger.debug('SYSTEM_ERROR_LED should be ON. This is the RED LED')
 
 # This turns the sprinkler valve on or off when manual button is pushed.
 def fill_pool_manual(fill_now):
     global pool_is_filling
+    global current_run_time
     if fill_now == "START":
         GPIO.output(POOL_FILL_RELAY, False)  # Turns on the sprinkler valve
         pool_is_filling = "Yes"
@@ -350,6 +429,7 @@ def fill_pool_manual(fill_now):
         GPIO.output(POOL_FILL_RELAY, True)  # Shuts off the sprinkler valve
         pool_is_filling = "No"
         logger.info('Pool MANUAL fill completed.')
+        current_run_time = 0
         if pooldb.MightyHat == "True":
             ser.write('PFC_FILL_DONE')
             logger.debug('Pool Fill Complete (PFC_FILL_DONE) sent to MightyHat')
@@ -381,7 +461,11 @@ def pool_level():
     global max_run_time_exceeded
     global sprinkler_status
     sprinkler_status = get_sprinkler_status()
-    if MANUAL_FILL_BUTTON_LED_ON == True:  # Why bother checking if we are manually filling the pool....?
+    if MANUAL_FILL_BUTTON_LED_ON == True or pool_fill_valve_disabled == True:  # Why bother checking if we are manually filling the pool....?
+        if (MANUAL_FILL_BUTTON_LED_ON == True):
+            logger.debug("pool_level function ABORTED, Manual fill is in progress.") 
+        elif (pool_fill_valve_disabled == True):
+            logger.debug("pool_level function ABORTED, pool fill valve has been disabled") 
         pass
     else:
         try:
@@ -460,8 +544,10 @@ def manual_fill_pool(button):
     global pool_is_filling
     global sprinkler_status
     global MANUAL_FILL_BUTTON_LED_ON
+    global pool_fill_valve_disabled
     if all([MANUAL_FILL_BUTTON_LED_ON == False, pool_is_filling == "No",
-            pool_pump_running_watts <= pooldb.max_wattage, sprinkler_status == "No"]):
+            pool_pump_running_watts <= pooldb.max_wattage, sprinkler_status == "No",
+            pool_fill_valve_disabled == False]):
         GPIO.output(MANUAL_FILL_BUTTON_LED, True)
         MANUAL_FILL_BUTTON_LED_ON = True
         fill_pool_manual('START')
@@ -479,27 +565,51 @@ def manual_fill_pool(button):
             send_notification('MANUAL_FILL_COMPLETE')
     else:
         blink_led(MANUAL_FILL_BUTTON_LED, 7, 0.1)
-        logger.info('Manual fill attempted while pool was automatically filling or  pool pump/sprinklers were running!')
+	if (sprinkler_status) =="Yes":
+           logger.info("Manual fill attempted while sprinklers were running.")
+        elif (pool_pump_running_watts >= pooldb.max_wattage):
+           logger.info("Manual fill attempted while pool pump was running.")
+        elif (pool_is_filling) =="Yes":
+           logger.info("Manual fill attempted while pool was automatically filling.")
+        elif (pool_fill_valve_disabled) == True:
+           logger.info("Manual fill attempted with pool valve manually disabled.")
 
 
-# Manage blinking some LEDs
-def blink_led(pin, numTimes, speed):
-    for i in range(0, numTimes):
-        GPIO.output(pin, True)
-        time.sleep(speed)
-        GPIO.output(pin, False)
-        time.sleep(speed)
+def is_pool_fill_valve_disabled(channel):
+    global pool_fill_valve_disabled
+    pool_fill_valve_disabled = GPIO.input(POOL_FILL_VALVE_DISABLED)
+    if (pool_fill_valve_disabled) == True:
+       fill_pool_auto('MANUAL_VALVE_DISABLED')
+       logger.info("Manual pool fill valve has been DISABLED! Reenable to fill pool.")
+       led_control(POOL_FILL_VALVE_DISABLED_LED, "ON")
+       led_control(SYSTEM_ERROR_LED, "ON")
+       logger.debug("POOL_FILL_VALVE_DISABLED_LED should be ON. This is a RED LED.")
+       logger.debug("SYSTEM_ERROR_LED should be ON. This is a RED LED.")
+       if (alerting.PoolAlerting) == "True":
+           send_notification('POOL_FILL_VALVE_DISABLED')
+       if pooldb.MightyHat == "True":
+           ser.write('PFC_MANUALLY_DISABLED')
+    elif (pool_fill_valve_disabled) == False:
+       print ("Pool Fill Valve has been Reenabled")
+       led_control(POOL_FILL_VALVE_DISABLED_LED, "OFF")
+       led_control(SYSTEM_ERROR_LED, "OFF")
+       logger.debug("POOL_FILL_VALVE_DISABLED_LED should be OFF. This is a RED LED.")
+       logger.debug("SYSTEM_ERROR_LED should be OFF. This is a RED LED.")
+       logger.info("Manual pool fill valve has been ENABLED.")
+       if (alerting.PoolAlerting) == "True":
+           send_notification('POOL_FILL_VALVE_REENABLED')
+       if pooldb.MightyHat == "True":
+           ser.write('PFC_MANUALLY_REENABLED')
+       pool_level()
 
-def led_control(led, onoff):
-    if onoff == "ON": 
-        GPIO.output(led, True)  
-    elif onoff =="OFF":
-        GPIO.output(led, False)
+
+
 
 def main():
     led_control(SYSTEM_RUN_LED, "ON")
     pool_level()
     GPIO.add_event_detect(MANUAL_FILL_BUTTON, GPIO.RISING, callback=manual_fill_pool, bouncetime=1500)
+    GPIO.add_event_detect(POOL_FILL_VALVE_DISABLED, GPIO.BOTH, callback=is_pool_fill_valve_disabled, bouncetime=300)
 
 main()
 
