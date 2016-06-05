@@ -24,6 +24,14 @@ V2.4 now includes 5 different system status LEDs. These include:
  - System OK (GREEN)
  - System ERROR (RED)
  - Pool Filling (BLUE)
+ 
+V2.5 (2016-06-04)
+ - Added additional DPDT switch that physically breaks power to the sprinkler fill valve
+   as well as sets notifications, resets the fill relay (if in use) and logs the event.
+ - Added additional LED for the above switch to show when we have manually cut off power
+   to our sprinkler fill valve.
+ - Centralized all Pushbullet notifications
+ - Various bug fixes
 
 
 
