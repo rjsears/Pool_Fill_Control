@@ -3,7 +3,7 @@
 // to listen for information from a python script running on a Pi3 and to output specific information to the
 // LCD when instructed to do so.
 //
-// 2016-06-03
+// Last Updated on 2016-06-04 to include some additional reporting form the Pi.
 // 
 // **********************************************************************************************************
 // MightyHat gateway base unit sketch that works with MightyHat with onboard RFM69W/RFM69HW
@@ -361,6 +361,8 @@ void handleSerialInput() {
     if (inputstr.equals("PFC_OVERFILL")) { sprintf(lcdbuff, "Pool OVERFILL\nALERT!"); refreshLCD(); saveToHistory(lcdbuff, rssi); }
     if (inputstr.equals("PFC_SPRINKLERS")) { sprintf(lcdbuff, "Sprinklers are\nrunning!"); refreshLCD(); saveToHistory(lcdbuff, rssi); }
     if (inputstr.equals("PFC_PUMP")) { sprintf(lcdbuff, "Pool pump is\nrunning!"); refreshLCD(); saveToHistory(lcdbuff, rssi); }
+    if (inputstr.equals("PFC_MANUALLY_DISABLED")) { sprintf(lcdbuff, "Fill Valve is\nDISABLED!"); refreshLCD(); saveToHistory(lcdbuff, rssi); }
+    if (inputstr.equals("PFC_MANUALLY_REENABLED")) { sprintf(lcdbuff, "Fill Valve is\nREENABLED!"); refreshLCD(); saveToHistory(lcdbuff, rssi); }
     if (inputstr.equals("BEEP")) Beep(5, false);
     if (inputstr.equals("BEEP2")) Beep(10, true);
     if (inputstr.equals("RAM")) { DEBUG(F("Free RAM bytes: "));DEBUGln(checkFreeRAM()); }
