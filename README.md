@@ -34,6 +34,14 @@ V2.5 (2016-06-04)
  - Centralized all Pushbullet notifications
  - Various bug fixes
 
+<br><br>
+
+V2.6 (2016-06-05)
+- Code Optimization
+- Bug Fixes
+- Added Watchdog support - if no watchdog notification every 70 seconds, script restarts
+ 
+
 <br>
 
 
