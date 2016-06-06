@@ -1,0 +1,39 @@
+# This service installs a python test program that allows us to test the
+# systemd software watchdog. This watchdog can be used to protect from hangups.
+# On top of that, when the service crashes, it is automatically restarted.
+# If it crashes too many times, it will be forced to fail, or you can let systemd reboot
+#
+
+[Unit]
+Description=Installing Python test script for a systemd s/w watchdog
+Requires=basic.target
+After=multi-user.target
+
+[Service]
+Type=notify
+WatchdogSec=70s
+ExecStart=/usr/bin/python /root/pool_control/pool_fill_control.py
+ExecStop=/root/pool_control/setupgpio.sh
+Restart=always
+
+# The number of times the service is restarted within a time period can be set
+# If that condition is met, the RPi can be rebooted
+#
+StartLimitBurst=4
+StartLimitInterval=180s
+# actions can be none|reboot|reboot-force|reboot-immidiate
+StartLimitAction=none
+
+# The following are defined the /etc/systemd/system.conf file and are
+# global for all services
+#
+#DefaultTimeoutStartSec=90s
+#DefaultTimeoutStopSec=90s
+#
+# They can also be set on a per process here:
+# if they are not defined here, they fall back to the system.conf values
+TimeoutStartSec=2s
+TimeoutStopSec=2s
+
+[Install]
+WantedBy=multi-user.target
