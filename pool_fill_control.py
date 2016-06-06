@@ -10,7 +10,7 @@ VERSION = "V2.6 (2016-06-05)"
 ##############################################################
 #
 # This script is part of a smart pool level monitoring system
-# comprised of a moneino (moteino.com) connected to an eTape
+# comprised of a moteino (moteino.com) connected to an eTape
 # water level sensor. The Motenio runs a sketch that monitors
 # the water level in the pool every 1 minutes and if it gets
 # below a certain point, it writes a low water level bit to a
@@ -124,9 +124,8 @@ VERSION = "V2.6 (2016-06-05)"
 ## flood your yard by using an automatic fill routine. THERE IS NO WARRANTY, use this script
 ## at your own risk!
 
-RUN_AS_DAEMON = True    # Watchdog setup
-sock_rpt = True         # Used to report only the first socket message
-
+RUN_AS_DAEMON = True  # Watchdog setup
+sock_rpt = True  # Used to report only the first socket message
 
 # Requires:
 # PushBullet Python Library (https://pypi.python.org/pypi/pushbullet.py)
@@ -134,22 +133,22 @@ sock_rpt = True         # Used to report only the first socket message
 # MySQL Python Connector http://http://dev.mysql.com/doc/connector-python/en/connector-python-introduction.html)
 
 # Lets import some stuff!
-import logging
 import datetime
+import logging
+import os
+import socket
 import subprocess
 import threading
 import time
-from time import sleep
-import os
+
 import RPi.GPIO as GPIO  # Import GPIO Library
-import alerting  # Pushbullet information
 import mysql.connector
-import pooldb  # Database information
 import serial
 from mysql.connector import errorcode
 from pushbullet import Pushbullet
-import socket
-import signal
+
+import alerting  # Pushbullet information
+import pooldb  # Database information
 
 #########################################
 ## Set up Logging
@@ -162,8 +161,6 @@ logger.addHandler(hdlr)
 logger.setLevel(logging.DEBUG)
 logger.filemode = 'a'
 
-
-
 ##Setup our Serial so we can communicate with our Moteino MightyHat LCD Sceen
 ser = serial.Serial(
     port='/dev/ttyAMA0',
@@ -172,8 +169,6 @@ ser = serial.Serial(
     stopbits=serial.STOPBITS_ONE,
     bytesize=serial.EIGHTBITS,
     timeout=1)
-
-
 
 ## We have a manual fill button with a built-in LED, we set it up here
 # along with the rest of our LEDs, buttons and relays.
@@ -185,20 +180,19 @@ PUMP_RUN_LED = 13
 SYSTEM_RUN_LED = 21
 SYSTEM_ERROR_LED = 16
 POOL_FILLING_LED = 12
-POOL_FILL_VALVE_DISABLED = 3 
-POOL_FILL_VALVE_DISABLED_LED = 4 
-
+POOL_FILL_VALVE_DISABLED = 3
+POOL_FILL_VALVE_DISABLED_LED = 4
 
 
 def init():
- # get the watchdog timeout period set in the systemd service file
-    if RUN_AS_DAEMON : # this will only work if started by systemd
+    # get the watchdog timeout period set in the systemd service file
+    if RUN_AS_DAEMON:  # this will only work if started by systemd
         wd_usec = os.environ.get('WATCHDOG_USEC', None)
         if wd_usec == None or wd_usec == 0:
             logger.error("Pool Fill Control Terminating : incorrect watchdog interval sequence.")
             exit(1)
-    else: # used when invoked by the shell
-        wd_usec = 20000000 # 20 seconds
+    else:  # used when invoked by the shell
+        wd_usec = 20000000  # 20 seconds
 
     wd_usec = int(wd_usec)
     # use half the time-out value in seconds for the watchdog ping routine to
@@ -223,16 +217,17 @@ def init():
     pool_fill_valve_alert_sent = "No"
     global MANUAL_FILL_BUTTON_LED_ON
     MANUAL_FILL_BUTTON_LED_ON = False
-    
+
     try:
         ## Set up all of our GPIO Stuff here
         GPIO.setwarnings(False)  # Don't tell me about GPIO warnings.
         GPIO.setmode(GPIO.BCM)  # Use BCM Pin Numbering Scheme
-        
+
         ## Setup our GPIO Pins
         GPIO.setup(POOL_FILL_RELAY, GPIO.OUT)
         GPIO.output(POOL_FILL_RELAY, True)  # Set inital state of our relay to off
-        GPIO.setup(MANUAL_FILL_BUTTON, GPIO.IN)  # Make button an input,  since we are using GPIO 2, it has pull up resistor already
+        GPIO.setup(MANUAL_FILL_BUTTON,
+                   GPIO.IN)  # Make button an input,  since we are using GPIO 2, it has pull up resistor already
         GPIO.setup(MANUAL_FILL_BUTTON_LED, GPIO.OUT)  # Make LED  an Output
         GPIO.output(MANUAL_FILL_BUTTON_LED, False)
         GPIO.setup(SPRINKLER_RUN_LED, GPIO.OUT)
@@ -253,7 +248,7 @@ def init():
         GPIO.add_event_detect(MANUAL_FILL_BUTTON, GPIO.RISING, callback=manual_fill_pool, bouncetime=1500)
         GPIO.add_event_detect(POOL_FILL_VALVE_DISABLED, GPIO.BOTH, callback=is_pool_fill_valve_disabled, bouncetime=300)
 
-# notify systemd that we've finished the initialization
+        # notify systemd that we've finished the initialization
         retval = sd_notify(0, "READY=1")
         # check for a fatal error
         if retval <> 0:
@@ -268,8 +263,7 @@ def init():
 
     except Exception as e:
         logger.error("Exception in init()! DIE".format(e))
-        os._exit(1) # force the exit to the OS
-
+        os._exit(1)  # force the exit to the OS
 
 
 def sd_notify(unset_environment, s_cmd):
@@ -277,35 +271,35 @@ def sd_notify(unset_environment, s_cmd):
 
     sock = None
 
-    if RUN_AS_DAEMON == False :
+    if not RUN_AS_DAEMON:
         print "Not running as a daemon, cannot communicate with systemd socket"
-        return(0)
+        return 0
 
     try:
         if not s_cmd:
             logger.error("Pool Fill Error : missing command to send.")
-            return(1)
+            return 1
 
         s_adr = os.environ.get('NOTIFY_SOCKET', None)
-        if sock_rpt : # report this only one time
+        if sock_rpt:  # report this only one time
             logger.info("Notify socket = {0}".format(str(s_adr)))
             # this will normally return : /run/systemd/notify
             sock_rpt = False
 
         if not s_adr:
             logger.error("Error, missing socket.")
-            return(1)
+            return 1
 
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         sock.sendto(s_cmd, s_adr)
         # sendto() returns number of bytes send
         if sock.sendto(s_cmd, s_adr) == 0:
             logger.error("Error, incorrect sock.sendto return value")
-            return(1)
+            return 1
 
     except exception as e:
         logger.error("Unexpecgted Exception in sd_notify".format(e))
-        os._exit(1) # force the exit to the OS
+        os._exit(1)  # force the exit to the OS
 
     finally:
         # terminate the socket connection
@@ -314,16 +308,7 @@ def sd_notify(unset_environment, s_cmd):
         if unset_environment:
             if 'NOTIFY_SOCKET' in os.environ:
                 del os.environ['NOTIFY_SOCKET']
-    return(0) # so we can test the return value for a successful execution
-
-
-
-
-
-
-
-
-
+    return 0  # so we can test the return value for a successful execution
 
 
 ## LED Management
@@ -336,20 +321,19 @@ def blink_led(pin, numTimes, speed):
         GPIO.output(pin, False)
         time.sleep(speed)
 
+
 # ON/OFF
 def led_control(led, onoff):
-    if onoff == "ON": 
-        GPIO.output(led, True)  
-    elif onoff =="OFF":
+    if onoff == "ON":
+        GPIO.output(led, True)
+    elif onoff == "OFF":
         GPIO.output(led, False)
-
-
-
 
 
 # This is where we set up our notifications. I use Pushbullet which is free and very powerful. Visit http://www.pushbullet.com for a free account.
 # Once you have your free account, enter your API information in the alerting.py file and restart the script.
 pb = Pushbullet(alerting.pushbilletAPI)
+
 
 def send_notification(status):
     global alertsent
@@ -363,6 +347,7 @@ def send_notification(status):
     elif status == "DONE_FILLING" and alertsent == "Yes":
         push = pb.push_note("Swimming Pool Level OK",
                             "Swimming pool water level back to normal. Automatic Refilling Complete.")
+        # noinspection PyStatementEffect,PyStatementEffect,PyStatementEffect
         alertsent == "No"
         logger.info('PushBullet Notification Sent - Pool is done refilling Automatically')
     elif status == "MANUAL_FILL":
@@ -380,24 +365,25 @@ def send_notification(status):
         push = pb.push_note("Pool Fill Valve - DISABLED",
                             "Your swimming pool fill valve has been manually DISABLED, you need to reenable it to fill your pool!")
         logger.error('PushBullet Notification Sent - Pool fill valve manually disabled')
-	pool_fill_valve_alert_sent == "Yes"
+        # noinspection PyStatementEffect
+        pool_fill_valve_alert_sent == "Yes"
     elif status == "POOL_FILL_VALVE_REENABLED" and pool_fill_valve_alert_sent == "Yes":
         push = pb.push_note("Pool Fill Valve - ENABLED",
                             "Your swimming pool fill valve has been REENABLED!")
         logger.error('PushBullet Notification Sent - Pool fill valve manually reenabled')
-	pool_fill_valve_alert_sent == "No"
+        # noinspection PyStatementEffect
+        pool_fill_valve_alert_sent == "No"
     elif status == "STARTUP_OK":
         push = pb.push_note("Pool Fill Control - Startup",
                             "Your Pool Filling Control system has started successfully!")
         logger.debug('PushBullet Notification Sent - Pool fill control started successfully')
-	pool_fill_valve_alert_sent == "No"
-
-
+        # noinspection PyStatementEffect
+        pool_fill_valve_alert_sent == "No"
 
 
 def start_ok():
     ## Go ahead and send a notification that we started OK!
-    if (alerting.PoolAlerting) == "True":
+    if alerting.PoolAlerting == "True":
         send_notification('STARTUP_OK')
     ## If we have a MightyHat with an LCD screen, we can output a message there as well....
     if pooldb.MightyHat == "True":
@@ -407,15 +393,16 @@ def start_ok():
 
 
 def pfv_disabled():
-## Let take a quick look at the switch that controls our fill valve. Has it been disabled? If so, send a notification
-## and log the error.
+    ## Let take a quick look at the switch that controls our fill valve. Has it been disabled? If so, send a notification
+    ## and log the error.
     global pool_fill_valve_disabled
     pool_fill_valve_disabled = GPIO.input(POOL_FILL_VALVE_DISABLED)
-    if (pool_fill_valve_disabled) == True:
-        logger.error('Pool Fill Valve has been DISABLED. System is OFFLINE. Reenable Pool Fill Valve to fill your pool!')
+    if pool_fill_valve_disabled == True:
+        logger.error(
+            'Pool Fill Valve has been DISABLED. System is OFFLINE. Reenable Pool Fill Valve to fill your pool!')
         led_control(POOL_FILL_VALVE_DISABLED_LED, "ON")
         logger.debug("POOL_FILL_VALVE_DISABLED_LED should be ON. This is a RED LED.")
-        if (alerting.PoolAlerting) == "True":
+        if alerting.PoolAlerting == "True":
             send_notification('POOL_FILL_VALVE_DISABLED')
         if pooldb.MightyHat == "True":
             ser.write('PFC_MANUALLY_DISABLED')
@@ -434,7 +421,7 @@ def get_sprinkler_status():
         current_military_time = int(datetime.datetime.now().strftime('%H%M'))
         logger.debug('Current military time is being reported as %s.', current_military_time)
 
-        if current_military_time > SprinklerStart and current_military_time < SprinklerStop:
+        if SprinklerStart < current_military_time < SprinklerStop:
             sprinklers_on = "Yes"
             logger.debug('Sprinklers running. (TIMER)')
             led_control(SPRINKLER_RUN_LED, "ON")
@@ -446,7 +433,7 @@ def get_sprinkler_status():
             led_control(SPRINKLER_RUN_LED, "OFF")
             logger.debug('SPRINKLER_RUN_LED should be OFF. This is a BLUE LED')
 
-        return (sprinklers_on)
+        return sprinklers_on
     else:
         output = subprocess.check_output(pooldb.rachio_url, shell=True)
         if output == "{}":
@@ -460,9 +447,7 @@ def get_sprinkler_status():
             led_control(SPRINKLER_RUN_LED, "ON")
             logger.debug('SPRINKLER_RUN_LED should be ON. This is a BLUE LED')
 
-        return (sprinklers_on)
-
-
+        return sprinklers_on
 
 
 # This turns the sprinkler valve on or off when called
@@ -478,7 +463,7 @@ def fill_pool_auto(fill_now):
         if pooldb.MightyHat == "True":
             ser.write('PFC_AUTO_FILL')
             logger.debug('Pool Automatic Fill started (PFC_AUTO_FILL) sent to MightyHat')
-        if (alerting.PoolAlerting) == "True":
+        if alerting.PoolAlerting == "True":
             send_notification('FILLING')
     elif fill_now == "STOP":
         GPIO.output(POOL_FILL_RELAY, True)  # Shuts off the sprinkler valve
@@ -490,7 +475,7 @@ def fill_pool_auto(fill_now):
         if pooldb.MightyHat == "True":
             ser.write('PFC_FILL_DONE')
             logger.debug('Pool filling complete (PFC_FILL_DONE) sent to MightyHat')
-        if (alerting.PoolAlerting) == "True":
+        if alerting.PoolAlerting == "True":
             send_notification('DONE_FILLING')
     elif fill_now == "FORCE_STOP":
         GPIO.output(POOL_FILL_RELAY, True)  # Shuts off the sprinkler valve
@@ -536,7 +521,7 @@ def fill_pool_manual(fill_now):
     elif fill_now == "MANUAL_VALVE_DISABLED":
         GPIO.output(POOL_FILL_RELAY, True)  # Shuts off the sprinkler valve
         pool_is_filling = "No"
-	led_control(MANUAL_FILL_BUTTON_LED, "OFF") 
+        led_control(MANUAL_FILL_BUTTON_LED, "OFF")
         MANUAL_FILL_BUTTON_LED_ON = False
         logger.warning('Pool MANUAL fill FORCE STOPPED - Fill Valve has been manually disabled.')
         led_control(POOL_FILLING_LED, "OFF")
@@ -553,14 +538,15 @@ def max_run_time():
     global max_run_time_exceeded
     global current_run_time
     global overfill_alert_sent
-    current_run_time = current_run_time + 1
+    current_run_time += 1
     logger.debug('Current fill run time is %s', current_run_time)
 
     if current_run_time >= pooldb.maxruntime:
         logger.error('Pool Maxruntime exceeded! Check for errors and restart program')
         max_run_time_exceeded = "Yes"
-        if (alerting.PoolAlerting) == "True":
+        if alerting.PoolAlerting == "True":
             send_notification('POOL_OVERFILL')
+            # noinspection PyStatementEffect
             overfill_alert_sent == "Yes"
 
 
@@ -572,18 +558,19 @@ def pool_level():
     global sprinkler_status
     global pool_fill_valve_disabled
     sprinkler_status = get_sprinkler_status()
-    sd_notify(0, "WATCHDOG=1")  # Ping the watchdog once per check. It is set to restart the script if no notification within 70 seconds.
+    sd_notify(0,
+              "WATCHDOG=1")  # Ping the watchdog once per check. It is set to restart the script if no notification within 70 seconds.
     logger.debug("Watchdog Ping Sent")
     if MANUAL_FILL_BUTTON_LED_ON == True or pool_fill_valve_disabled == True:  # Why bother checking if we are manually filling the pool....?
-        if (MANUAL_FILL_BUTTON_LED_ON == True):
-            logger.debug("pool_level function BYPASSED, Manual fill is in progress.") 
-        elif (pool_fill_valve_disabled == True):
-            logger.debug("pool_level function BYPASSED, pool fill valve has been manually disabled") 
+        if MANUAL_FILL_BUTTON_LED_ON == True:
+            logger.debug("pool_level function BYPASSED, Manual fill is in progress.")
+        elif pool_fill_valve_disabled == True:
+            logger.debug("pool_level function BYPASSED, pool fill valve has been manually disabled")
         pass
     else:
         try:
-            cnx = mysql.connector.connect(user=(pooldb.username), password=(pooldb.password), host=(pooldb.servername),
-                                          database=(pooldb.emoncms_db))
+            cnx = mysql.connector.connect(user=pooldb.username, password=pooldb.password, host=pooldb.servername,
+                                          database=pooldb.emoncms_db)
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
                 logger.error('Database connection failure: Check your username and password')
@@ -596,7 +583,7 @@ def pool_level():
             cursor.execute("SELECT data FROM feed_222 ORDER by time DESC LIMIT 1")
 
             for (data) in cursor:
-                get_pool_level = ("%1.0f" % (data))
+                get_pool_level = ("%1.0f" % data)
                 cursor.close()
                 logger.debug('get_pool_level returned %s', get_pool_level)
 
@@ -604,10 +591,10 @@ def pool_level():
             cursor.execute("SELECT data FROM feed_153 ORDER by time DESC LIMIT 1")
 
             for (data) in cursor:
-                pool_pump_running_watts = int("%1.0f" % (data))
+                pool_pump_running_watts = int("%1.0f" % data)
                 cursor.close()
                 logger.debug('pool_pump_running_watts returned %s watts in use by pump.', pool_pump_running_watts)
-            
+
             if pool_pump_running_watts > pooldb.max_wattage:
                 led_control(PUMP_RUN_LED, "ON")
                 logger.debug('PUMP_RUN_LED should be ON. This is the YELLOW LED')
@@ -666,7 +653,7 @@ def manual_fill_pool(button):
         fill_pool_manual('START')
         led_control(POOL_FILLING_LED, "ON")
         logger.debug('POOL_FILLING_LED should be ON. This is a BLUE LED')
-        if (alerting.PoolAlerting) == "True":
+        if alerting.PoolAlerting == "True":
             send_notification('MANUAL_FILL')
     elif pool_is_filling == "Manual":
         GPIO.output(MANUAL_FILL_BUTTON_LED, False)
@@ -674,51 +661,51 @@ def manual_fill_pool(button):
         fill_pool_manual('STOP')
         led_control(POOL_FILLING_LED, "OFF")
         logger.debug('POOL_FILLING_LED should be OFF. This is a BLUE LED')
-        if (alerting.PoolAlerting) == "True":
+        if alerting.PoolAlerting == "True":
             send_notification('MANUAL_FILL_COMPLETE')
     else:
         blink_led(MANUAL_FILL_BUTTON_LED, 7, 0.1)
-	if (sprinkler_status) =="Yes":
-           logger.info("Manual fill attempted while sprinklers were running.")
-        elif (pool_pump_running_watts >= pooldb.max_wattage):
-           logger.info("Manual fill attempted while pool pump was running.")
-        elif (pool_is_filling) =="Auto":
-           logger.info("Manual fill attempted while pool was automatically filling.")
-        elif (pool_fill_valve_disabled) == True:
-           logger.info("Manual fill attempted with pool valve manually disabled.")
+        if sprinkler_status == "Yes":
+            logger.info("Manual fill attempted while sprinklers were running.")
+        elif pool_pump_running_watts >= pooldb.max_wattage:
+            logger.info("Manual fill attempted while pool pump was running.")
+        elif pool_is_filling == "Auto":
+            logger.info("Manual fill attempted while pool was automatically filling.")
+        elif pool_fill_valve_disabled:
+            logger.info("Manual fill attempted with pool valve manually disabled.")
 
 
 def is_pool_fill_valve_disabled(channel):
     global pool_fill_valve_disabled
     global pool_is_filling
     pool_fill_valve_disabled = GPIO.input(POOL_FILL_VALVE_DISABLED)
-    if (pool_fill_valve_disabled) == True:
-       if pool_is_filling == "Auto":
-           fill_pool_auto('MANUAL_VALVE_DISABLED')
-       else:
-           fill_pool_manual('MANUAL_VALVE_DISABLED')
-       logger.info("Manual pool fill valve has been DISABLED! Reenable to fill pool.")
-       led_control(POOL_FILL_VALVE_DISABLED_LED, "ON")
-       led_control(SYSTEM_ERROR_LED, "ON")
-       logger.debug("POOL_FILL_VALVE_DISABLED_LED should be ON. This is a RED LED.")
-       logger.debug("SYSTEM_ERROR_LED should be ON. This is a RED LED.")
-       if (alerting.PoolAlerting) == "True":
-           send_notification('POOL_FILL_VALVE_DISABLED')
-       if pooldb.MightyHat == "True":
-           ser.write('PFC_MANUALLY_DISABLED')
-    elif (pool_fill_valve_disabled) == False:
-       print ("Pool Fill Valve has been Reenabled")
-       led_control(POOL_FILL_VALVE_DISABLED_LED, "OFF")
-       led_control(SYSTEM_ERROR_LED, "OFF")
-       logger.debug("POOL_FILL_VALVE_DISABLED_LED should be OFF. This is a RED LED.")
-       logger.debug("SYSTEM_ERROR_LED should be OFF. This is a RED LED.")
-       logger.info("Manual pool fill valve has been ENABLED.")
-       pool_is_filling = "No"
-       if (alerting.PoolAlerting) == "True":
-           send_notification('POOL_FILL_VALVE_REENABLED')
-       if pooldb.MightyHat == "True":
-           ser.write('PFC_MANUALLY_REENABLED')
-       pool_level()
+    if pool_fill_valve_disabled == True:
+        if pool_is_filling == "Auto":
+            fill_pool_auto('MANUAL_VALVE_DISABLED')
+        else:
+            fill_pool_manual('MANUAL_VALVE_DISABLED')
+        logger.info("Manual pool fill valve has been DISABLED! Reenable to fill pool.")
+        led_control(POOL_FILL_VALVE_DISABLED_LED, "ON")
+        led_control(SYSTEM_ERROR_LED, "ON")
+        logger.debug("POOL_FILL_VALVE_DISABLED_LED should be ON. This is a RED LED.")
+        logger.debug("SYSTEM_ERROR_LED should be ON. This is a RED LED.")
+        if alerting.PoolAlerting == "True":
+            send_notification('POOL_FILL_VALVE_DISABLED')
+        if pooldb.MightyHat == "True":
+            ser.write('PFC_MANUALLY_DISABLED')
+    elif not (pool_fill_valve_disabled):
+        print ("Pool Fill Valve has been Reenabled")
+        led_control(POOL_FILL_VALVE_DISABLED_LED, "OFF")
+        led_control(SYSTEM_ERROR_LED, "OFF")
+        logger.debug("POOL_FILL_VALVE_DISABLED_LED should be OFF. This is a RED LED.")
+        logger.debug("SYSTEM_ERROR_LED should be OFF. This is a RED LED.")
+        logger.info("Manual pool fill valve has been ENABLED.")
+        pool_is_filling = "No"
+        if alerting.PoolAlerting == "True":
+            send_notification('POOL_FILL_VALVE_REENABLED')
+        if pooldb.MightyHat == "True":
+            ser.write('PFC_MANUALLY_REENABLED')
+        pool_level()
 
 
 def main():
@@ -727,6 +714,7 @@ def main():
     pfv_disabled()
     led_control(SYSTEM_RUN_LED, "ON")
     pool_level()
+
 
 if __name__ == '__main__':
     main()
