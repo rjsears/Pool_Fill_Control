@@ -35,7 +35,6 @@ V2.5 (2016-06-04)
  - Various bug fixes
 
 <br><br>
-
 V2.6 (2016-06-05)
 - Code Optimization
 - Bug Fixes
