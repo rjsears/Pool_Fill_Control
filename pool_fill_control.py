@@ -347,7 +347,6 @@ def send_notification(status):
     elif status == "DONE_FILLING" and alertsent == "Yes":
         push = pb.push_note("Swimming Pool Level OK",
                             "Swimming pool water level back to normal. Automatic Refilling Complete.")
-        # noinspection PyStatementEffect,PyStatementEffect,PyStatementEffect
         alertsent == "No"
         logger.info('PushBullet Notification Sent - Pool is done refilling Automatically')
     elif status == "MANUAL_FILL":
@@ -365,19 +364,16 @@ def send_notification(status):
         push = pb.push_note("Pool Fill Valve - DISABLED",
                             "Your swimming pool fill valve has been manually DISABLED, you need to reenable it to fill your pool!")
         logger.error('PushBullet Notification Sent - Pool fill valve manually disabled')
-        # noinspection PyStatementEffect
         pool_fill_valve_alert_sent == "Yes"
     elif status == "POOL_FILL_VALVE_REENABLED" and pool_fill_valve_alert_sent == "Yes":
         push = pb.push_note("Pool Fill Valve - ENABLED",
                             "Your swimming pool fill valve has been REENABLED!")
         logger.error('PushBullet Notification Sent - Pool fill valve manually reenabled')
-        # noinspection PyStatementEffect
         pool_fill_valve_alert_sent == "No"
     elif status == "STARTUP_OK":
         push = pb.push_note("Pool Fill Control - Startup",
                             "Your Pool Filling Control system has started successfully!")
         logger.debug('PushBullet Notification Sent - Pool fill control started successfully')
-        # noinspection PyStatementEffect
         pool_fill_valve_alert_sent == "No"
 
 
@@ -546,7 +542,6 @@ def max_run_time():
         max_run_time_exceeded = "Yes"
         if alerting.PoolAlerting == "True":
             send_notification('POOL_OVERFILL')
-            # noinspection PyStatementEffect
             overfill_alert_sent == "Yes"
 
 
