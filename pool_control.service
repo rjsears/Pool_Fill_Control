@@ -1,11 +1,7 @@
-# This service installs a python test program that allows us to test the
-# systemd software watchdog. This watchdog can be used to protect from hangups.
-# On top of that, when the service crashes, it is automatically restarted.
-# If it crashes too many times, it will be forced to fail, or you can let systemd reboot
-#
+# This script starts and stops our pool fill control python script
 
 [Unit]
-Description=Installing Python test script for a systemd s/w watchdog
+Description=Installing Python script for Pool Fill Control /w watchdog
 Requires=basic.target
 After=multi-user.target
 
