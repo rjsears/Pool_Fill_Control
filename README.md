@@ -1,4 +1,4 @@
-# Pool_Fill_Control
+# Pool_Fill_Control V2.6.1
 Raspberry Pi / Arduino / Python Project to automate filling of swimming pool.
 
 
