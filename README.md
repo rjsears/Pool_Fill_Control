@@ -1,4 +1,4 @@
-# Pool_Fill_Control V2.6.1
+# Pool_Fill_Control V2.7
 Raspberry Pi / Arduino / Python Project to automate filling of swimming pool.
 
 
@@ -40,6 +40,10 @@ V2.6 (2016-06-05)
 - Bug Fixes
 - Added Watchdog support - if no watchdog notification every 70 seconds, script restarts
  
+<br>
+V2.7 (2016-06-11)
+- Added Atlas Scientific pH and ORP probes to system. They are, for now, just logging to log file (logger.info).
+
 
 <br>
 
