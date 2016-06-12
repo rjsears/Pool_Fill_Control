@@ -1,11 +1,10 @@
 #!/usr/bin/python
-
 # pool_fill_control.py
 ##############################################################
 # Swimming Pool Fill Control Script for a Raspberry Pi 3
 #
 __author__ = 'Richard J. Sears'
-VERSION = "V2.6 (2016-06-05)"
+VERSION = "V2.7 (2016-06-11)"
 # richard@sears.net
 ##############################################################
 #
@@ -116,6 +115,27 @@ VERSION = "V2.6 (2016-06-05)"
 # - Code Optimization
 # - Bug Fixes
 # - Added watchdog support
+#
+# V2.7 (2016-06-11)
+# - Added Atlas Scientific ORP and pH probes to the system and 
+#   adding in code to read and write this information so we can
+#   track it. I am running the USB versions of the probes to make
+#   it easier to connect them to the Pi. In order to make sure
+#   the assigned USB is always the same, I did the following:
+# 1) connect ORP probe
+# 2) run dmesg from the cli and look for the serial number and USB
+#    of the connected device. 
+# 3) Edit /etc/udev/rules.d/10-local.rules and put in the following:
+# ACTION=="add", ATTRS{serial}=="DA00TNXX", SYMLINK+="ORP"
+#
+# Put your own serial number in in place of "DA00TNXX".
+# 4) Do the same for your pH probe.
+# Now you can use minicom, or PySerial, etc to talk to /dev/ORP or /dev/PH
+#
+# Right now I have created def get_ph_reading and get_orp_reading and
+# currently just log it (logger.info). Evnetually I will write this
+# information to my emoncms system. For me, this is just a matter of
+# tracking it as I own an Autopilot system that controls my pH and ORP.
 ##############################################################
 
 
@@ -169,6 +189,12 @@ ser = serial.Serial(
     stopbits=serial.STOPBITS_ONE,
     bytesize=serial.EIGHTBITS,
     timeout=1)
+
+usbport1 = '/dev/PH'
+ser1 = serial.Serial(usbport1, 9600, timeout=0)
+
+usbport0 = '/dev/ORP'
+ser2 = serial.Serial(usbport0, 9600, timeout=0)
 
 ## We have a manual fill button with a built-in LED, we set it up here
 # along with the rest of our LEDs, buttons and relays.
@@ -246,7 +272,7 @@ def init():
 
         # Setup our event detection for our manual fill button as well as our fill valve disable switch
         GPIO.add_event_detect(MANUAL_FILL_BUTTON, GPIO.RISING, callback=manual_fill_pool, bouncetime=1500)
-        GPIO.add_event_detect(POOL_FILL_VALVE_DISABLED, GPIO.BOTH, callback=is_pool_fill_valve_disabled, bouncetime=300)
+        GPIO.add_event_detect(POOL_FILL_VALVE_DISABLED, GPIO.BOTH, callback=is_pool_fill_valve_disabled, bouncetime=500)
 
         # notify systemd that we've finished the initialization
         retval = sd_notify(0, "READY=1")
@@ -328,6 +354,34 @@ def led_control(led, onoff):
         GPIO.output(led, True)
     elif onoff == "OFF":
         GPIO.output(led, False)
+
+
+# Let's reach out and get our current pH and ORP
+def get_ph_reading():
+    line ="" 
+    count = 1
+    while (count < 2):
+       data = ser1.read()
+       if(data == "\r"):
+          ph_value = float(line)
+          logger.info("Current PH Reading is %s" % ph_value)
+          line = ""
+          count = count + 1
+       else:
+          line = line + data
+
+def get_orp_reading():
+    line = ""
+    count = 1
+    while (count < 2):
+       data = ser2.read()
+       if(data == "\r"):
+          orp_value = float(line)
+          logger.info("Current ORP Reading is %s" % orp_value)
+          line = ""
+          count = count + 1
+       else:
+          line = line + data
 
 
 # This is where we set up our notifications. I use Pushbullet which is free and very powerful. Visit http://www.pushbullet.com for a free account.
@@ -552,6 +606,8 @@ def pool_level():
     global max_run_time_exceeded
     global sprinkler_status
     global pool_fill_valve_disabled
+    get_ph_reading()
+    get_orp_reading()
     sprinkler_status = get_sprinkler_status()
     sd_notify(0,
               "WATCHDOG=1")  # Ping the watchdog once per check. It is set to restart the script if no notification within 70 seconds.
