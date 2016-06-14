@@ -48,7 +48,7 @@ V2.7 (2016-06-11)
 
 V2.8 (2016-06-13)
 - Updated how the pH and ORP probes are read.
-- Added ability to log to one or more Emoncms server, locally or remote
+- Added ability to log to one or more Emoncms servers, locally or remote
 
 <br>
 
