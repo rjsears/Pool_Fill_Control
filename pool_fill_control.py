@@ -164,12 +164,11 @@ import socket
 import subprocess
 import threading
 import time
-import sys
-import string
+
 import RPi.GPIO as GPIO  # Import GPIO Library
 import mysql.connector
-import serial
 import requests
+import serial
 from mysql.connector import errorcode
 from pushbullet import Pushbullet
 
@@ -196,7 +195,6 @@ ser = serial.Serial(
     bytesize=serial.EIGHTBITS,
     timeout=1)
 
-
 ## If we have a pH Probe installed (Atlas Scientific USB) set it up here
 if pooldb.ph_probe == "Yes":
     usbport1 = '/dev/PH'
@@ -206,8 +204,6 @@ if pooldb.ph_probe == "Yes":
 if pooldb.orp_probe == "Yes":
     usbport0 = '/dev/ORP'
     ser2 = serial.Serial(usbport0, 9600, timeout=0)
-
-
 
 ## We have a manual fill button with a built-in LED, we set it up here
 # along with the rest of our LEDs, buttons and relays.
@@ -358,6 +354,8 @@ def blink_led(pin, numTimes, speed):
         time.sleep(speed)
         GPIO.output(pin, False)
         time.sleep(speed)
+
+
 # ON/OFF
 def led_control(led, onoff):
     if onoff == "ON":
@@ -369,45 +367,47 @@ def led_control(led, onoff):
 # Let's reach out and get our current pH and ORP, once we have the values,
 # send them to one or more emoncms servers for logging.
 def get_ph_reading():
-    line =""
+    line = ""
     count = 1
     while (count < 2):
-       data = ser1.read()
-       if(data == "\r"):
-          ph_value = str(line)
-          logger.info("Current PH Reading is %s" % ph_value)
-          line = ""
-          count = count + 1
-       else:
-          line = line + data
+        data = ser1.read()
+        if (data == "\r"):
+            ph_value = str(line)
+            logger.info("Current PH Reading is %s" % ph_value)
+            line = ""
+            count = count + 1
+        else:
+            line = line + data
     if pooldb.emoncms_server1 == "Yes":
-         res = requests.get("http://"+pooldb.server1+"/"+pooldb.emoncmspath1+"/input/post.json?&node="+str(pooldb.ph_node)+"&csv="+ph_value+"&apikey="+pooldb.apikey1)
-         logger.debug("Sent current PH Value: %s to Emoncms Server 1", ph_value)
+        res = requests.get("http://" + pooldb.server1 + "/" + pooldb.emoncmspath1 + "/input/post.json?&node=" + str(
+            pooldb.ph_node) + "&csv=" + ph_value + "&apikey=" + pooldb.apikey1)
+        logger.debug("Sent current PH Value: %s to Emoncms Server 1", ph_value)
     if pooldb.emoncms_server2 == "Yes":
-         res = requests.get("http://"+pooldb.server2+"/"+pooldb.emoncmspath2+"/input/post.json?&node="+str(pooldb.ph_node)+"&csv="+ph_value+"&apikey="+pooldb.apikey2)
-         logger.debug("Sent current PH Value: %s to Emoncms Server 2", ph_value)
+        res = requests.get("http://" + pooldb.server2 + "/" + pooldb.emoncmspath2 + "/input/post.json?&node=" + str(
+            pooldb.ph_node) + "&csv=" + ph_value + "&apikey=" + pooldb.apikey2)
+        logger.debug("Sent current PH Value: %s to Emoncms Server 2", ph_value)
 
 
 def get_orp_reading():
     line = ""
     count = 1
     while (count < 2):
-       data = ser2.read()
-       if(data == "\r"):
-          orp_value = str(line)
-          logger.info("Current ORP Reading is %s" % orp_value)
-          line = ""
-          count = count + 1
-       else:
-          line = line + data
+        data = ser2.read()
+        if (data == "\r"):
+            orp_value = str(line)
+            logger.info("Current ORP Reading is %s" % orp_value)
+            line = ""
+            count = count + 1
+        else:
+            line = line + data
     if pooldb.emoncms_server1 == "Yes":
-         res = requests.get("http://"+pooldb.server1+"/"+pooldb.emoncmspath1+"/input/post.json?&node="+str(pooldb.orp_node)+"&csv="+orp_value+"&apikey="+pooldb.apikey1)
-         logger.debug("Sent current ORP Value: %s to Emoncms Server 1", orp_value)
+        res = requests.get("http://" + pooldb.server1 + "/" + pooldb.emoncmspath1 + "/input/post.json?&node=" + str(
+            pooldb.orp_node) + "&csv=" + orp_value + "&apikey=" + pooldb.apikey1)
+        logger.debug("Sent current ORP Value: %s to Emoncms Server 1", orp_value)
     if pooldb.emoncms_server2 == "Yes":
-         res = requests.get("http://"+pooldb.server2+"/"+pooldb.emoncmspath2+"/input/post.json?&node="+str(pooldb.orp_node)+"&csv="+orp_value+"&apikey="+pooldb.apikey2)
-         logger.debug("Sent current ORP Value: %s to Emoncms Server 2", orp_value)
-
-
+        res = requests.get("http://" + pooldb.server2 + "/" + pooldb.emoncmspath2 + "/input/post.json?&node=" + str(
+            pooldb.orp_node) + "&csv=" + orp_value + "&apikey=" + pooldb.apikey2)
+        logger.debug("Sent current ORP Value: %s to Emoncms Server 2", orp_value)
 
 
 # This is where we set up our notifications. I use Pushbullet which is free and very powerful. Visit http://www.pushbullet.com for a free account.
