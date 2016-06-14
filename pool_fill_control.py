@@ -4,7 +4,7 @@
 # Swimming Pool Fill Control Script for a Raspberry Pi 3
 #
 __author__ = 'Richard J. Sears'
-VERSION = "V2.7 (2016-06-11)"
+VERSION = "V2.8 (2016-06-13)"
 # richard@sears.net
 ##############################################################
 #
@@ -136,6 +136,10 @@ VERSION = "V2.7 (2016-06-11)"
 # currently just log it (logger.info). Evnetually I will write this
 # information to my emoncms system. For me, this is just a matter of
 # tracking it as I own an Autopilot system that controls my pH and ORP.
+#
+# V2.8 (2016-06-13)
+# - Changed the way that I read pH and ORP. Also writes the pH and ORP
+#   values to my two emoncms servers (one local and one remote)
 ##############################################################
 
 
@@ -144,7 +148,7 @@ VERSION = "V2.7 (2016-06-11)"
 ## flood your yard by using an automatic fill routine. THERE IS NO WARRANTY, use this script
 ## at your own risk!
 
-RUN_AS_DAEMON = True  # Watchdog setup
+RUN_AS_DAEMON = True  # Watchdog setup - set to False to run from the command line for debugging.
 sock_rpt = True  # Used to report only the first socket message
 
 # Requires:
@@ -160,10 +164,12 @@ import socket
 import subprocess
 import threading
 import time
-
+import sys
+import string
 import RPi.GPIO as GPIO  # Import GPIO Library
 import mysql.connector
 import serial
+import requests
 from mysql.connector import errorcode
 from pushbullet import Pushbullet
 
@@ -190,11 +196,18 @@ ser = serial.Serial(
     bytesize=serial.EIGHTBITS,
     timeout=1)
 
-usbport1 = '/dev/PH'
-ser1 = serial.Serial(usbport1, 9600, timeout=0)
 
-usbport0 = '/dev/ORP'
-ser2 = serial.Serial(usbport0, 9600, timeout=0)
+## If we have a pH Probe installed (Atlas Scientific USB) set it up here
+if pooldb.ph_probe == "Yes":
+    usbport1 = '/dev/PH'
+    ser1 = serial.Serial(usbport1, 9600, timeout=0)
+
+## If we have an ORP Probe installed (Atlas Scientific USB) set it up here
+if pooldb.orp_probe == "Yes":
+    usbport0 = '/dev/ORP'
+    ser2 = serial.Serial(usbport0, 9600, timeout=0)
+
+
 
 ## We have a manual fill button with a built-in LED, we set it up here
 # along with the rest of our LEDs, buttons and relays.
@@ -337,8 +350,7 @@ def sd_notify(unset_environment, s_cmd):
     return 0  # so we can test the return value for a successful execution
 
 
-## LED Management
-
+## Let's make LED Management a little easier!
 # Blinking
 def blink_led(pin, numTimes, speed):
     for i in range(0, numTimes):
@@ -346,8 +358,6 @@ def blink_led(pin, numTimes, speed):
         time.sleep(speed)
         GPIO.output(pin, False)
         time.sleep(speed)
-
-
 # ON/OFF
 def led_control(led, onoff):
     if onoff == "ON":
@@ -356,19 +366,27 @@ def led_control(led, onoff):
         GPIO.output(led, False)
 
 
-# Let's reach out and get our current pH and ORP
+# Let's reach out and get our current pH and ORP, once we have the values,
+# send them to one or more emoncms servers for logging.
 def get_ph_reading():
-    line ="" 
+    line =""
     count = 1
     while (count < 2):
        data = ser1.read()
        if(data == "\r"):
-          ph_value = float(line)
+          ph_value = str(line)
           logger.info("Current PH Reading is %s" % ph_value)
           line = ""
           count = count + 1
        else:
           line = line + data
+    if pooldb.emoncms_server1 == "Yes":
+         res = requests.get("http://"+pooldb.server1+"/"+pooldb.emoncmspath1+"/input/post.json?&node="+str(pooldb.ph_node)+"&csv="+ph_value+"&apikey="+pooldb.apikey1)
+         logger.debug("Sent current PH Value: %s to Emoncms Server 1", ph_value)
+    if pooldb.emoncms_server2 == "Yes":
+         res = requests.get("http://"+pooldb.server2+"/"+pooldb.emoncmspath2+"/input/post.json?&node="+str(pooldb.ph_node)+"&csv="+ph_value+"&apikey="+pooldb.apikey2)
+         logger.debug("Sent current PH Value: %s to Emoncms Server 2", ph_value)
+
 
 def get_orp_reading():
     line = ""
@@ -376,12 +394,20 @@ def get_orp_reading():
     while (count < 2):
        data = ser2.read()
        if(data == "\r"):
-          orp_value = float(line)
+          orp_value = str(line)
           logger.info("Current ORP Reading is %s" % orp_value)
           line = ""
           count = count + 1
        else:
           line = line + data
+    if pooldb.emoncms_server1 == "Yes":
+         res = requests.get("http://"+pooldb.server1+"/"+pooldb.emoncmspath1+"/input/post.json?&node="+str(pooldb.orp_node)+"&csv="+orp_value+"&apikey="+pooldb.apikey1)
+         logger.debug("Sent current ORP Value: %s to Emoncms Server 1", orp_value)
+    if pooldb.emoncms_server2 == "Yes":
+         res = requests.get("http://"+pooldb.server2+"/"+pooldb.emoncmspath2+"/input/post.json?&node="+str(pooldb.orp_node)+"&csv="+orp_value+"&apikey="+pooldb.apikey2)
+         logger.debug("Sent current ORP Value: %s to Emoncms Server 2", orp_value)
+
+
 
 
 # This is where we set up our notifications. I use Pushbullet which is free and very powerful. Visit http://www.pushbullet.com for a free account.
@@ -606,8 +632,10 @@ def pool_level():
     global max_run_time_exceeded
     global sprinkler_status
     global pool_fill_valve_disabled
-    get_ph_reading()
-    get_orp_reading()
+    if pooldb.ph_probe == "Yes":
+        get_ph_reading()
+    if pooldb.orp_probe == "Yes":
+        get_orp_reading()
     sprinkler_status = get_sprinkler_status()
     sd_notify(0,
               "WATCHDOG=1")  # Ping the watchdog once per check. It is set to restart the script if no notification within 70 seconds.
