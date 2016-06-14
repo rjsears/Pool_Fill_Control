@@ -43,7 +43,9 @@ V2.6 (2016-06-05)
 <br>
 V2.7 (2016-06-11)
 - Added Atlas Scientific pH and ORP probes to system. They are, for now, just logging to log file (logger.info).
+
 <br>
+
 V2.8 (2016-06-13)
 - Updated how the pH and ORP probes are read.
 - Added ability to log to one or more Emoncms server, locally or remote
