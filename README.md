@@ -1,4 +1,4 @@
-# Pool_Fill_Control V2.8
+# Pool_Fill_Control V2.9
 Raspberry Pi / Arduino / Python Project to automate filling of swimming pool.
 
 
@@ -52,6 +52,14 @@ V2.8 (2016-06-13)
 
 <br>
 
+V2.9 (2016-06-18)
+- Eliminated alerting.py file, added contents to pooldb.py file.
+- Added a lot of DEBUG printing to STDOUT if DEBUG == 1 is set. 
+- Moved pool_level and pump_running_watts table defs to pooldb.py
+  so that you do not have to modify table definitions in main script.
+- Added in temperature compensation function for pH readings if you
+  have a pool water temp probe. Configuration is done in pooldb.py
+ 
 
 Based on the following hardware:
 
@@ -59,4 +67,5 @@ Raspberry Pi 3<br>
 LowPowerLabs MightyHat (http://lowpowerlab.com/mightyhat)<br>
 eTape Resistive Liquid Measuring tape (http://www.milonetech.com)<br>
 OpenEnergyMonitor emonTH & emonPi (http://www.openenergymonitor.org)
+Atlas Scientific USB based pH and ORP probes (http://www.atlas-scientific.com)
 
