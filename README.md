@@ -65,9 +65,9 @@ V2.9 (2016-06-18)
 
 Based on the following hardware:
 
-Raspberry Pi 3<br>
-LowPowerLabs MightyHat (http://lowpowerlab.com/mightyhat)<br>
-eTape Resistive Liquid Measuring tape (http://www.milonetech.com)<br>
-OpenEnergyMonitor emonTH & emonPi (http://www.openenergymonitor.org)
-Atlas Scientific USB based pH and ORP probes (http://www.atlas-scientific.com)
+-Raspberry Pi 3<br>
+-LowPowerLabs MightyHat (http://lowpowerlab.com/mightyhat)<br>
+-eTape Resistive Liquid Measuring tape (http://www.milonetech.com)<br>
+-OpenEnergyMonitor emonTH & emonPi (http://www.openenergymonitor.org)<br>
+-Atlas Scientific USB based pH and ORP probes (http://www.atlas-scientific.com)
 
