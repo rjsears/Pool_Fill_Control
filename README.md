@@ -3,7 +3,7 @@ Raspberry Pi / Arduino / Python Project to automate filling of swimming pool.
 
 
 
-System designed by me to automatically fill my pool when a liquid level sensor determines the pool is below a preset level. The pool is filled by opening a sprinkler valve and then monitoring the liquid level sensor until the pool is full, or a pre-set time has been reached.
+System designed by me to automatically fill my pool when a liquid level sensor determines the pool is below a preset level. The pool is filled by opening a sprinkler valve and then monitoring the liquid level sensor until the pool is full, or a pre-set time has been reached. Also tracks and logs pool water temp, pH, ORP and filter water pressure.
 
 The pool can be filled automatically, or it can be filled by pressing a manual fill button.  A cutout switch on the system prevents the relay from opening the sprinkler valve in the event there is a problem with the system. 
 
