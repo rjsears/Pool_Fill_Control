@@ -7,7 +7,7 @@ System designed by me to automatically fill my pool when a liquid level sensor d
 
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/master/pictures/screen%202016-05-30%20at%201.52.40%20PM.jpg?raw=true)
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/master/pictures/PFC_internal.jpg?raw=true)
-
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/master/pictures/PFC_external.jpg?raw=true)
 
 
 
