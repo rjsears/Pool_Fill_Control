@@ -1,4 +1,4 @@
-# Pool_Fill_Control V2.9
+# Pool_Fill_Control V3.0
 Raspberry Pi / Arduino / Python Project to automate filling of swimming pool.
 
 
@@ -66,6 +66,13 @@ V2.9 (2016-06-18)
   so that you do not have to modify table definitions in main script.
 - Added in temperature compensation function for pH readings if you
   have a pool water temp probe. Configuration is done in pooldb.py
+
+<br>
+
+V3.0 (2016-09-04)
+- Added additional relay to control sprinkler transformer so it is not running 24x7.
+- Added new function to control both relays. 
+- Added addition debug and logging messages.
  
 
 Based on the following hardware:
