@@ -1,6 +1,6 @@
 #!/bin/sh
 
-## v2.4
+## v2.5
 
 ## Part of pool_fill_control project
 
@@ -16,8 +16,13 @@
 ## This is also called on script shutdown by /etc/init.d/pool_fill_control
 
 
-/usr/local/bin/gpio -g write 17 1      	# Initially set the sprinkler relay to closed
+/usr/local/bin/gpio -g write 17 1      	# Initially set the sprinkler relay to open
 /usr/local/bin/gpio -g mode 17 output  	# Pool Fill Valve Relay
+
+/usr/local/bin/gpio -g write 26 1      	# Initially set the sprinkler transformer relay to open
+/usr/local/bin/gpio -g mode 26 output  	# Pool Fill Valve Transformer 
+
+
 
 # Setup the GPIO pins that we are going to use:
 /usr/local/bin/gpio -g mode 2 input	# Manual Fill Switch

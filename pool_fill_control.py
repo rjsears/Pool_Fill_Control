@@ -2,14 +2,14 @@
 # Set DEBUG = 1 to run this from the command line. It will bypass the watchdog support
 # and enable all debug printing to STDOUT.
 
-DEBUG = 1
+DEBUG = 0
 
 # pool_fill_control.py
 ##############################################################
 # Swimming Pool Fill Control Script for a Raspberry Pi 3
 #
 __author__ = 'Richard J. Sears'
-VERSION = "V2.9 (2016-06-18)"
+VERSION = "V3.0 (2016-09-04)"
 # richard@sears.net
 ##############################################################
 #
@@ -154,6 +154,13 @@ VERSION = "V2.9 (2016-06-18)"
 #   so that you do not have to modify table definitions in main script.
 # - Added in temperature compensation function for pH readings if you
 #   have a pool water temp probe. Configuration is done in pooldb.py
+#
+# V3.0 (2016-09-04)
+# - Added a second relay to control the sprinkler transformer power
+#   so that the transformer is not powered up all of the time but is
+#   only powered up when we need to fill the pool.
+# - Added a new function to control both of the relays at once.
+# - Added additional debugging and logging.
 ##############################################################
 
 
@@ -203,6 +210,7 @@ logger.filemode = 'a'
 MANUAL_FILL_BUTTON = 2  # Our Button is connected to GPIO 2 (Physical Pin 3) Builtin Resistor
 MANUAL_FILL_BUTTON_LED = 11  # The LED in the button is connected to GPIO 11 (Physical Pin 23)
 POOL_FILL_RELAY = 17  # Our relay for the sprinkler valve is on GPIO 17 (Physical Pin 11)
+POOL_FILL_TRANSFORMER_RELAY = 26 # Relay that controls power to the transformer that operates the sprinkler valve (Physical Pin 19)
 SPRINKLER_RUN_LED = 5
 PUMP_RUN_LED = 13
 SYSTEM_RUN_LED = 21
@@ -274,6 +282,9 @@ def init():
         ## Setup our GPIO Pins
         GPIO.setup(POOL_FILL_RELAY, GPIO.OUT)
         GPIO.output(POOL_FILL_RELAY, True)  # Set inital state of our relay to off
+	GPIO.setup(POOL_FILL_TRANSFORMER_RELAY, GPIO.OUT)
+	GPIO.output(POOL_FILL_TRANSFORMER_RELAY, True) # Set initila state of our relay to off
+
         GPIO.setup(MANUAL_FILL_BUTTON,
                    GPIO.IN)  # Make button an input,  since we are using GPIO 2, it has pull up resistor already
         GPIO.setup(MANUAL_FILL_BUTTON_LED, GPIO.OUT)  # Make LED  an Output
@@ -288,7 +299,7 @@ def init():
         GPIO.output(SYSTEM_ERROR_LED, False)
         GPIO.setup(POOL_FILLING_LED, GPIO.OUT)
         GPIO.output(POOL_FILLING_LED, False)
-        GPIO.setup(POOL_FILL_VALVE_DISABLED, GPIO.IN)
+        GPIO.setup(POOL_FILL_VALVE_DISABLED, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(POOL_FILL_VALVE_DISABLED_LED, GPIO.OUT)
         GPIO.output(POOL_FILL_VALVE_DISABLED_LED, False)
 
@@ -405,13 +416,36 @@ def blink_led(pin, numTimes, speed):
         time.sleep(speed)
 
 
-# ON/OFF
+# LED Control - ON/OFF
 def led_control(led, onoff):
     if onoff == "ON":
         GPIO.output(led, True)
     elif onoff == "OFF":
         GPIO.output(led, False)
 
+
+# Pool_Fill_Valve controls pool sprinkler relay as well as pool sprinkler transformer relay.
+def pool_fill_valve(openclose):
+    if openclose  == "OPEN":
+         logger.info('pool_fill_valve called with OPEN command')
+         GPIO.output(POOL_FILL_TRANSFORMER_RELAY, False) # Turns on the Sprinkler Transformer
+         if DEBUG == 1:
+             print("pool_fill_valve called with OPEN command")
+             print("POOL_FILL_TRANSFORMER_RELAY is now powered and pool transformer is now ACTIVE")
+         GPIO.output(POOL_FILL_RELAY, False)  # Turns on the sprinkler valve 
+         if DEBUG == 1:
+             print("POOL_FILL_RELAY is now powered and sprinkler valve solenoid is powered")
+             print("Both relays should now be active and Sprinkler valve should be open and water should be running")
+    elif openclose == "CLOSE":
+         logger.info('pool_fill_valve called with CLOSE command')
+         GPIO.output(POOL_FILL_RELAY, True)  # Turns off the sprinkler valve 
+         if DEBUG == 1:
+             print("pool_fill_valve called with CLOSE command")
+             print("POOL_FILL_RELAY is now powered OFF and sprinkler valve solenoid is no longer powered")
+         GPIO.output(POOL_FILL_TRANSFORMER_RELAY, True) # Turns off the Sprinkler Transformer
+         if DEBUG == 1:
+             print("POOL_FILL_TRANSFORMER_RELAY is now powered off and pool transformer is now OFF")
+             print("Both relays should no longer be active. Sprinkler valve and transformer are now off.")
 
 
 # Let's reach out and get our current pH and ORP, once we have the values,
@@ -640,7 +674,7 @@ def pfv_disabled():
         if pooldb.MightyHat == "True":
             ser.write('PFC_MANUALLY_DISABLED')
     if DEBUG == 1:
-        print("Completed pfv_disabled().")
+        print("Completed pfv_disabled() function")
 
 def get_sprinkler_status():
     # I use this to keep the pool from filling while my sprinklers are running. You could also use this as a means of
@@ -678,9 +712,6 @@ def get_sprinkler_status():
 
         return sprinklers_on
 
-    if DEBUG == 1:
-        print("Completed get_sprinkler_status()")
-
     else:
         if DEBUG == 1:
             print("subprocess call for sprinklers called.")
@@ -712,12 +743,12 @@ def get_sprinkler_status():
 # This turns the sprinkler valve on or off when called
 def fill_pool_auto(fill_now):
     if DEBUG == 1:
-        print("Starting fill_pool_auto()")
+        print("Starting fill_pool_auto() function")
     global pool_is_filling
     global current_run_time
     if fill_now == "START":
-        GPIO.output(POOL_FILL_RELAY, False)  # Turns on the sprinkler valve
         pool_is_filling = "Auto"
+        pool_fill_valve("OPEN")
         logger.info('Pool AUTOMATIC fill started.')
         if DEBUG == 1:
             print("Pool AUTOMATIC fill started.")
@@ -733,8 +764,8 @@ def fill_pool_auto(fill_now):
         if pooldb.PoolAlerting == "True":
             send_notification('FILLING')
     elif fill_now == "STOP":
-        GPIO.output(POOL_FILL_RELAY, True)  # Shuts off the sprinkler valve
         pool_is_filling = "No"
+        pool_fill_valve("CLOSE")
         logger.info('Pool AUTOMATIC fill completed.')
         if DEBUG == 1:
             print("Pool AUTOMATIC fill completed.")
@@ -751,8 +782,8 @@ def fill_pool_auto(fill_now):
         if pooldb.PoolAlerting == "True":
             send_notification('DONE_FILLING')
     elif fill_now == "FORCE_STOP":
-        GPIO.output(POOL_FILL_RELAY, True)  # Shuts off the sprinkler valve
         pool_is_filling = "No"
+        pool_fill_valve("CLOSE")
         logger.warning('Pool AUTOMATIC fill FORCE STOPPED.')
         if DEBUG == 1:
             print("Pool AUTOMATIC fill FORCE STOPPED.")
@@ -770,8 +801,8 @@ def fill_pool_auto(fill_now):
             if DEBUG == 1:
                 print("Pool Automatic Fill Force Stopped (PFC_OVERFILL) sent to MightyHat")
     elif fill_now == "MANUAL_VALVE_DISABLED":
-        GPIO.output(POOL_FILL_RELAY, True)  # Shuts off the sprinkler valve
         pool_is_filling = "No"
+        pool_fill_valve("CLOSE")
         logger.warning('Pool AUTOMATIC fill FORCE STOPPED - Fill Valve has been manually disabled.')
         if DEBUG == 1:
             print("Pool AUTOMATIC fill FORCE STOPPED - Fill Valve has been manually disabled.")
@@ -785,33 +816,37 @@ def fill_pool_auto(fill_now):
             print("SYSTEM_ERROR_LED should be ON. This is the RED LED")
 
     if DEBUG == 1:
-        print("Completed fill_pool_auto()")
+        print("Completed fill_pool_auto() function")
 
 
 # This turns the sprinkler valve on or off when manual button is pushed.
 def fill_pool_manual(fill_now):
     if DEBUG == 1:
-        print("Started fill_pool_manual")
+        print("Started fill_pool_manual() function")
     global pool_is_filling
     global current_run_time
     global MANUAL_FILL_BUTTON_LED_ON
     if fill_now == "START":
-        GPIO.output(POOL_FILL_RELAY, False)  # Turns on the sprinkler valve
         pool_is_filling = "Manual"
-        logger.info('Pool MANUAL fill started.')
         if DEBUG == 1:
-            print("Pool MANUAL fill started.")
+            print("Manual fill control calling pool_fill_valve with OPEN command - Manual Fill Button Pushed")
+        pool_fill_valve("OPEN")
+        logger.info('Pool MANUAL fill started. pool_fill_valve = OPEN')
+        if DEBUG == 1:
+            print("Pool MANUAL fill started. pool_fill_valve = OPEN")
         if pooldb.MightyHat == "True":
             ser.write('PFC_MAN_FILL')
             logger.debug('Pool manual fill started (PFC_MAN_FILL) sent to MightyHat')
             if DEBUG == 1:
                 print("Pool manual fill started (PFC_MAN_FILL) sent to MightyHat")
     elif fill_now == "STOP":
-        GPIO.output(POOL_FILL_RELAY, True)  # Shuts off the sprinkler valve
         pool_is_filling = "No"
-        logger.info('Pool MANUAL fill completed.')
         if DEBUG == 1:
-            print("Pool MANUAL fill completed.")
+            print("Manual fill control calling pool_fill_valve with CLOSE command - Manual Fill Button Pushed")
+        pool_fill_valve("CLOSE")
+        logger.info('Pool MANUAL fill completed. pool_fill_valve = CLOSE')
+        if DEBUG == 1:
+            print("Pool MANUAL fill completed. pool_fill_valve = CLOSE")
         current_run_time = 0
         if pooldb.MightyHat == "True":
             ser.write('PFC_FILL_DONE')
@@ -819,8 +854,10 @@ def fill_pool_manual(fill_now):
             if DEBUG == 1:
                 print("Pool Fill Complete (PFC_FILL_DONE) sent to MightyHat")
     elif fill_now == "MANUAL_VALVE_DISABLED":
-        GPIO.output(POOL_FILL_RELAY, True)  # Shuts off the sprinkler valve
         pool_is_filling = "No"
+        if DEBUG == 1:
+            print("Manual fill control calling pool_fill_valve with CLOSE command - Manual Valve Disabled")
+        pool_fill_valve("CLOSE")
         led_control(MANUAL_FILL_BUTTON_LED, "OFF")
         MANUAL_FILL_BUTTON_LED_ON = False
         logger.warning('Pool MANUAL fill FORCE STOPPED - Fill Valve has been manually disabled.')
@@ -836,7 +873,7 @@ def fill_pool_manual(fill_now):
             print("SYSTEM_ERROR_LED should be ON. This is the RED LED")
 
     if DEBUG == 1:
-        print("Completed fill_pool_manual()")
+        print("Completed fill_pool_manual() function")
 
 # Called from the fill_pool() routine and keeps track of how many times we have checked the pool level. 
 # We can then decide what to do if it is taking too long to fill the pool (or the sensor node died before
@@ -997,7 +1034,7 @@ def pool_level():
 # This manages our manaul fill pushbutton
 def manual_fill_pool(button):
     if DEBUG == 1:
-        print ("Starting manual_fill_pool")
+        print ("Starting manual_fill_pool() function")
     global pool_pump_running_watts
     global pool_is_filling
     global sprinkler_status
@@ -1043,13 +1080,17 @@ def manual_fill_pool(button):
             logger.info("Manual fill attempted with pool valve manually disabled.")
             if DEBUG == 1:
                 print("Manual fill attempted with pool valve manually disabled.")
+        else:
+            logger.info("Unspecified Manual Fill Error")
+            if DEBUG == 1:
+                print("Unspecified Manual Fill Error")
     if DEBUG == 1:
-        print("Completed manual_fill_pool()")
+        print("Completed manual_fill_pool() function")
 
 
 def is_pool_fill_valve_disabled(channel):
     if DEBUG == 1:
-        print("Starting is_pool_fill_valve_disabled()")
+        print("Starting is_pool_fill_valve_disabled() function")
     global pool_fill_valve_disabled
     global pool_is_filling
     pool_fill_valve_disabled = GPIO.input(POOL_FILL_VALVE_DISABLED)
@@ -1093,7 +1134,7 @@ def is_pool_fill_valve_disabled(channel):
         pool_level()
 
     if DEBUG == 1:
-        print("Completed is_pool_fill_valve_disabled()")
+        print("Completed is_pool_fill_valve_disabled() function")
 
 
 
