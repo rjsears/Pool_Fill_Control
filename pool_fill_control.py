@@ -1344,8 +1344,9 @@ def manual_fill_pool(button):
     global sprinkler_status
     global MANUAL_FILL_BUTTON_LED_ON
     global pool_fill_valve_disabled
+    pool_pump_running = is_pool_pump_running()
     if all([MANUAL_FILL_BUTTON_LED_ON == False, pool_is_filling == "No",
-            pool_pump_running_watts <= pooldb.max_wattage, sprinkler_status == "No",
+            pool_pump_running == "No", sprinkler_status == "No",
             pool_fill_valve_disabled == False]):
         GPIO.output(MANUAL_FILL_BUTTON_LED, True)
         MANUAL_FILL_BUTTON_LED_ON = True
@@ -1372,7 +1373,7 @@ def manual_fill_pool(button):
             logger.info("Manual fill attempted while sprinklers were running.")
             if DEBUG == 1:
                 print("Manual fill attempted while sprinklers were running.")
-        elif pool_pump_running_watts >= pooldb.max_wattage:
+        elif pool_pump_running == "Yes":
             logger.info("Manual fill attempted while pool pump was running.")
             if DEBUG == 1:
                 print("Manual fill attempted while pool pump was running.")
