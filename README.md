@@ -1,4 +1,4 @@
-# Pool_Fill_Control V3.0
+# Pool_Fill_Control V3.1
 Raspberry Pi / Arduino / Python Project to automate filling of swimming pool.
 
 
@@ -73,6 +73,30 @@ V3.0 (2016-09-04)
 - Added additional relay to control sprinkler transformer so it is not running 24x7.
 - Added new function to control both relays. 
 - Added addition debug and logging messages.
+
+V3.1 (2016-10-08)
+- Added new sensor checking function to check that our temp and
+  pool level sensors are responding as required and included
+  notifications if they exceed a certain number of timeouts
+  or their battery voltage drops too low. Also updated pool
+  fill to stop automatically if we lose communication with 
+  with our pool level sensor.
+
+- Updated pool_fill() to include calls to differnt functions
+  to streamline that particular function. Also cuts down on
+  a couple of global variables. Need to continue to clean
+  this up as I go through and optimize the code. 
+
+- Changed the way we get the pool level. We used to have a 0
+  or a 1 programmed to be sent directly from the sensor. We
+  would then make a decision to fill the pool based on the 
+  reading from the sensor. Now I output the actual resistance
+  from the sensor to the database and using these values we 
+  can change the level of when we want to fill the pool 
+  within pooldb.py instead of having to physically reflash
+  the pool_level arduino sensor.
+
+
  
 
 Based on the following hardware:
