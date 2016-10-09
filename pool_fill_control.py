@@ -2,14 +2,14 @@
 # Set DEBUG = 1 to run this from the command line. It will bypass the watchdog support
 # and enable all debug printing to STDOUT.
 
-DEBUG = 0
+DEBUG = 1
 
 # pool_fill_control.py
 ##############################################################
 # Swimming Pool Fill Control Script for a Raspberry Pi 3
 #
 __author__ = 'Richard J. Sears'
-VERSION = "V3.0 (2016-09-04)"
+VERSION = "V3.1 (2016-10-08)"
 # richard@sears.net
 ##############################################################
 #
@@ -161,13 +161,34 @@ VERSION = "V3.0 (2016-09-04)"
 #   only powered up when we need to fill the pool.
 # - Added a new function to control both of the relays at once.
 # - Added additional debugging and logging.
+#
+# V3.1 (2016-10-08)
+# - Added new sensor checking function to check that our temp and
+#   pool level sensors are responding as required and included
+#   notifications if they exceed a certain number of timeouts
+#   or their battery voltage drops too low. Also updated pool
+#   fill to stop automatically if we lose communication with 
+#   with our pool level sensor.
+#
+# - Updated pool_fill() to include calls to differnt functions
+#   to streamline that particular function. Also cuts down on
+#   a couple of global variables. Need to continue to clean
+#   this up as I go through and optimize the code. 
+#
+# - Changed the way we get the pool level. We used to have a 0
+#   or a 1 programmed to be sent directly from the sensor. We
+#   would then make a decision to fill the pool based on the 
+#   reading from the sensor. Now I output the actual resistance
+#   from the sensor to the database and using these values we 
+#   can change the level of when we want to fill the pool 
+#   within pooldb.py instead of having to physically reflash
+#   the pool_level arduino sensor.
 ##############################################################
 
 
 ## This is a hobby for me. I am not a programmer and it is quite possible that you could
 ## flood your yard by using an automatic fill routine. THERE IS NO WARRANTY, use this script
 ## at your own risk!
-
 
 
 # Requires:
@@ -203,6 +224,58 @@ hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
 logger.setLevel(logging.DEBUG)
 logger.filemode = 'a'
+
+
+## Setup and initially set some global variables
+global current_run_time
+current_run_time = 0
+
+global pool_is_filling
+pool_is_filling = "No"
+
+global max_run_time_exceeded
+max_run_time_exceeded = "No"
+
+global alertsent
+alertsent = "No"
+
+global overfill_alert_sent
+overfill_alert_sent = "No"
+
+global pool_pump_running_watts
+pool_pump_running_watts = 0
+
+global sprinkler_status
+
+global pool_fill_valve_disabled
+
+global pool_fill_valve_alert_sent
+pool_fill_valve_alert_sent = "No"
+
+global MANUAL_FILL_BUTTON_LED_ON
+MANUAL_FILL_BUTTON_LED_ON = False
+
+global pool_level_sensor_alert_sent
+pool_level_sensor_alert_sent = "No"
+
+global pool_level_sensor_batt_low_alert_sent
+pool_level_sensor_batt_low_alert_sent = "No"
+
+global pool_temp_sensor_alert_sent
+pool_temp_sensor_alert_sent = "No"
+
+global pool_temp_sensor_batt_low_alert_sent
+pool_temp_sensor_batt_low_alert_sent = "No"
+
+global max_pool_level_sensor_timeouts_exceeded
+max_pool_level_sensor_timeouts_exceeded = "No"
+
+global pool_level_sensor_timeout_alert_sent
+pool_level_sensor_timeout_alert_sent = "No"
+
+global current_pool_level_sensor_timeouts
+current_pool_level_sensor_timeouts = 0
+
 
 
 ## We have a manual fill button with a built-in LED, we set it up here
@@ -254,25 +327,7 @@ def init():
     # use half the time-out value in seconds for the watchdog ping routine to
     # account for Linux housekeeping chores
     wd_ping = wd_usec / 1000000 / 2
-    ## Setup and initially set some global variables
-    global current_run_time
-    current_run_time = 0
-    global pool_is_filling
-    pool_is_filling = "No"
-    global max_run_time_exceeded
-    max_run_time_exceeded = "No"
-    global alertsent
-    alertsent = "No"
-    global overfill_alert_sent
-    overfill_alert_sent = "No"
-    global pool_pump_running_watts
-    pool_pump_running_watts = 0
-    global sprinkler_status
-    global pool_fill_valve_disabled
-    global pool_fill_valve_alert_sent
-    pool_fill_valve_alert_sent = "No"
-    global MANUAL_FILL_BUTTON_LED_ON
-    MANUAL_FILL_BUTTON_LED_ON = False
+    
 
     try:
         ## Set up all of our GPIO Stuff here
@@ -299,13 +354,13 @@ def init():
         GPIO.output(SYSTEM_ERROR_LED, False)
         GPIO.setup(POOL_FILLING_LED, GPIO.OUT)
         GPIO.output(POOL_FILLING_LED, False)
-        GPIO.setup(POOL_FILL_VALVE_DISABLED, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(POOL_FILL_VALVE_DISABLED, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(POOL_FILL_VALVE_DISABLED_LED, GPIO.OUT)
         GPIO.output(POOL_FILL_VALVE_DISABLED_LED, False)
 
         # Setup our event detection for our manual fill button as well as our fill valve disable switch
         GPIO.add_event_detect(MANUAL_FILL_BUTTON, GPIO.RISING, callback=manual_fill_pool, bouncetime=1500)
-        GPIO.add_event_detect(POOL_FILL_VALVE_DISABLED, GPIO.BOTH, callback=is_pool_fill_valve_disabled, bouncetime=500)
+        #GPIO.add_event_detect(POOL_FILL_VALVE_DISABLED, GPIO.BOTH, callback=is_pool_fill_valve_disabled, bouncetime=500)
 
         # notify systemd that we've finished the initialization
         retval = sd_notify(0, "READY=1")
@@ -448,6 +503,187 @@ def pool_fill_valve(openclose):
              print("Both relays should no longer be active. Sprinkler valve and transformer are now off.")
 
 
+
+# Here is where we check to see if our pool level sensor and pool temperature sensors are working correctly
+# and their batteries are ok. We also track how many times ther sensors time out.
+
+def max_pool_level_sensor_timeouts():
+    if DEBUG == 1:
+        print("Starting max_pool_level_sensor_timeouts()")
+    global max_pool_level_sensor_timeouts_exceeded
+    global current_pool_level_sensor_timeouts
+    global pool_level_sensor_timeout_alert_sent
+    current_pool_level_sensor_timeouts += 1
+    logger.debug('Current pool level sensor timeouts are %s', current_pool_level_sensor_timeouts)
+    if DEBUG == 1:
+        print("Current pool level sensor timeouts are %s" % current_pool_level_sensor_timeouts)
+
+    if current_pool_level_sensor_timeouts >= pooldb.max_pool_level_sensor_timeouts:
+        logger.error('Pool Level Sensor Timeouts exceeded! Check for errors and restart program')
+        if DEBUG == 1:
+            print("Pool Level Sensor Timeouts exceeded! Check for errors and restart program")
+        max_pool_level_sensor_timeouts_exceeded = "Yes"
+        if pooldb.PoolAlerting == "True":
+            send_notification('POOL_LEVEL_SENSOR_MAX_TIMEOUTS')
+            if DEBUG == 1:
+                print("POOL_LEVEL_SENSOR_MAX_TIMEOUTS Notifications Sent")
+            pool_level_sensor_timeout_alert_sent = "Yes"
+    if DEBUG == 1:
+        print("Completed max_pool_level_sensor_timeouts()")
+
+
+
+## This system relys on various sensors external to the RPi where this program runs. These sensors are
+## important to the proper operation of this script. Currently the two sensors that are checked are the
+## pool temperature (needed for accurace pH measurements) and the pool level which is required to monitor
+## the water level. Since we start filling the pool when the pool level sensor says we are low, and then 
+## we stop filling the pool when it says we are OK, it is important that this sensor is active. We check
+## when the last time we have seen the sensor as well as it's battery level. If we lose communication with
+## the sensor for three cycles, we deem it offline and immediately stop filling the pool as well as send
+## an alert if you have pool alerting turned on. If the batteries are getting low in either sensor, we
+## also send a notification.  
+
+def check_pool_sensors():
+    current_timestamp = int(time.time())
+    logger.info('check_pool_sensors Current unix datetime stamp is: %s' % current_timestamp)
+    if DEBUG == 1:
+        print ("Current unix datetime stamp is: %s" % current_timestamp)
+
+    try:
+        cnx = mysql.connector.connect(user=pooldb.username, password=pooldb.password, host=pooldb.servername,
+                                          database=pooldb.emoncms_db)
+    except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                logger.error('Database connection failure: Check your username and password')
+                if DEBUG == 1:
+                    print("Database connection failure: Check your username and password")
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                logger.error('Database does not exist. Please check your settings.')
+                if DEBUG == 1:
+                    print("Database does not exist. Please check your settings.")
+            else:
+                logger.error('Unknown database error, please check all of your settings.')
+                if DEBUG == 1:
+                    print("Unknown database error, please check all of your settings.")
+    else:
+            cursor = cnx.cursor(buffered=True)
+            cursor.execute(("SELECT time FROM `%s` ORDER by time DESC LIMIT 1") % (pooldb.pool_level_table))
+
+            for (data) in cursor:
+                get_pool_level_sensor_time = int("%1.0f" % data)
+                cursor.close()
+                if DEBUG == 1:
+                    print("Pool LEVEL sensor last updated at: %s" % get_pool_level_sensor_time)
+
+            cursor = cnx.cursor(buffered=True)
+            cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (pooldb.pool_level_sensor_battery_table))
+
+            for (data) in cursor:
+                get_pool_level_sensor_battery_voltage = float("%1.2f" % data)
+                cursor.close()
+                if DEBUG ==1:
+                    print("Pool LEVEL sensor battery voltage is: %s" % get_pool_level_sensor_battery_voltage)
+
+            cursor = cnx.cursor(buffered=True)
+            cursor.execute(("SELECT time FROM `%s` ORDER by time DESC LIMIT 1") % (pooldb.pool_temp_table))
+
+            for (data) in cursor:
+                get_pool_temp_sensor_time = int("%1.0f" % data)
+                cursor.close()
+                if DEBUG == 1:
+                    print("Pool TEMP sensor last updated at: %s" % get_pool_temp_sensor_time)
+
+            cursor = cnx.cursor(buffered=True)
+            cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (pooldb.pool_temp_sensor_battery_table))
+
+            for (data) in cursor:
+                get_pool_temp_sensor_battery_voltage = float("%1.2f" % data)
+                cursor.close()
+                if DEBUG ==1:
+                    print("Pool TEMP sensor battery voltage is: %s" % get_pool_temp_sensor_battery_voltage)
+
+    cnx.close()
+
+    pool_level_sensor_time_delta = current_timestamp - get_pool_level_sensor_time
+    pool_temp_sensor_time_delta = current_timestamp - get_pool_temp_sensor_time
+
+    if DEBUG == 1:
+        print ("Time dfference between last pool LEVEL sensor reading is: %s seconds." % pool_level_sensor_time_delta)
+        print ("Time dfference between last pool TEMP sensor reading is: %s seconds." % pool_temp_sensor_time_delta)
+
+    if pool_level_sensor_time_delta > pooldb.max_pool_level_sensor_time_delta:
+       if DEBUG ==1:
+           print ("* * * * WARNING * * * *")
+           print ("Pool LEVEL Sensor Timeout!")
+       max_pool_level_sensor_timeouts()
+    elif get_pool_level_sensor_battery_voltage < pooldb.pool_level_sensor_low_voltage:
+       if DEBUG ==1:
+           print ("* * * * WARNING * * * *")
+           print ("Pool LEVEL Sensor Battery Voltage LOW!")
+       if pooldb.PoolAlerting == "True":
+           send_notification("POOL_LEVEL_SENSOR_BATTERY_LOW")
+    elif pool_temp_sensor_time_delta > pooldb.max_pool_temp_sensor_time_delta:
+       if DEBUG ==1:
+           print ("* * * * WARNING * * * *")
+           print ("Pool TEMP Sensor Timeout!")
+    elif get_pool_temp_sensor_battery_voltage < pooldb.pool_level_sensor_low_voltage:
+       if DEBUG ==1:
+           print ("* * * * WARNING * * * *")
+           print ("Pool TEMP Sensor Battery Voltage LOW!")
+       if pooldb.PoolAlerting == "True":
+           send_notification("POOL_TEMP_SENSOR_BATTERY_LOW")
+    else:
+       if DEBUG ==1:
+           print ("Everything appears to be OK with the pool sensors!")
+
+
+## This function logs into our MySQL database gets the current resistance level for our liquid
+## water level sensor mounted in our pool. This then matches that resistence level to min and
+## max levels in pooldb.py and returns LOW or OK depending on the readings. This is called by
+## pool_level() 
+
+def get_pool_level_resistance():
+    try:
+        cnx = mysql.connector.connect(user=pooldb.username, password=pooldb.password, host=pooldb.servername,
+                                          database=pooldb.emoncms_db)
+    except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                logger.error('Database connection failure: Check your username and password')
+                if DEBUG == 1:
+                    print("Database connection failure: Check your username and password")
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                logger.error('Database does not exist. Please check your settings.')
+                if DEBUG == 1:
+                    print("Database does not exist. Please check your settings.")
+            else:
+                logger.error('Unknown database error, please check all of your settings.')
+                if DEBUG == 1:
+                    print("Unknown database error, please check all of your settings.")
+    else:   
+            cursor = cnx.cursor(buffered=True)
+            cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (pooldb.pool_resistance_table))
+
+            for (data) in cursor:
+                get_pool_resistance = int("%1.0f" % data)
+                cursor.close()
+                if DEBUG == 1:
+                    print("Pool Resistance is: %s" % get_pool_resistance)
+
+    if get_pool_resistance >= pooldb.pool_resistance_critical_level:
+        pool_level = "LOW"
+        logger.info('get_pool_resistance() returned pool_level = LOW')
+        if DEBUG == 1:
+            print ("get_pool_level_resistance() returned pool_level = LOW")
+    elif get_pool_resistance <= pooldb.pool_resistance_ok_level:
+        pool_level = "OK"
+        logger.info('get_pool_resistance() returned pool_level = OK')
+        if DEBUG == 1:
+            print ("get_pool_level_resistance() returned pool_level = OK")
+
+    return pool_level
+
+
+
 # Let's reach out and get our current pH and ORP, once we have the values,
 # send them to one or more emoncms servers for logging.
 
@@ -506,8 +742,60 @@ def get_pool_temp():
         print("Completed get_pool_temp()")    
 
 
+## This is where we check to see if our pool pump is runing
 
-# Here is where we get our pH reading if we have a probe installed. 
+def is_pool_pump_running():
+    if DEBUG == 1:
+        print("Started is_pool_pump_running()")
+    try:
+       cnx = mysql.connector.connect(user=pooldb.username, password=pooldb.password, host=pooldb.servername,
+             database=pooldb.emoncms_db)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+              logger.error('Database connection failure: Check your username and password')
+              if DEBUG == 1:
+                  print("Database connection failure: Check your username and password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+              logger.error('Database does not exist. Please check your settings.')
+              if DEBUG == 1:
+                  print("Database does not exist. Please check your settings.")
+        else:
+              logger.error('Unknown database error, please check all of your settings.')
+              if DEBUG == 1:
+                  print("Unknown database error, please check all of your settings.")
+    else:
+       cursor = cnx.cursor(buffered=True)
+       cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (pooldb.pump_running_watts_table))
+
+       for (data) in cursor:
+           pool_pump_running_watts = int("%1.0f" % data)
+           cursor.close()
+           logger.debug('pool_pump_running_watts returned %s watts in use by pump.', pool_pump_running_watts)
+           if DEBUG == 1:
+               print("pool_pump_running_watts returned %s watts in use by pump." % pool_pump_running_watts)
+
+       if pool_pump_running_watts > pooldb.max_wattage:
+             led_control(PUMP_RUN_LED, "ON")
+             is_pool_pump_running = "Yes"
+             logger.debug('PUMP_RUN_LED should be ON. This is the YELLOW LED')
+             if DEBUG == 1:
+                 print("PUMP_RUN_LED should be ON. This is the YELLOW LED")
+       else:
+             led_control(PUMP_RUN_LED, "OFF")
+             is_pool_pump_running = "No"
+             logger.debug('PUMP_RUN_LED should be OFF. This is the YELLOW LED')
+             if DEBUG == 1:
+                 print("PUMP_RUN_LED should be OFF. This is the YELLOW LED")
+
+    return is_pool_pump_running
+
+
+
+
+## Here is where we get our pH reading if we have a probe installed. 
+## TODO: Only call or update pH when pool pump is running, otherwise
+## pH will be inaccurate!
+
 def get_ph_reading():
     if DEBUG == 1:
         print("Starting get_ph_reading().")
@@ -554,6 +842,9 @@ def get_ph_reading():
 
 
 ## If we have an ORP Probe installed (Atlas Scientific USB) set it up here
+## TODO: Only call or update orp when pool pump is running, otherwise
+## orp will be inaccurate!
+
 def orp_reading_setup():
     usbport2 = '/dev/ORP'
     opr = serial.Serial(usbport2, pooldb.orp_probe_baud, timeout=0)
@@ -604,6 +895,10 @@ def send_notification(status):
     global alertsent
     global overfill_alert_sent
     global pool_fill_valve_alert_sent
+    global pool_level_sensor_alert_sent
+    global pool_level_sensor_batt_low_alert_sent
+    global pool_level_sensor_timeout_alert_sent
+    
     if status == "FILLING" and alertsent == "No":
         push = pb.push_note("Swimming Pool is Refilling Automatically",
                             "Your swimming pool water level is low and is being refilled.")
@@ -640,6 +935,31 @@ def send_notification(status):
                             "Your Pool Filling Control system has started successfully!")
         logger.debug('PushBullet Notification Sent - Pool fill control started successfully')
         pool_fill_valve_alert_sent == "No"
+    elif status == "POOL_LEVEL_SENSOR_TIMEOUT" and pool_level_sensor_alert_sent == "No":
+        push = pb.push_note("Pool Level Sensor Timeout- ALERT",
+                            "Your pool level sensor has timed out!")
+        logger.error('Pushbullet Notification Sent - Pool Level Sensor Timeout')
+        pool_level_sensor_alert_sent == "Yes"
+    elif status == "POOL_LEVEL_SENSOR_BATTERY_LOW" and pool_level_sensor_batt_low_alert_sent == "No":
+        push = pb.push_note("Pool Level Sensor Battery - ALERT",
+                            "Your pool level sensor has a low battery!")
+        logger.error('Pushbullet Notification Sent - Pool Level Sensor Timeout')
+        pool_level_sensor_batt_low_alert_sent == "Yes"
+    elif status == "POOL_TEMP_SENSOR_TIMEOUT" and pool_temp_sensor_alert_sent == "No":
+        push = pb.push_note("Pool Temp Sensor Timeout- ALERT",
+                            "Your pool temp sensor has timed out!")
+        logger.error('Pushbullet Notification Sent - Pool Temp Sensor Timeout')
+        pool_temp_sensor_alert_sent == "Yes"
+    elif status == "POOL_TEMP_SENSOR_BATTERY_LOW" and pool_temp_sensor_batt_low_alert_sent == "No":
+        push = pb.push_note("Pool Temp Sensor Battery - ALERT",
+                            "Your pool temp sensor has a low battery!")
+        logger.error('Pushbullet Notification Sent - Pool Temp Sensor Timeout')
+        pool_temp_sensor_batt_low_alert_sent == "Yes"
+    elif status == "POOL_LEVEL_SENSOR_MAX_TIMEOUTS" and pool_level_sensor_timeout_alert_sent == "No":
+        push = pb.push_note("Pool Level Sensor Maximum Timeouts - ALERT",
+                            "Your pool level sensor has timed out too many times!")
+        logger.error('Pushbullet Notification Sent - Pool Level Sensor maximim Timeouts')
+        pool_level_sensor_timeout_alert_sent == "Yes"
 
 
 def start_ok():
@@ -676,12 +996,15 @@ def pfv_disabled():
     if DEBUG == 1:
         print("Completed pfv_disabled() function")
 
+
+
+# I use this to keep the pool from filling while my sprinklers are running. You could also use this as a means of
+# creating a 'blackout' period during which time you do not want your pool filled.
+# This is the sprinkler start and stop times. Python is a bit weird in that you cannot use 0900 or 0800 because
+# of the leading '0'. Any other time is ok.
+# Use military time but DO NOT use leading zeros!
+
 def get_sprinkler_status():
-    # I use this to keep the pool from filling while my sprinklers are running. You could also use this as a means of
-    # creating a 'blackout' period during which time you do not want your pool filled.
-    # This is the sprinkler start and stop times. Python is a bit weird in that you cannot use 0900 or 0800 because
-    # of the leading '0'. Any other time is ok.
-    # Use military time but DO NOT use leading zeros!
     if DEBUG == 1:
         print("Started get_sprinkler_status().")
     if pooldb.sprinkler_type == "Timer":
@@ -739,6 +1062,7 @@ def get_sprinkler_status():
 
     if DEBUG == 1:
         print("Completed get_sprinkler_status()")
+
 
 # This turns the sprinkler valve on or off when called
 def fill_pool_auto(fill_now):
@@ -821,6 +1145,7 @@ def fill_pool_auto(fill_now):
 
 # This turns the sprinkler valve on or off when manual button is pushed.
 def fill_pool_manual(fill_now):
+    logger.info('Started fill_pool_manual() function')
     if DEBUG == 1:
         print("Started fill_pool_manual() function")
     global pool_is_filling
@@ -871,14 +1196,20 @@ def fill_pool_manual(fill_now):
         logger.debug('SYSTEM_ERROR_LED should be ON. This is the RED LED')
         if DEBUG == 1:
             print("SYSTEM_ERROR_LED should be ON. This is the RED LED")
-
+    
+    logger.info('Completed fill_pool_manual() function')
     if DEBUG == 1:
         print("Completed fill_pool_manual() function")
+
+
 
 # Called from the fill_pool() routine and keeps track of how many times we have checked the pool level. 
 # We can then decide what to do if it is taking too long to fill the pool (or the sensor node died before
 # it could update the database). In this case, it simply flags the max_run_time_exceeded variable, shuts off
 # the water, logs the error and waits for you to restart the program which clears the variable. 
+# The max run time is set in the pooldb.py file and is based more on run 'cycles' than run 'time'. For example
+# if you set the checktime (in pooldb.py) to 120 seconds and maxruntime to 100, then it would be 100 * 120 seconds
+# before the current_run_time would exceed max_run_time. So be careful!
 def max_run_time():
     if DEBUG == 1:
         print("Starting max_run_time()")
@@ -888,7 +1219,7 @@ def max_run_time():
     current_run_time += 1
     logger.debug('Current fill run time is %s', current_run_time)
     if DEBUG == 1:
-        print("Current fill run time is %s", current_run_time)
+        print("Current fill run time is %s" % current_run_time)
 
     if current_run_time >= pooldb.maxruntime:
         logger.error('Pool Maxruntime exceeded! Check for errors and restart program')
@@ -903,7 +1234,15 @@ def max_run_time():
     if DEBUG == 1:
         print("Completed max_run_time()")
 
-# This connectes to our database and gets our pool level.
+    return max_run_time_exceeded
+
+
+
+## This is the main function in the script. This checks a bunch of things (sprinklers, pool resistance level, etc)
+## and then decides what to do about filling the pool. If the pool needs to be filled, it checks the level of the
+## pool by calling the get_pool_level_resistance() function and also tracks how many cycles we have been filling
+## the pool. Once the pool is full, it shuts off the water.
+ 
 def pool_level():
     if DEBUG == 1:
         print("Starting pool_level()")
@@ -912,11 +1251,15 @@ def pool_level():
     global max_run_time_exceeded
     global sprinkler_status
     global pool_fill_valve_disabled
+    global max_pool_level_sensor_timeouts_exceeded
+    pool_pump_running = is_pool_pump_running()
+    sprinkler_status = get_sprinkler_status()
+    get_pool_level = get_pool_level_resistance()
+    check_pool_sensors()
     if pooldb.ph_probe == "Yes":
         get_ph_reading()
     if pooldb.orp_probe == "Yes":
         get_orp_reading()
-    sprinkler_status = get_sprinkler_status()
     sd_notify(0,
               "WATCHDOG=1")  # Ping the watchdog once per check. It is set to restart the script if no notification within 70 seconds.
     logger.debug("Watchdog Ping Sent")
@@ -933,108 +1276,60 @@ def pool_level():
                 print("pool_level function BYPASSED, pool fill valve has been manually disabled")
         pass
     else:
-        try:
-            cnx = mysql.connector.connect(user=pooldb.username, password=pooldb.password, host=pooldb.servername,
-                                          database=pooldb.emoncms_db)
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                logger.error('Database connection failure: Check your username and password')
-                if DEBUG == 1:
-                    print("Database connection failure: Check your username and password")
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                logger.error('Database does not exist. Please check your settings.')
-                if DEBUG == 1:
-                    print("Database does not exist. Please check your settings.")
-            else:
-                logger.error('Unknown database error, please check all of your settings.')
-                if DEBUG == 1:
-                    print("Unknown database error, please check all of your settings.")
-        else:
-            cursor = cnx.cursor(buffered=True)
-            cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (pooldb.pool_level_table))
+       if get_pool_level == "OK" and pooldb.MightyHat == "True":
+           logger.debug('POOL_FILLING_LED should be OFF. This is a BLUE LED')
+           if DEBUG == 1:
+               print("POOL_FILLING_LED should be OFF. This is a BLUE LED")
+           ser.write('PFC_LEVEL_OK')
+           logger.debug('Pool Level OK (PFC_LEVEL_OK) sent to MightyHat')
+           if DEBUG == 1:
+               print("Pool Level OK (PFC_LEVEL_OK) sent to MightyHat")
 
-            for (data) in cursor:
-                get_pool_level = ("%1.0f" % data)
-                cursor.close()
-                logger.debug('get_pool_level returned %s', get_pool_level)
-                if DEBUG == 1:
-                    print("get_pool_level returned %s" % get_pool_level)
+       if get_pool_level == "OK" and pool_is_filling == "Auto":
+           fill_pool_auto('STOP')
 
-            cursor = cnx.cursor(buffered=True)
-            cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (pooldb.pump_running_watts_table))
+       elif get_pool_level == "LOW":
+           if pooldb.MightyHat == "True":
+               ser.write('PFC_LEVEL_LOW')
+               logger.debug('Pool Level Low (PFC_LEVEL_LOW) sent to MightyHat')
+               if DEBUG == 1:
+                   print("Pool Level Low (PFC_LEVEL_LOW) sent to MightyHat")
+           sprinkler_status = get_sprinkler_status()
+           if sprinkler_status == "Yes":
+               logger.info('Sprinklers are running, we cannot fill the pool at this time.')
+               if DEBUG == 1:
+                   print("Sprinklers are running, we cannot fill the pool at this time.")
+               if pooldb.MightyHat == "True":
+                   ser.write('PFC_SPRINKLERS')
+                   logger.debug('Sprinklers are running (PFC_SPRINKLERS) sent to MightyHat')
+                   if DEBUG == 1:
+                       print("Sprinklers are running (PFC_SPRINKLERS) sent to MightyHat")
+               pass
+           elif pool_pump_running == "Yes":
+               logger.info('Pool pump is running, we cannot fill the pool at this time.')
+               if DEBUG == 1:
+                   print("Pool pump is running, we cannot fill the pool at this time.")
+               if pooldb.MightyHat == "True":
+                   ser.write('PFC_PUMP')
+                   logger.debug('Pool pump is running (PFC_PUMP) sent to MightyHat')
+                   if DEBUG == 1:
+                       print("Pool pump is running (PFC_PUMP) sent to MightyHat")
+               pass
+           else:
+               max_run_time()
+               if max_run_time_exceeded == "Yes" or max_pool_level_sensor_timeouts_exceeded == "Yes":
+                   fill_pool_auto('FORCE_STOP')
+               elif pool_is_filling == "No":
+                   fill_pool_auto('START')
 
-            for (data) in cursor:
-                pool_pump_running_watts = int("%1.0f" % data)
-                cursor.close()
-                logger.debug('pool_pump_running_watts returned %s watts in use by pump.', pool_pump_running_watts)
-                if DEBUG == 1:
-                    print("pool_pump_running_watts returned %s watts in use by pump." % pool_pump_running_watts)
-
-            if pool_pump_running_watts > pooldb.max_wattage:
-                led_control(PUMP_RUN_LED, "ON")
-                logger.debug('PUMP_RUN_LED should be ON. This is the YELLOW LED')
-                if DEBUG == 1:
-                    print("PUMP_RUN_LED should be ON. This is the YELLOW LED")
-            else:
-                led_control(PUMP_RUN_LED, "OFF")
-                logger.debug('PUMP_RUN_LED should be OFF. This is the YELLOW LED')
-                if DEBUG == 1:
-                    print("PUMP_RUN_LED should be OFF. This is the YELLOW LED")
-
-            if get_pool_level == "1" and pooldb.MightyHat == "True":
-                logger.debug('POOL_FILLING_LED should be OFF. This is a BLUE LED')
-                if DEBUG == 1:
-                    print("POOL_FILLING_LED should be OFF. This is a BLUE LED")
-                ser.write('PFC_LEVEL_OK')
-                logger.debug('Pool Level OK (PFC_LEVEL_OK) sent to MightyHat')
-                if DEBUG == 1:
-                    print("Pool Level OK (PFC_LEVEL_OK) sent to MightyHat")
-
-            if get_pool_level == "1" and pool_is_filling == "Auto":
-                fill_pool_auto('STOP')
-
-            elif get_pool_level == "0":
-                if pooldb.MightyHat == "True":
-                    ser.write('PFC_LEVEL_LOW')
-                    logger.debug('Pool Level Low (PFC_LEVEL_LOW) sent to MightyHat')
-                    if DEBUG == 1:
-                        print("Pool Level Low (PFC_LEVEL_LOW) sent to MightyHat")
-                sprinkler_status = get_sprinkler_status()
-                if sprinkler_status == "Yes":
-                    logger.info('Sprinklers are running, we cannot fill the pool at this time.')
-                    if DEBUG == 1:
-                        print("Sprinklers are running, we cannot fill the pool at this time.")
-                    if pooldb.MightyHat == "True":
-                        ser.write('PFC_SPRINKLERS')
-                        logger.debug('Sprinklers are running (PFC_SPRINKLERS) sent to MightyHat')
-                        if DEBUG == 1:
-                            print("Sprinklers are running (PFC_SPRINKLERS) sent to MightyHat")
-                    pass
-                elif pool_pump_running_watts > pooldb.max_wattage:
-                    logger.info('Pool pump is running, we cannot fill the pool at this time.')
-                    if DEBUG == 1:
-                        print("Pool pump is running, we cannot fill the pool at this time.")
-                    if pooldb.MightyHat == "True":
-                        ser.write('PFC_PUMP')
-                        logger.debug('Pool pump is running (PFC_PUMP) sent to MightyHat')
-                        if DEBUG == 1:
-                            print("Pool pump is running (PFC_PUMP) sent to MightyHat")
-                    pass
-                else:
-                    max_run_time()
-                    if max_run_time_exceeded == "Yes":
-                        fill_pool_auto('FORCE_STOP')
-                    elif pool_is_filling == "No":
-                        fill_pool_auto('START')
-
-            cnx.close()
     threading.Timer(pooldb.checktime, pool_level).start()
 
 
 # This manages our manaul fill pushbutton
 def manual_fill_pool(button):
+    logger.info('Manual Fill Button Pushed - Starting manual_fill_pool() function')
     if DEBUG == 1:
-        print ("Starting manual_fill_pool() function")
+        print ("Manual Fill Button Pushed - Starting manual_fill_pool() function")
     global pool_pump_running_watts
     global pool_is_filling
     global sprinkler_status
