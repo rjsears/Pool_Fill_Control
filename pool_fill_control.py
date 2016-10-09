@@ -2,7 +2,7 @@
 # Set DEBUG = 1 to run this from the command line. It will bypass the watchdog support
 # and enable all debug printing to STDOUT.
 
-DEBUG = 1
+DEBUG = 0
 
 # pool_fill_control.py
 ##############################################################
@@ -581,6 +581,7 @@ def check_pool_sensors():
             for (data) in cursor:
                 get_pool_level_sensor_battery_voltage = float("%1.2f" % data)
                 cursor.close()
+                logger.info("Pool LEVEL sensor battery voltage is: %s" % get_pool_level_sensor_battery_voltage)
                 if DEBUG ==1:
                     print("Pool LEVEL sensor battery voltage is: %s" % get_pool_level_sensor_battery_voltage)
 
@@ -599,6 +600,7 @@ def check_pool_sensors():
             for (data) in cursor:
                 get_pool_temp_sensor_battery_voltage = float("%1.2f" % data)
                 cursor.close()
+                logger.info("Pool TEMP sensor battery voltage is: %s" % get_pool_temp_sensor_battery_voltage)
                 if DEBUG ==1:
                     print("Pool TEMP sensor battery voltage is: %s" % get_pool_temp_sensor_battery_voltage)
 
@@ -607,32 +609,39 @@ def check_pool_sensors():
     pool_level_sensor_time_delta = current_timestamp - get_pool_level_sensor_time
     pool_temp_sensor_time_delta = current_timestamp - get_pool_temp_sensor_time
 
+    logger.info("Time dfference between last pool LEVEL sensor reading is: %s seconds." % pool_level_sensor_time_delta)
+    logger.info("Time dfference between last pool TEMP sensor reading is: %s seconds." % pool_temp_sensor_time_delta)
     if DEBUG == 1:
         print ("Time dfference between last pool LEVEL sensor reading is: %s seconds." % pool_level_sensor_time_delta)
         print ("Time dfference between last pool TEMP sensor reading is: %s seconds." % pool_temp_sensor_time_delta)
 
     if pool_level_sensor_time_delta > pooldb.max_pool_level_sensor_time_delta:
+       logger.error("Pool Level Sensor TIMEOUT")
        if DEBUG ==1:
            print ("* * * * WARNING * * * *")
            print ("Pool LEVEL Sensor Timeout!")
        max_pool_level_sensor_timeouts()
     elif get_pool_level_sensor_battery_voltage < pooldb.pool_level_sensor_low_voltage:
+       logger.error("Pool Level Sensor BATTERY voltage LOW")
        if DEBUG ==1:
            print ("* * * * WARNING * * * *")
            print ("Pool LEVEL Sensor Battery Voltage LOW!")
        if pooldb.PoolAlerting == "True":
            send_notification("POOL_LEVEL_SENSOR_BATTERY_LOW")
     elif pool_temp_sensor_time_delta > pooldb.max_pool_temp_sensor_time_delta:
+       logger.error("Pool Temperature Sensor TIMEOUT")
        if DEBUG ==1:
            print ("* * * * WARNING * * * *")
            print ("Pool TEMP Sensor Timeout!")
     elif get_pool_temp_sensor_battery_voltage < pooldb.pool_level_sensor_low_voltage:
+       logger.error("Pool Temperature Sensor BATTERY voltage LOW")
        if DEBUG ==1:
            print ("* * * * WARNING * * * *")
            print ("Pool TEMP Sensor Battery Voltage LOW!")
        if pooldb.PoolAlerting == "True":
            send_notification("POOL_TEMP_SENSOR_BATTERY_LOW")
     else:
+       logger.info("Everything appears to be OK with the pool sensors!")
        if DEBUG ==1:
            print ("Everything appears to be OK with the pool sensors!")
 
