@@ -90,7 +90,6 @@ boolean PSI_SENSOR_PRESENT;
  */
 #include <RFM69.h>         //get it here: http://github.com/lowpowerlab/rfm69
 #include <WirelessHEX69.h> //get it here: https://github.com/LowPowerLab/WirelessProgramming
-// #include <TimerOne.h>
 #include <avr/power.h>
 #include <avr/sleep.h>
 #include <JeeLib.h>
