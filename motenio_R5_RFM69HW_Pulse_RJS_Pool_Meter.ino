@@ -6,7 +6,7 @@
 ** 433Mhz
 
 
-RJS PulseMeter V2.0 Moteino 5/25/2017
+RJS PulseMeter V2.0 Moteino 9/25/2017
 
 
 
