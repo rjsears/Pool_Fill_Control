@@ -265,3 +265,6 @@ def send_push_notification(title, message):
 def main():
     check_pool_sensors()
     get_pool_level_resistance()
+	
+if __name__ == '__main__':
+    main()
