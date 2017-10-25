@@ -1,0 +1,20 @@
+[notification_status]
+pool_level_sensor_timeout_alert_sent = False
+pool_level_low_voltage_alert_sent = False
+pool_temp_sensor_timeout_alert_sent = False
+pool_temp_low_voltage_alert_sent = False
+pool_filter_psi_alert_sent = False
+pool_filling_sent = False
+critical_time_warning_sent = False
+critical_stop_warning_sent = False
+critical_stop_enabled_warning_sent = False
+
+[filling_status]
+pool_is_filling = False
+fill_critical_stop = False
+
+[pool_level]
+pool_level = True
+
+[filling_time]
+pool_fill_start_time =
