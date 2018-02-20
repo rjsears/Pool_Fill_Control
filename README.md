@@ -1,8 +1,9 @@
 # Pool_Fill_Control V3.3
 > Major rewrite of the code. Please see the bottom of this readme for updates!
 
-Raspberry Pi / Arduino / Python Project to automate filling of swimming pool.
+Raspberry Pi / Arduino / Python Project to automate filling of swimming pool. Includes Flask based Web Interface.
 
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/master/pictures/pool_control_web_interface.jpg?raw=true)
 
 
 System designed by me to automatically fill my pool when a liquid level sensor determines the pool is below a preset level. The pool is filled by opening a sprinkler valve and then monitoring the liquid level sensor until the pool is full, or a pre-set time has been reached. Also tracks and logs pool water temp, pH, ORP and filter water pressure as well as water used by the pool.
