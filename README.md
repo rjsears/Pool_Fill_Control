@@ -98,7 +98,25 @@ V3.1 (2016-10-08)
   within pooldb.py instead of having to physically reflash
   the pool_level arduino sensor.
 
+V3.2 (Unpublished)
 
+V3.3 (2018-02-20)
+- Major rewrite of code. Instead of a very large, nearly monolithic threaded
+  application, I rewrote the code into various parts. The first part is a
+  threaded application that does nothing more than to watch for physical
+  button presses on the pool control console and does an action based on what
+  button has been pressed. The second part is a cron based application that
+  does all of the sensor checking and data gathering and fills the pool when
+  necessary.
+  
+- Flask web frontend (V1) completed. Basic implementation of a Flask framework
+  and web frontend that allows viewing of all of the pool parameters like
+  temperature, pool water level, pH, Orp, pump watts in use, battery conditions
+  for the various sensors and more. It also allows for the manual filling of the
+  pool as well as the stopping of an automatic fill that is already running.
+  
+- Added Acid level sensor and associated functions to watch the acid level in tank
+  and notify us when the acid level get too low. 
  
 
 Based on the following hardware:
