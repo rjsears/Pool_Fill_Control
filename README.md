@@ -126,7 +126,7 @@ Based on the following hardware:
 -LowPowerLabs MightyHat (http://lowpowerlab.com/mightyhat)<br>
 -eTape Resistive Liquid Measuring tape (http://www.milonetech.com)<br>
 -OpenEnergyMonitor emonTH & emonPi (http://www.openenergymonitor.org)<br>
--Atlas Scientific USB based pH and ORP probes (http://www.atlas-scientific.com)
+-Atlas Scientific USB based pH and ORP probes (http://www.atlas-scientific.com)<br>
 -DFRobot Liquid Level Sensor (Acid Level Monitoring) (http://www.dfrobot.com)
 
 ## Authors
