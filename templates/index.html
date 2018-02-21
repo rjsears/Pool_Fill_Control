@@ -1,1 +1,299 @@
-Temp
+<!doctype html>
+<html>
+   <head>
+      <title>Pool Control</title>
+      <meta http-equiv="refresh" content="60" >
+      <script src="{{url_for('static', filename='steelseries-min.js')}}"></script>
+      <script src="{{url_for('static', filename='tween-min.js')}}"></script>
+      <link rel="icon" type="image/png" href="{{url_for('static', filename='pool-favicon.jpg')}}">
+   </head>
+   <body>
+	   <!--  <body background="{{url_for('static', filename='swimming-pool-background.jpg')}}"> -->
+      <p style="text-align:center;">
+         <img src="{{url_for('static', filename='pool-favicon.jpg')}}" height="100" width="100">
+      <center>
+         <h2> Swimming Pool Control Center </h2>
+         <iframe src="http://free.timeanddate.com/clock/i64ad8fh/n197/fs16/ftb/tt0/tw0/tm1/th1/tb2" frameborder="0" width="210" height="25"></iframe>
+      </center>
+      </p>
+      <center>
+      <body onload=init()>
+         <table width=50%>
+            <center>
+            <tr>
+               <center>
+               <td>
+                  <center>
+                  <b>System Status
+               </td>
+               <td>
+                  <center>
+                  <b>Pump Running
+               </td>
+               <td>
+                  <center>
+                  <b>Pool Filling
+               </td>
+               <center>
+               <td>
+                  <center>
+                  <b>Manual Fill
+               </td>
+               <td>
+                  <center>
+                  <b>Sprinklers
+               </td>
+               <td>
+                  <center>
+                  <b>Acid Level
+               </td>
+            </tr>
+            <tr>
+               <td>
+                  <center>
+                  {% if system_error_led == "True" %}
+                  <img src="{{url_for('static', filename='dark-red-led-circle-md.png')}}" height="50" width="50">
+                  {% elif system_run_led == "True" %}
+                  <img src="{{url_for('static', filename='led_circle_green.png')}}" height="50" width="50">
+                  {% else %}
+                  <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
+                  {% endif %}
+               </td>
+               <td>
+                  <center>
+                  {% if pump_run_led == "True" %}
+                  <img src="{{url_for('static', filename='led_circle_green.png')}}" height="50" width="50">
+                  {% else %}
+                  <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
+                  {% endif %}
+               </td>
+               <td>
+                  <center>
+                  {% if pool_is_filling == "True" and pool_manual_fill == "False" %}
+		  <a href="{{ url_for('web_auto_fill_cancel') }}"><img src="{{url_for('static', filename='led_circle_blue.png')}}" height="50" width="50"></a>
+                  {% elif pool_is_filling == "True" and pool_manual_fill == "True" %}
+		  <img src="{{url_for('static', filename='led_circle_blue.png')}}" height="50" width="50">
+                  {% else %}
+                  <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
+                  {% endif %}
+               </td>
+               <td>
+                  <center>
+                     {% if pool_manual_fill == "True" %}
+		     <a href="{{ url_for('web_button_press') }}"><img src="{{url_for('static', filename='led_circle_blue.png')}}" height="50" width="50"></a>
+                     {% elif sprinkler_run_led == "False" and pool_is_filling == "False" %}
+		     <a href="{{ url_for('web_button_press') }}"><img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50"></a>
+		     {% else %}
+		     <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
+                     {% endif %}
+               </td>
+               </center>
+               <td>
+                  <center>
+                     {% if sprinkler_run_led == "True" %}
+                     <img src="{{url_for('static', filename='led_circle_blue.png')}}" height="50" width="50">
+                     {% else %}
+                     <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
+                     {% endif %}
+               </td>
+               <td><center>
+               {% if acid_level_ok == "True" %}
+               <img src="{{url_for('static', filename='led_circle_green.png')}}" height="50" width="50">
+               {% else %}
+               <img src="{{url_for('static', filename='dark-red-led-circle-md.png')}}" height="50" width="50">
+               {% endif %}
+               </td>
+            </tr>
+            </center>
+         </table>
+         <br><br>
+         <canvas id=PoolTemp width=300 height=300>No canvas in your browser...sorry...</canvas>
+         <canvas id=PumpWatts width=300 height=300></canvas>
+         <canvas id=FilterPSI width=300 height=300></canvas>
+         <canvas id=PoolLevel width=300 height=300></canvas>
+         <canvas id=FillTime width=300 height=300></canvas>
+         <canvas id=PoolpH width=300 height=300></canvas>
+         <canvas id=PoolORP width=300 height=300></canvas><br><br>
+         <table>
+         <tr>
+         <td><center>
+         <canvas id=TempBatt width=300 height=300></canvas><br>
+         Pool Temp Sensor<br>Battery Level: <b>{{pool_temp_batt_percentage}}</b>%
+         </center>       </td>
+         <td width = "10%">            </td>
+         <td><center>
+         <canvas id=LevelBatt width=300 height=300></canvas><br>
+         Pool Level Sensor<br>Battery Level: <b>{{pool_level_batt_percentage}}</b>%
+         </center>       </td>
+         </tr>
+         </table>
+	 <h4>Last System Update: {{current_military_time}}</h4>
+         </center>
+         <!--
+            {% if pool_is_filling == "True" %}
+               <img src="{{url_for('static', filename='water_running.jpg')}}" height="200" width="100">
+               <br>
+            {% else %}
+               <img src="{{url_for('static', filename='water_not_running.jpg')}}" height="100" width="100">
+               <br>
+            {% endif %}
+            -->
+   </body>
+   <script>
+      function init()
+      {
+              // Define some sections
+              var sections = Array(steelseries.Section(0, 0, 'rgba(0, 0, 220, 0.3)'),
+                              steelseries.Section(25, 50, 'rgba(0, 220, 0, 0.3)'),
+                              steelseries.Section(85, 100, 'rgba(220, 220, 0, 0.3)'));
+      
+              // Define one area
+              var areas = Array(steelseries.Section(40, 80, 'rgba(220, 0, 0, 0.3)'));
+      
+              var valGrad = new steelseries.gradientWrapper(  0,
+                                                              50,
+                                                              [ 0, 0.33, 0.60, 1],
+                                  //                            [ 0, 0.33, 0.66, 0.85, 1],
+                                                              [ new steelseries.rgbaColor(0, 0, 200, 1),
+                                                                new steelseries.rgbaColor(0, 200, 0, 1),
+                                                                new steelseries.rgbaColor(200, 200, 0, 1),
+                                                                new steelseries.rgbaColor(205, 14, 14, 1) ]);
+      // Create one radial gauge
+              var radial1 = new steelseries.Radial(
+                              'PoolTemp', {
+                                      section: Array(steelseries.Section(85,100,'rgba(220,220,0,0.3)')),
+                                      area: areas,
+                                      minValue: 45,
+                                      maxValue: 100,
+                                      threshold: 100,
+                                      ledVisible: false,
+                                      titleString: 'Pool',
+                                      unitString: 'Temp',
+                                      frameDesign: steelseries.FrameDesign.BLACK_METAL,
+                                      backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+                                      lcdColor: steelseries.LcdColor.RED,
+                                      pointerType: steelseries.PointerType.TYPE16
+                              });
+      
+              // Create a second radial gauge
+              var radial2 = new steelseries.Radial(
+                              'PumpWatts', {
+                                      gaugeType: steelseries.GaugeType.TYPE4,
+                                      maxValue: 1600,
+                                      threshold: 1100,
+                                      section: Array(steelseries.Section(0,1000,'rgba(0,255,0,0.3)')),
+                                      area: Array(steelseries.Section(1000,1600,'rgba(255,0,0,0.5)')),
+                                      titleString: 'Pump',
+                                      unitString: 'Watts',
+                      //              lcdVisible: false,
+                                      frameDesign: steelseries.FrameDesign.BLACK_METAL,
+                                      backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+                                      pointerType: steelseries.PointerType.TYPE16,
+                                  //    pointerColor: steelseries.ColorDef.BLUE,
+                                      lcdColor: steelseries.LcdColor.RED,
+                                      ledColor: steelseries.LedColor.RED_LED,
+                              });
+      
+              // Create a radial bargraph gauge
+              var radial3 = new steelseries.Radial(
+                              'FilterPSI', {
+                                      gaugeType: steelseries.GaugeType.TYPE4,
+                                      section: Array(steelseries.Section(0,50,'rgba(0,255,0,0.3)')),
+                                      area: Array(steelseries.Section(50,80,'rgba(255,0,0,0.5)')),
+                                      titleString: "Filter",
+                                      unitString: "PSI",
+                                      minValue: 0,
+                                      maxValue: 80,
+                                      threshold: 50,
+                                      frameDesign: steelseries.FrameDesign.BLACK_METAL,
+                                      backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+                                   //   valueColor: steelseries.ColorDef.BLUE,
+                                      lcdColor: steelseries.LcdColor.RED,
+                                      ledColor: steelseries.LedColor.RED_LED,
+                              });
+              var radial4 = new steelseries.Radial(
+                              'PoolLevel', {
+      //                              section: Array(steelseries.Section(70,85,'rgba(220,220,0,0.3)')),
+                                      area: areas,
+                                      minValue: 70,
+                                      maxValue: 100,
+                                      ledVisible: false,
+                                      lcdVisible: false,
+                                      threshold: 80,
+                                      titleString: 'Water',
+                                      unitString: 'Level',
+                                      frameDesign: steelseries.FrameDesign.BLACK_METAL,
+                                      backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+                                      pointerType: steelseries.PointerType.TYPE16
+                              });
+              var radial5 = new steelseries.Radial(
+                              'FillTime', {
+                                //   section: Array(steelseries.Section(110,120,'rgba(220,220,0,0.3)')),
+                                      area: Array(steelseries.Section(110,120,'rgba(255,0,0,0.3)')),
+                                      minValue: 0,
+                                      maxValue: 120,
+                                      ledVisible: false,
+                                      lcdVisible: true,
+                                      threshold: 110,
+                                      titleString: 'Fill',
+                                      unitString: 'Timer',
+                                      frameDesign: steelseries.FrameDesign.BLACK_METAL,
+                                      backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+                                      lcdColor: steelseries.LcdColor.RED,
+                                      pointerType: steelseries.PointerType.TYPE16
+                              });
+              var radial6 = new steelseries.Radial(
+                              'PoolpH', {
+                                      section: Array(steelseries.Section(5,7.2,'rgba(225,0,0,0.3)'),
+				                    steelseries.Section(7.2,7.8,'rgba(0,255,0,0.3)'),
+						    steelseries.Section(7.8,11,'rgba(225,0,0,0.3)')),
+                                      area: Array(steelseries.Section(7.2,7.8,'rgba(0,255,0,0.3)')),
+                                      minValue: 5,
+                                      maxValue: 11,
+                                      ledVisible: false,
+                                      lcdVisible: true,
+                                      threshold: 9,
+                                      titleString: 'Pool',
+                                      unitString: 'pH',
+                                      frameDesign: steelseries.FrameDesign.BLACK_METAL,
+                                      backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+                                      lcdColor: steelseries.LcdColor.RED,
+                                      pointerType: steelseries.PointerType.TYPE16
+                              });
+              var radial7 = new steelseries.Radial(
+                              'PoolORP', {
+                                      section: Array(steelseries.Section(500,675,'rgba(225,0,0,0.3)')),
+                                      area: Array(steelseries.Section(675,800,'rgba(0,255,0,0.3)')),
+                                      minValue: 500,
+                                      maxValue: 800,
+                                      ledVisible: false,
+                                      lcdVisible: true,
+                                      threshold: 650,
+                                      titleString: 'Pool',
+                                      unitString: 'ORP',
+                                      frameDesign: steelseries.FrameDesign.BLACK_METAL,
+                                      backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+                                      lcdColor: steelseries.LcdColor.RED,
+                                      pointerType: steelseries.PointerType.TYPE16
+                              });
+       
+              var battery1 = new steelseries.Battery('TempBatt', {
+                      size: 100,
+                      value: {{pool_temp_batt_percentage}}
+              });
+      
+              var battery2 = new steelseries.Battery('LevelBatt', {
+                      size: 100,
+                      value: {{pool_level_batt_percentage}}
+              });
+      
+              radial1.setValue({{pool_current_temp}});
+              radial2.setValue({{current_pool_watts}});
+              radial3.setValue({{filter_current_psi}});
+              radial4.setValue({{pool_level_percentage}});
+	      radial5.setValue({{pool_fill_total_time}});
+              radial6.setValue(7.5);
+              radial7.setValue(700);
+      
+      }
+   </script>
