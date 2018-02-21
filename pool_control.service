@@ -1,0 +1,16 @@
+# This script starts and stops our pool fill control python script
+# that monitors for physical button pushes on our pi.
+
+[Unit]
+Description=Installing Python script for Pool Fill Control
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python /var/www/pool_control_button_monitor.py
+ExecStop=/root/pool_control/setupgpio.sh
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
