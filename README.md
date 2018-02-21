@@ -127,4 +127,18 @@ Based on the following hardware:
 -eTape Resistive Liquid Measuring tape (http://www.milonetech.com)<br>
 -OpenEnergyMonitor emonTH & emonPi (http://www.openenergymonitor.org)<br>
 -Atlas Scientific USB based pH and ORP probes (http://www.atlas-scientific.com)
+-DFRobot Liquid Level Sensor (Acid Level Monitoring) (http://www.dfrobot.com)
 
+## Authors
+
+* **Richard J. Sears** - *richard@sears.net* - [The RS Technical Group, Inc.](http://github.com/rjsears)
+
+## License
+
+This project is licensed under the MIT License - see the MIT License for details
+
+## Acknowledgments
+
+* [Gerrit Grunwald, Mark Crossley](https://github.com/HanSolo/SteelSeries-Canvas) - Steel Series Gauges
+* [Randomchars](https://github.com/randomchars) - pushbullet.py
+* My amazing family that puts up with all of my coding projects!
