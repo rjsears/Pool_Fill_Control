@@ -314,6 +314,11 @@ def pfv_disabled():
 # Pool_Fill_Valve controls pool sprinkler relay as well as pool sprinkler
 # transformer relay.
 def pool_fill_valve(openclose):
+    DEBUG = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "debug")
+    LOGGING = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "logging")
+    EMAIL = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "email")
+    PUSHBULLET = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "pushbullet")
+    SMS = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms")
     current_timestamp = int(time.time())
     if openclose == "OPEN":
        sprinkler_status = get_sprinkler_status()
@@ -450,11 +455,6 @@ def pool_fill_valve(openclose):
         led_control(manual_fill_button_led, "True")
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "pool_filling_led", True)
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "manual_fill_button_led", True)
-        DEBUG = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "debug")
-        LOGGING = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "logging")
-        EMAIL = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "email")
-        PUSHBULLET = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "pushbullet")
-        SMS = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms")
         if PUSHBULLET == "True":
             send_push_notification("Your Pool is MANUALLY Filling", "Your swimming pool is MANUALLY refilling.")
         if SMS == "True":
@@ -478,11 +478,6 @@ def pool_fill_valve(openclose):
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "manual_fill_button_led", False)
         update_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_is_filling", False)
         update_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_total_time", 0)
-        DEBUG = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "debug")
-        LOGGING = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "logging")
-        EMAIL = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "email")
-        PUSHBULLET = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "pushbullet")
-        SMS = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms")
         if LOGGING == "True":
             logger.info("Your Pool is done MANUALLY Filling.")
         if DEBUG == "True":
