@@ -1,4 +1,4 @@
-# Pool_Fill_Control V3.3
+# Pool_Fill_Control V3.3.03.01 (2018-02-22)
 > Major rewrite of the code. Please see the bottom of this readme for updates!
 
 Raspberry Pi / Arduino / Python Project to automate filling of swimming pool. Includes Flask based Web Interface.
@@ -101,7 +101,7 @@ V3.1 (2016-10-08)
 
 V3.2 (Unpublished)
 
-V3.3 (2018-02-20)
+V3.3.03.01 (2018-02-22)
 - Major rewrite of code. Instead of a very large, nearly monolithic threaded
   application, I rewrote the code into various parts. The first part is a
   threaded application that does nothing more than to watch for physical
@@ -115,9 +115,14 @@ V3.3 (2018-02-20)
   temperature, pool water level, pH, Orp, pump watts in use, battery conditions
   for the various sensors and more. It also allows for the manual filling of the
   pool as well as the stopping of an automatic fill that is already running.
+  Includes ability to toggle all notifications (email, sms & pushbullet) as well
+  as debug and logging setting via the web interface.
   
 - Added Acid level sensor and associated functions to watch the acid level in tank
-  and notify us when the acid level get too low. 
+  and notify us when the acid level get too low.
+  
+- Added email and twilio (SMS) notifications to pushbullet. Requires (free) pushbullet
+  an/or paid Twilio account. 
  
 
 Based on the following hardware:
