@@ -3,20 +3,30 @@
 """ Config file for Pool_Fill_Control"""
 
 ## Set Notification Types
-DEBUG = True
-LOGGING = True
-EMAIL = True
-PUSHBULLET = True
-alert_email = 'your_email@addresshere.com'
+## No longer set here - see pool_sensor_status file instead.
+#DEBUG = True
+#LOGGING = True
+#EMAIL = True
+#PUSHBULLET = True
+
+alert_email = 'richard@sears.net'
+twilio_from = '+18585551212'
+twilio_account = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+twilio_token = 'kjsdhfkjshdkfjhksdhuhifudsjhskfj'
+twilio_to = '+18582224444'
+
+
 
 ## Setup our Database Connection
 servername = "localhost"
 username = "pool_control"  # Your main MySQL admin username or username that is the exact same for both databases
-password = "your_password_here"  # Your main MySQL admin password or password that is exact same for both databases
+#username = "pool_control"  # Your main MySQL admin username or username that is the exact same for both databases
+password = "LKhhHuHkvNM"  # Your main MySQL admin password or password that is exact same for both databases
 emoncms_db = "emoncms"  # The name of your emoncms (or other) database.
 
 # Set up some alerting so we know when the pool is getting filled up and when it is done.
-pushbilletAPI = "o.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # pushbullet API token (http://www.pushbullet.com)
+PoolAlerting = "False"
+pushbilletAPI = "o.HkUyiugka8iuyysgskutd7987987"  # pushbullet API token (http://www.pushbullet.com)
 
 ## Pool temperature Sensor Settings
 pool_temp_table = "feed_274"
@@ -56,6 +66,7 @@ pump_running_watts_table = "feed_153"
 ## What is the table name for our pool_filter_psi?
 pool_filter_psi_table = "feed_273"
 pool_filter_max_psi = 40
+#pool_filter_max_psi = 20
 
 
 #pool acid realert time: How many minutes between low acid alerts do we want?
@@ -70,11 +81,11 @@ temp_probe_table = "feed_274"
 ## two emoncms servers
 ##
 ## Do we want to use or do we have the pH and ORP probes installed?
-ph_probe = "Yes"  # Yes or No
+ph_probe = "No"  # Yes or No
 ph_node = "pool_ph"  # This will be the Node_ID that shows up in your inputs if logging to emoncms
 ph_probe_baud = 38400
 
-orp_probe = "Yes"  # Yes or No
+orp_probe = "No"  # Yes or No
 orp_node = "pool_orp"  # This will be the Node_ID that shows up in your inputs if logging to emoncms
 orp_probe_baud = 38400
 
@@ -84,13 +95,13 @@ emoncms_server1 = "Yes"
 server1 = "emonpi"  # This could be an IP address, localhost, or an FQDN
 emoncmspath1 = "emoncms"  # This is the path, for example if you want http://www.yourdomain.com/emoncms/
 # you would put "emoncms" here.
-apikey1 = "Your emoncms API key here"
+apikey1 = "sdfhkjsdhkjhsdkdjfhiuyiodusoidf"
 
 # Server 2 Information
 emoncms_server2 = "Yes"
-server2 = "emoncms2"
+server2 = "emoncms.yourdomain.com"
 emoncmspath2 = ""
-apikey2 = "Your emoncms API key here"
+apikey2 = "sdljkjhfkjsdhfkjshdkfjhkfjhskhfs"
 
 # Used for Sprinkler Bypass
 sprinkler_bypass = "Yes"  # Set this to "No" to disable all sprinkler checks
@@ -99,7 +110,7 @@ sprinkler_type = "Rachio"  # Timer or Rachio - sprinkler_bypass must be set to "
 # If you have a Rachio Sprinkler System, this is the curl request to get the sprinkler status.
 # You must have your own system, you must get your Auth:Bearer ID as well as you device ID
 # from Rachio in order to use this subprocess.
-rachio_url = 'curl -s -X  GET -H "Content-Type: application/json" -H "Authorization: Bearer xxxxxxxxxxxxxxxxxxxxxxxxxx" https://api.rach.io/1/public/device/xxxxxxxxxxxxxxxxxxxxxxxxxx/current_schedule'
+rachio_url = 'curl -s -X  GET -H "Content-Type: application/json" -H "Authorization: Bearer diudofisud7-uggdf-4deew-a33ewd-sdfdsfsfsfsd" https://api.rach.io/1/public/device/sfkjshdfkjhsdkfjh-sofiusoiufois-skjdfhksdj/current_schedule'
 
 ############################################################################################################################
 ########## Runtime checking and maximum fill times - This is for the automatic system, not the manual python check...
