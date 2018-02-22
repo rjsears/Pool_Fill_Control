@@ -4,7 +4,7 @@
       <title>Pool Control</title>
       <meta http-equiv="refresh" content="60" >
       <script src="{{url_for('static', filename='steelseries-min.js')}}"></script>
-      <script src="{{url_for('static', filename='tween-min.js')}}"></script>
+      <!--  <script src="{{url_for('static', filename='tween-min.js')}}"></script>-->
       <link rel="icon" type="image/png" href="{{url_for('static', filename='pool-favicon.jpg')}}">
    </head>
    <body>
@@ -18,39 +18,29 @@
       </p>
       <center>
       <body onload=init()>
-         <table width=50%>
-            <center>
-            <tr>
-               <center>
-               <td>
-                  <center>
-                  <b>System Status
-               </td>
-               <td>
-                  <center>
-                  <b>Pump Running
-               </td>
-               <td>
-                  <center>
-                  <b>Pool Filling
-               </td>
-               <center>
-               <td>
-                  <center>
-                  <b>Manual Fill
-               </td>
-               <td>
-                  <center>
-                  <b>Sprinklers
-               </td>
-               <td>
-                  <center>
-                  <b>Acid Level
-               </td>
-            </tr>
-            <tr>
-               <td>
-                  <center>
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;border-color:#999;border-width:0px;border-style:solid;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:0px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:0px;overflow:hidden;word-break:normal;border-color:#999;color:#fff;background-color:#26ADE4;}
+.tg .tg-6f4q{font-weight:bold;font-size:14px;font-family:Arial, Helvetica, sans-serif !important;;text-align:center}
+.tg .tg-3a3g{font-size:14px;font-family:Arial, Helvetica, sans-serif !important;;text-align:center;vertical-align:top}
+.tg .tg-lrzf{font-size:14px;font-family:Arial, Helvetica, sans-serif !important;;text-align:center}
+</style>
+<table class="tg" width=65% border="0">
+  <tr>
+    <th class="tg-6f4q" colspan="6">System Status and Functions</th>
+  </tr>
+  <tr>
+    <td class="tg-lrzf">System Status<br></td>
+    <td class="tg-lrzf">Pump Running</td>
+    <td class="tg-lrzf">Pool Filling</td>
+    <td class="tg-3a3g">Manual Fill</td>
+    <td class="tg-3a3g">Sprinklers</td>
+    <td class="tg-3a3g">Acid Level</td>
+  </tr>
+  <tr>
+    <td class="tg-lrzf">
                   {% if system_error_led == "True" %}
                   <img src="{{url_for('static', filename='dark-red-led-circle-md.png')}}" height="50" width="50">
                   {% elif system_run_led == "True" %}
@@ -58,54 +48,55 @@
                   {% else %}
                   <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
                   {% endif %}
-               </td>
-               <td>
-                  <center>
+</td>
+    <td class="tg-lrzf">
                   {% if pump_run_led == "True" %}
                   <img src="{{url_for('static', filename='led_circle_green.png')}}" height="50" width="50">
                   {% else %}
                   <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
                   {% endif %}
-               </td>
-               <td>
-                  <center>
+</td>
+    <td class="tg-lrzf">
                   {% if pool_is_filling == "True" and pool_manual_fill == "False" %}
-		  <a href="{{ url_for('web_auto_fill_cancel') }}"><img src="{{url_for('static', filename='led_circle_blue.png')}}" height="50" width="50"></a>
+		  <a href="{{ url_for('web_auto_fill_cancel') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a>
                   {% elif pool_is_filling == "True" and pool_manual_fill == "True" %}
 		  <img src="{{url_for('static', filename='led_circle_blue.png')}}" height="50" width="50">
                   {% else %}
                   <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
                   {% endif %}
-               </td>
-               <td>
-                  <center>
+</td>
+    <td class="tg-3a3g">
                      {% if pool_manual_fill == "True" %}
-		     <a href="{{ url_for('web_button_press') }}"><img src="{{url_for('static', filename='led_circle_blue.png')}}" height="50" width="50"></a>
+		     <!-- <a href="{{ url_for('web_button_press') }}"><img src="{{url_for('static', filename='led_circle_blue.png')}}" height="50" width="50"></a> -->
+		     <a href="{{ url_for('web_button_press') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a>
                      {% elif sprinkler_run_led == "False" and pool_is_filling == "False" %}
-		     <a href="{{ url_for('web_button_press') }}"><img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50"></a>
+		     <a href="{{ url_for('web_button_press') }}"><img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70"></a>
+		     <!-- <a href="{{ url_for('web_button_press') }}"><img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50"></a> -->
 		     {% else %}
-		     <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
+		     <!-- <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50"> -->
+		     <img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70">
                      {% endif %}
-               </td>
-               </center>
-               <td>
-                  <center>
+</td>
+    <td class="tg-3a3g">
                      {% if sprinkler_run_led == "True" %}
                      <img src="{{url_for('static', filename='led_circle_blue.png')}}" height="50" width="50">
                      {% else %}
                      <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
                      {% endif %}
-               </td>
-               <td><center>
+</td>
+    <td class="tg-3a3g">
                {% if acid_level_ok == "True" %}
                <img src="{{url_for('static', filename='led_circle_green.png')}}" height="50" width="50">
                {% else %}
                <img src="{{url_for('static', filename='dark-red-led-circle-md.png')}}" height="50" width="50">
                {% endif %}
-               </td>
-            </tr>
-            </center>
-         </table>
+</td>
+  </tr>
+</table>
+
+
+
+
          <br><br>
          <canvas id=PoolTemp width=300 height=300>No canvas in your browser...sorry...</canvas>
          <canvas id=PumpWatts width=300 height=300></canvas>
@@ -129,15 +120,64 @@
          </table>
 	 <h4>Last System Update: {{current_military_time}}</h4>
          </center>
-         <!--
-            {% if pool_is_filling == "True" %}
-               <img src="{{url_for('static', filename='water_running.jpg')}}" height="200" width="100">
-               <br>
-            {% else %}
-               <img src="{{url_for('static', filename='water_not_running.jpg')}}" height="100" width="100">
-               <br>
-            {% endif %}
-            -->
+	 <br>
+<style type="text/css">
+.tf  {border-collapse:collapse;border-spacing:0;border-color:#999;margin:0px auto;}
+.tf td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;}
+.tf th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#fff;background-color:#26ADE4;}
+.tf .tf-baqh{text-align:center;vertical-align:top}
+.tf .tf-3a3g{font-size:14px;font-family:Arial, Helvetica, sans-serif !important;;text-align:center;vertical-align:top}
+.tf .tf-82bq{font-size:14px;font-family:"Arial Black", Gadget, sans-serif !important;;text-align:center;vertical-align:top}
+</style>
+<table class="tf">
+  <tr>
+    <th class="tf-82bq" colspan="5">Notifications, Logging & Debug</th>
+  </tr>
+  <tr>
+	  <td class="tf-3a3g">Console<br>Debugging</td>
+    <td class="tf-3a3g">Logging</td>
+    <td class="tf-3a3g">Push<br>Bullet</td>
+    <td class="tf-3a3g">E-Mail</td>
+    <td class="tf-3a3g">SMS<br>Text</td>
+  </tr>
+  <tr>
+    <td class="tf-baqh">
+	    {% if debug == "True" %}
+	        <a href="{{ url_for('toggle_debug') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a> 
+    	    {% else %}
+    	        <a href="{{ url_for('toggle_debug') }}"><img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70"></a>
+	    {% endif %}
+    </td>
+    <td class="tf-baqh">
+	    {% if logging == "True" %}
+	        <a href="{{ url_for('toggle_logging') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a> 
+    	    {% else %}
+    	        <a href="{{ url_for('toggle_logging') }}"><img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70"></a>
+	    {% endif %}
+    </td>
+    <td class="tf-baqh">
+	    {% if pushbullet == "True" %}
+	        <a href="{{ url_for('toggle_pushbullet') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a> 
+    	    {% else %}
+    	        <a href="{{ url_for('toggle_pushbullet') }}"><img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70"></a>
+	    {% endif %}
+    </td>
+    <td class="tf-baqh">
+	    {% if email == "True" %}
+	        <a href="{{ url_for('toggle_email') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a> 
+    	    {% else %}
+    	        <a href="{{ url_for('toggle_email') }}"><img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70"></a>
+	    {% endif %}
+    </td>
+    <td class="tf-baqh">
+	    {% if sms == "True" %}
+	        <a href="{{ url_for('toggle_sms') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a> 
+    	    {% else %}
+    	        <a href="{{ url_for('toggle_sms') }}"><img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70"></a>
+	    {% endif %}
+    </td>
+  </tr>
+</table>
    </body>
    <script>
       function init()
@@ -297,4 +337,3 @@
       
       }
    </script>
-		       
