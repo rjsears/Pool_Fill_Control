@@ -3,7 +3,7 @@
 
 # Can be run manually or via cron
 __author__ = 'Richard J. Sears'
-VERSION = "V3.3.03 (2018-02-22)"
+VERSION = "V3.3.03.01 (2018-02-22)"
 # richard@sears.net
 
 # Manage Imports
@@ -565,7 +565,7 @@ def check_pool_sensors():
     pool_level_lowvoltage_alert_sent = read_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_level_low_voltage_alert_sent")
     pool_temp_timeout_alert_sent = read_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_temp_sensor_timeout_alert_sent")
     pool_temp_lowvoltage_alert_sent = read_pool_sensor_status_values("pool_sensor_status", "notification_status","pool_temp_low_voltage_alert_sent")
-    pool_filter_high_psi_alert_sent = read_pool_sensor_status_values("pool_sensor_status", "notification_status","pool_filter_psi_alert_sent")
+    pool_filter_psi_alert_sent = read_pool_sensor_status_values("pool_sensor_status", "notification_status","pool_filter_psi_alert_sent")
 
     if DEBUG == "True":
         print ("Time dfference between last pool LEVEL sensor reading is: %s "
@@ -674,7 +674,7 @@ def check_pool_sensors():
             logger.info("Pool TEMP Sensor Battery level is Normal")
 
     elif get_pool_filter_psi > pooldb.pool_filter_max_psi:
-        if pool_filter_high_psi_alert_sent == "True":
+        if pool_filter_psi_alert_sent == "True":
             pass
         else:
             update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_filter_psi_alert_sent", True)
@@ -689,7 +689,7 @@ def check_pool_sensors():
         if DEBUG == "True":
             print ("* * * * WARNING * * * *")
             print ("Pool Filter Pressure HIGH - Backflush your filter!")
-    elif get_pool_filter_psi < pooldb.pool_filter_max_psi and pool_filter_high_psi_alert_sent == "True":
+    elif get_pool_filter_psi < pooldb.pool_filter_max_psi_reset and pool_filter_psi_alert_sent == "True":
         update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_filter_psi_alert_sent", False)
         if LOGGING == "True":
             logger.info("Pool filter PSI is Normal")
