@@ -66,7 +66,7 @@ pump_running_watts_table = "feed_153"
 ## What is the table name for our pool_filter_psi?
 pool_filter_psi_table = "feed_273"
 pool_filter_max_psi = 40
-#pool_filter_max_psi = 20
+pool_filter_max_psi_reset = 15
 
 
 #pool acid realert time: How many minutes between low acid alerts do we want?
