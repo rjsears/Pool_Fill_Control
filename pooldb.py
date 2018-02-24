@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 """ Config file for Pool_Fill_Control"""
+""" V3.03.04 """
 
 ## Set Notification Types
 ## No longer set here - see pool_sensor_status file instead.
@@ -71,6 +72,9 @@ pool_filter_max_psi_reset = 15
 
 #pool acid realert time: How many minutes between low acid alerts do we want?
 pool_acid_alert_max_minutes = 2880
+
+# How many gallons have we used to fill the pool?
+pool_gallons_total = "feed_269"
 
 
 ## Do we have a pool water sensor and are we tracking the pool water temp? (Generally user for accurate pH readings).
