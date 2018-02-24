@@ -1,5 +1,12 @@
 #!/usr/bin/python
 
+# Flask file for pool_control_web_engine
+
+__author__ = 'Richard J. Sears'
+VERSION = "V3.3.04 (2018-02-24)"
+# richard@sears.net
+
+
 import ConfigParser
 from flask import Flask, render_template, redirect, url_for
 import pool_control_button_monitor
@@ -46,6 +53,8 @@ def pool_control():
     logging = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "logging" )
     pushbullet = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "pushbullet" )
     email = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "email" )
+    gallons_current_fill = read_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_current_fill" )
+    gallons_last_fill = read_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_last_fill" )
     sms = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms" )
     return render_template("index.html", current_pool_watts = current_pool_watts, 
             filter_current_psi = filter_current_psi, 
@@ -66,12 +75,21 @@ def pool_control():
             pushbullet = pushbullet,
             email = email,
             sms = sms,
+            gallons_current_fill = gallons_current_fill,
+            gallons_last_fill = gallons_last_fill,
             pool_level_batt_percentage = pool_level_batt_percentage)
 
 
 @app.route('/manual_button')
 def web_button_press():
     pool_control_button_monitor.manual_fill_button_push(0,0,0)
+#    pool_manual_fill = read_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_manual_fill")
+#    if pool_manual_fill == "False":
+#        pool_control_master.pool_fill_valve("MANUAL_OPEN")
+#        update_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_manual_fill", True)
+#    else:
+#        pool_control_master.pool_fill_valve("MANUAL_CLOSE")
+#        update_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_manual_fill", False)
     return redirect(url_for('pool_control'))
 
 @app.route('/auto_fill_cancel')

@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+# Threaded Python App that monitors physical push button
+# switch on RPi.
+
+__author__ = 'Richard J. Sears'
+VERSION = "V3.3.04 (2018-02-24)"
+# richard@sears.net
+
+
+#import time
 import pigpio # http://abyz.co.uk/rpi/pigpio/python.html
 import threading
 import ConfigParser
@@ -45,10 +54,6 @@ def check_for_button():
     threading.Timer(10, check_for_button).start()
 
 cb = pi.callback(manual_fill_button, pigpio.RISING_EDGE, manual_fill_button_push)
-
-
-
-
 
 def main():
     check_for_button()

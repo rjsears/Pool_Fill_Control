@@ -3,7 +3,7 @@
 
 # Can be run manually or via cron
 __author__ = 'Richard J. Sears'
-VERSION = "V3.3.03.01 (2018-02-22)"
+VERSION = "V3.3.04 (2018-02-24)"
 # richard@sears.net
 
 # Manage Imports
@@ -341,6 +341,8 @@ def pool_fill_valve(openclose):
            if SMS == "True":
                send_sms_notification("There is a problem with your Pool Level Sensor and we cannot refill your pool!")
            pass
+       gallons_start = get_gallons_total()
+       update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_start", gallons_start)
        update_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_is_filling", True)
        update_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_start_time", current_timestamp)
        GPIO.output(pool_fill_transformer_relay, True)  # Turns on the Sprinkler Transformer
@@ -365,9 +367,13 @@ def pool_fill_valve(openclose):
         GPIO.output(pool_fill_relay, False)  # Turns off the sprinkler valve
         GPIO.output(pool_fill_transformer_relay, False)  # Turns off the Sprinkler Transformer
         led_control(pool_filling_led, "False") # Turns off the pool filling blue LED
+        gallons_stop = get_gallons_total()
+        update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_stop", gallons_stop)
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "pool_filling_led", False)
         update_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_is_filling", False)
         update_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_total_time", 0)
+        calculate_gallons_used()
+        update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_current_fill", 0)
         if LOGGING == "True":
             logger.info("Pool is done refilling.")
         if DEBUG == "True":
@@ -385,9 +391,13 @@ def pool_fill_valve(openclose):
         GPIO.output(pool_fill_relay, False)  # Turns off the sprinkler valve
         GPIO.output(pool_fill_transformer_relay, False)  # Turns off the Sprinkler Transformer
         led_control(pool_filling_led, "False") # Turns off the pool filling blue LED
+        gallons_stop = get_gallons_total()
+        update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_stop", gallons_stop)
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "pool_filling_led", False)
         update_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_is_filling", False)
         update_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_total_time", 0)
+        calculate_gallons_used()
+        update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_current_fill", 0)
         if LOGGING == "True":
             logger.info("Auto Fill terminated by Web Request.")
         if DEBUG == "True":
@@ -405,11 +415,15 @@ def pool_fill_valve(openclose):
         GPIO.output(pool_fill_relay, False)  # Turns off the sprinkler valve
         GPIO.output(pool_fill_transformer_relay, False)  # Turns off the Sprinkler Transformer
         led_control(pool_filling_led, "False")  # Turns off the pool filling blue LED
+        gallons_stop = get_gallons_total()
+        update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_stop", gallons_stop)
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "pool_filling_led", False)
         led_control(system_error_led, "True") # Turns on the System Error LED
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "system_error_led", True)
         update_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_is_filling", False)
         update_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_total_time", 0)
+        calculate_gallons_used()
+        update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_current_fill", 0)
         if LOGGING == "True":
             logger.warn("Pool Fill CRITICAL Stop!")
         if DEBUG == "True":
@@ -430,6 +444,10 @@ def pool_fill_valve(openclose):
         GPIO.output(pool_fill_transformer_relay, False)  # Turns off the Sprinkler Transformer
         led_control(pool_filling_led, "False") # Turns off the pool filling blue LED
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "pool_filling_led", False)
+        gallons_stop = get_gallons_total()
+        update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_stop", gallons_stop)
+        calculate_gallons_used()
+        update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_current_fill", 0)
         if DEBUG == "True":
             print("pool_fill_valve called with RESET command")
         if LOGGING == "True":
@@ -448,6 +466,8 @@ def pool_fill_valve(openclose):
                 print("There is a problem with your pool level sensor and we cannot fill the pool.")
             pass
         update_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_is_filling", True)
+        gallons_start = get_gallons_total()
+        update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_start", gallons_start)
         update_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_start_time", current_timestamp)
         GPIO.output(pool_fill_transformer_relay, True)  # Turns on the Sprinkler Transformer
         GPIO.output(pool_fill_relay, True)  # Turns on the sprinkler valve
@@ -474,10 +494,14 @@ def pool_fill_valve(openclose):
         GPIO.output(pool_fill_transformer_relay, False)  # Turns off the Sprinkler Transformer
         led_control(manual_fill_button_led, "False")
         led_control(pool_filling_led, "False") # Turns off the pool filling blue LED
+        gallons_stop = get_gallons_total()
+        update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_stop", gallons_stop)
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "pool_filling_led", False)
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "manual_fill_button_led", False)
         update_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_is_filling", False)
         update_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_total_time", 0)
+        calculate_gallons_used()
+        update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_current_fill", 0)
         if LOGGING == "True":
             logger.info("Your Pool is done MANUALLY Filling.")
         if DEBUG == "True":
@@ -492,6 +516,38 @@ def pool_fill_valve(openclose):
         if EMAIL == "True":
             send_email(pooldb.alert_email, 'Your Pool is done MANUALLY Filling.', 'Your Pool is done MANUALLY Filling.')
 
+
+# Track total gallons added to pool during fill times
+def get_gallons_total():
+    cnx = mysql.connector.connect(user=pooldb.username,
+                                  password=pooldb.password,
+                                  host=pooldb.servername,
+                                  database=pooldb.emoncms_db)
+    cursor = cnx.cursor(buffered=True)
+    cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (
+        pooldb.pool_gallons_total))
+
+    for data in cursor:
+        pool_gallons_total = int("%1.0f" % data)
+        cursor.close()
+        if DEBUG == "True":
+            print("Total Gallons: %s" % pool_gallons_total)
+
+    cnx.close()
+    return pool_gallons_total
+
+def calculate_current_fill_gallons():
+    fill_gallons_start = get_gallons_total()
+    fill_gallons_stop = read_pool_sensor_status_values("pool_sensor_status", "filling_gallons","gallons_stop")
+    current_fill_gallons = int(fill_gallons_start) - int(fill_gallons_stop)
+    update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_current_fill", current_fill_gallons)
+    return current_fill_gallons
+
+def calculate_gallons_used():
+    gallons_start = read_pool_sensor_status_values("pool_sensor_status", "filling_gallons","gallons_start") 
+    gallons_stop = read_pool_sensor_status_values("pool_sensor_status", "filling_gallons","gallons_stop") 
+    gallons_used = int(gallons_stop) - int(gallons_start)
+    update_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_last_fill", gallons_used) 
 
 def check_pool_sensors():
     if DEBUG == "True":
@@ -708,7 +764,10 @@ def get_pool_level_resistance():
         pool_fill_start_time = int(read_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_start_time"))
         pool_fill_total_time = (current_timestamp - pool_fill_start_time) / 60
         update_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_total_time", pool_fill_total_time)
-        print ("Pool has been MANUALLY filling for %s minutes." % pool_fill_total_time)
+        current_fill_gallons = calculate_current_fill_gallons()
+        if DEBUG == "True":
+            print ("Pool has been MANUALLY filling for %s minutes." % pool_fill_total_time)
+            print ("Current gallons of water added to pool: %s gallons." % current_fill_gallons)
         if pool_fill_total_time >= pooldb.max_pool_fill_time:
             update_pool_sensor_status_values("pool_sensor_status", "filling_status", "fill_critical_stop", True)
             if PUSHBULLET == "True":
@@ -736,7 +795,7 @@ def get_pool_level_resistance():
         for data in cursor:
             get_pool_level_resistance_value = int("%1.0f" % data)
             cursor.close()
-            get_pool_level_percentage(get_pool_level_resistance_value)
+            pool_level_percentage = get_pool_level_percentage(get_pool_level_resistance_value)
             update_pool_sensor_status_values("pool_sensor_status", "pool_level", "pool_level_percentage", pool_level_percentage)
             if DEBUG == "True":
                 print("pool_sensors: Pool Resistance is: %s " % get_pool_level_resistance_value)
@@ -756,8 +815,10 @@ def get_pool_level_resistance():
                 pool_fill_start_time = int(read_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_start_time"))
                 pool_fill_total_time = (current_timestamp - pool_fill_start_time) / 60
                 update_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_total_time", pool_fill_total_time)
+                current_fill_gallons = calculate_current_fill_gallons()
                 if DEBUG == "True":
                     print ("Pool has been filling for %s minutes." % pool_fill_total_time)
+                    print ("Current number of gallons added to pool: %s gallons." % current_fill_gallons)
                 if pool_fill_total_time >= pooldb.max_pool_fill_time:
                     update_pool_sensor_status_values("pool_sensor_status", "filling_status", "fill_critical_stop", True)
                     if PUSHBULLET == "True":
@@ -810,7 +871,10 @@ def get_pool_level_resistance():
                 pool_fill_start_time = int(read_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_start_time"))
                 pool_fill_total_time = (current_timestamp - pool_fill_start_time) / 60
                 update_pool_sensor_status_values("pool_sensor_status", "filling_time", "pool_fill_total_time", pool_fill_total_time)
-                print ("Pool has been filling for %s minutes." % pool_fill_total_time)
+                current_fill_gallons = calculate_current_fill_gallons()
+                if DEBUG == "True":
+                    print ("Pool has been filling for %s minutes." % pool_fill_total_time)
+                    print ("Current number of gallons added to pool: %s gallons." % current_fill_gallons)
                 if pool_fill_total_time >= pooldb.max_pool_fill_time:
                     update_pool_sensor_status_values("pool_sensor_status", "filling_status", "fill_critical_stop", True)
                     if PUSHBULLET == "True":
@@ -1132,6 +1196,7 @@ def main():
     is_pool_pump_running()
     check_pool_sensors()
     get_pool_level_resistance()
+    get_gallons_total()
     acid_level()
 
 if __name__ == '__main__':
