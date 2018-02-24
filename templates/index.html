@@ -188,8 +188,8 @@ richard@sears.net
   </tr>
 </table>
 <center>
- <h4>Last System Update: {{current_military_time}}<br>
-	Total Overall Gallons Added: <canvas id=TotalGallons></h4></canvas><br><br> 
+	<h4>Last System Update: {{current_military_time}}</h4>
+<canvas id=TotalGallons></canvas><br><br> 
    </body>
    <script>
       function init()
@@ -370,10 +370,16 @@ richard@sears.net
                       size: 100,
                       value: {{pool_level_batt_percentage}}
               });
-	      single1 = new steelseries.DisplaySingle('TotalGallons', {
-		                                  width: 80,
-		                                  height: 20
-	      });
+	      var single3 = new steelseries.DisplaySingle('TotalGallons', {
+                            width: 120,
+                            height: 40,
+			    lcdDecimals:  0,
+                            unitString: "unit",
+                            unitStringVisible: false,
+                            headerString: "Total Gallons To Date",
+                            headerStringVisible: true,
+                            });
+
 
 
       
@@ -386,7 +392,7 @@ richard@sears.net
 	      radial7.setValue({{gallons_last_fill}});
               radial8.setValue(7.5);
               radial9.setValue(700);
-	      single1.setValue({{total_system_gallons}});
+	      single3.setValue({{total_system_gallons}});
       
       }
    </script>
