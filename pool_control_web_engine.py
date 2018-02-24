@@ -55,6 +55,7 @@ def pool_control():
     email = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "email" )
     gallons_current_fill = read_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_current_fill" )
     gallons_last_fill = read_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_last_fill" )
+    total_system_gallons = read_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_stop" )
     sms = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms" )
     return render_template("index.html", current_pool_watts = current_pool_watts, 
             filter_current_psi = filter_current_psi, 
@@ -77,6 +78,7 @@ def pool_control():
             sms = sms,
             gallons_current_fill = gallons_current_fill,
             gallons_last_fill = gallons_last_fill,
+            total_system_gallons = total_system_gallons,
             pool_level_batt_percentage = pool_level_batt_percentage)
 
 
