@@ -126,9 +126,10 @@ richard@sears.net
          </center>       </td>
          </tr>
          </table>
-	 <h4>Last System Update: {{current_military_time}}</h4>
-         </center>
-	 <br>
+<!--	 <h4>Last System Update: {{current_military_time}}<br>
+		 Total Overall Gallons Added: <canvas id=TotalGallons></h4></canvas><br><br>
+-->
+	    	 </center>
 <style type="text/css">
 .tf  {border-collapse:collapse;border-spacing:0;border-color:#999;margin:0px auto;}
 .tf td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#999;color:#444;background-color:#F7FDFA;}
@@ -186,6 +187,9 @@ richard@sears.net
     </td>
   </tr>
 </table>
+<center>
+ <h4>Last System Update: {{current_military_time}}<br>
+	Total Overall Gallons Added: <canvas id=TotalGallons></h4></canvas><br><br> 
    </body>
    <script>
       function init()
@@ -366,6 +370,12 @@ richard@sears.net
                       size: 100,
                       value: {{pool_level_batt_percentage}}
               });
+	      single1 = new steelseries.DisplaySingle('TotalGallons', {
+		                                  width: 80,
+		                                  height: 20
+	      });
+
+
       
               radial1.setValue({{pool_current_temp}});
               radial2.setValue({{current_pool_watts}});
@@ -376,6 +386,7 @@ richard@sears.net
 	      radial7.setValue({{gallons_last_fill}});
               radial8.setValue(7.5);
               radial9.setValue(700);
+	      single1.setValue({{total_system_gallons}});
       
       }
    </script>
