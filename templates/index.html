@@ -1,3 +1,9 @@
+<!-- Template File for pool_control web interface 
+__author__ = 'Richard J. Sears'
+VERSION = "V3.3.04 (2018-02-24)"
+richard@sears.net
+-->
+
 <!doctype html>
 <html>
    <head>
@@ -103,6 +109,8 @@
          <canvas id=FilterPSI width=300 height=300></canvas>
          <canvas id=PoolLevel width=300 height=300></canvas>
          <canvas id=FillTime width=300 height=300></canvas>
+         <canvas id=CurrentFillGallons width=300 height=300></canvas>
+         <canvas id=LastFillGallons width=300 height=300></canvas>
          <canvas id=PoolpH width=300 height=300></canvas>
          <canvas id=PoolORP width=300 height=300></canvas><br><br>
          <table>
@@ -202,7 +210,7 @@
               var radial1 = new steelseries.Radial(
                               'PoolTemp', {
                                       section: Array(steelseries.Section(85,100,'rgba(220,220,0,0.3)')),
-                                      area: areas,
+                                      area: Array(steelseries.Section(40,85,'rgba(0,0,255,0.5)')),
                                       minValue: 45,
                                       maxValue: 100,
                                       threshold: 100,
@@ -283,6 +291,38 @@
                                       pointerType: steelseries.PointerType.TYPE16
                               });
               var radial6 = new steelseries.Radial(
+                              'CurrentFillGallons', {
+                                //   section: Array(steelseries.Section(110,120,'rgba(220,220,0,0.3)')),
+                                //      area: Array(steelseries.Section(110,120,'rgba(255,0,0,0.3)')),
+                                      minValue: 0,
+                                      maxValue: 1200,
+                                      ledVisible: false,
+                                      lcdVisible: true,
+                      //                threshold: 1500,
+                                      titleString: 'Current Fill',
+                                      unitString: 'Gallons',
+                                      frameDesign: steelseries.FrameDesign.BLACK_METAL,
+                                      backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+                                      lcdColor: steelseries.LcdColor.RED,
+                                      pointerType: steelseries.PointerType.TYPE16
+                              });
+              var radial7 = new steelseries.Radial(
+                              'LastFillGallons', {
+                                //   section: Array(steelseries.Section(110,120,'rgba(220,220,0,0.3)')),
+                                //      area: Array(steelseries.Section(110,120,'rgba(255,0,0,0.3)')),
+                                      minValue: 0,
+                                      maxValue: 1200,
+                                      ledVisible: false,
+                                      lcdVisible: true,
+                      //                threshold: 1500,
+                                      titleString: 'Last Fill',
+                                      unitString: 'Gallons',
+                                      frameDesign: steelseries.FrameDesign.BLACK_METAL,
+                                      backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+                                      lcdColor: steelseries.LcdColor.RED,
+                                      pointerType: steelseries.PointerType.TYPE16
+                              });
+              var radial8 = new steelseries.Radial(
                               'PoolpH', {
                                       section: Array(steelseries.Section(5,7.2,'rgba(225,0,0,0.3)'),
 				                    steelseries.Section(7.2,7.8,'rgba(0,255,0,0.3)'),
@@ -300,7 +340,7 @@
                                       lcdColor: steelseries.LcdColor.RED,
                                       pointerType: steelseries.PointerType.TYPE16
                               });
-              var radial7 = new steelseries.Radial(
+              var radial9 = new steelseries.Radial(
                               'PoolORP', {
                                       section: Array(steelseries.Section(500,675,'rgba(225,0,0,0.3)')),
                                       area: Array(steelseries.Section(675,800,'rgba(0,255,0,0.3)')),
@@ -332,8 +372,10 @@
               radial3.setValue({{filter_current_psi}});
               radial4.setValue({{pool_level_percentage}});
 	      radial5.setValue({{pool_fill_total_time}});
-              radial6.setValue(7.5);
-              radial7.setValue(700);
+	      radial6.setValue({{gallons_current_fill}});
+	      radial7.setValue({{gallons_last_fill}});
+              radial8.setValue(7.5);
+              radial9.setValue(700);
       
       }
    </script>
