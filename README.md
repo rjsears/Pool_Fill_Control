@@ -1,4 +1,4 @@
-# Pool_Fill_Control V3.3.04 (2018-02-24)
+# Pool_Fill_Control V3.3.05 (2018-02-27)
 > Major rewrite of the code. Please see the bottom of this readme for updates!
 
 Raspberry Pi / Arduino / Python Project to automate filling of swimming pool. Includes Flask based Web Interface.
@@ -123,6 +123,14 @@ V3.3.03.01 (2018-02-22)
   
 - Added email and twilio (SMS) notifications to pushbullet. Requires (free) pushbullet
   an/or paid Twilio account. 
+  
+V3.3.05 (2018-02-27)
+- Added pump control of Pentair Intelliflo VSF pump. MAJOR thanks to Russell Goldin
+  (russ.goldin@gmail.com) for his amazing work on the Pentair RS-485 control software 
+  needed for my system to be able to talk to and control my pump. You can check out his github
+  [HERE](https://github.com/tagyoureit/nodejs-poolController/tree/4.x-DEV).
+- Updated templates/index.html to add pump status and controls to web interface
+- Updated main code to include start/stop and system checks for pump control
  
 
 Based on the following hardware:
@@ -146,4 +154,5 @@ This project is licensed under the MIT License - see the MIT License for details
 
 * [Gerrit Grunwald, Mark Crossley](https://github.com/HanSolo/SteelSeries-Canvas) - Steel Series Gauges
 * [Randomchars](https://github.com/randomchars) - pushbullet.py
+* [Russell Goldin] (https://github.com/tagyoureit/nodejs-poolController/tree/4.x-DEV) - Pentair Control Code
 * My amazing family that puts up with all of my coding projects!
