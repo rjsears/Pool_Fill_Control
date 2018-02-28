@@ -1,6 +1,6 @@
 <!-- Template File for pool_control web interface 
 __author__ = 'Richard J. Sears'
-VERSION = "V3.3.04 (2018-02-24)"
+VERSION = "V3.3.05 (2018-02-27)"
 richard@sears.net
 -->
 
@@ -18,7 +18,7 @@ richard@sears.net
       <p style="text-align:center;">
          <img src="{{url_for('static', filename='pool-favicon.jpg')}}" height="100" width="100">
       <center>
-         <h2> Swimming Pool Control Center </h2>
+	      <!--         <h2> Swimming Pool Control Center </h2>-->
          <iframe src="http://free.timeanddate.com/clock/i64ad8fh/n197/fs16/ftb/tt0/tw0/tm1/th1/tb2" frameborder="0" width="210" height="25"></iframe>
       </center>
       </p>
@@ -35,7 +35,7 @@ richard@sears.net
 </style>
 <table class="tg" width=65% border="0">
   <tr>
-    <th class="tg-6f4q" colspan="6">System Status and Functions</th>
+    <th class="tg-6f4q" colspan="7">System Status and Functions</th>
   </tr>
   <tr>
     <td class="tg-lrzf">System Status<br></td>
@@ -44,6 +44,7 @@ richard@sears.net
     <td class="tg-3a3g">Manual Fill</td>
     <td class="tg-3a3g">Sprinklers</td>
     <td class="tg-3a3g">Acid Level</td>
+    <td class="tg-3a3g">Pump Control</td>
   </tr>
   <tr>
     <td class="tg-lrzf">
@@ -56,9 +57,13 @@ richard@sears.net
                   {% endif %}
 </td>
     <td class="tg-lrzf">
-                  {% if pump_run_led == "True" %}
-                  <img src="{{url_for('static', filename='led_circle_green.png')}}" height="50" width="50">
-                  {% else %}
+                  {% if pump_run_led == "True" and pump_control_active == "True" %}
+		  <a href="{{ url_for('pump_stop') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a>
+                  {% elif pump_run_led == "True" and pump_control_active == "False" %}
+		  <img src="{{url_for('static', filename='led_circle_green.png')}}" height="50" width="50">
+		  {% elif pump_run_led == "False" and pump_control_active == "True" %}
+		  <a href="{{ url_for('pump_start') }}"><img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70"></a>
+		  {% elif pump_run_led == "False" and pump_control_active == "False" %}
                   <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
                   {% endif %}
 </td>
@@ -97,6 +102,14 @@ richard@sears.net
                <img src="{{url_for('static', filename='dark-red-led-circle-md.png')}}" height="50" width="50">
                {% endif %}
 </td>
+    <td class="tg-3a3g">
+               {% if pump_control_active == "True" %}
+               <img src="{{url_for('static', filename='led_circle_green.png')}}" height="50" width="50">
+               {% else %}
+               <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
+               {% endif %}
+</td>
+  </tr>
   </tr>
 </table>
 
@@ -106,6 +119,8 @@ richard@sears.net
          <br><br>
          <canvas id=PoolTemp width=300 height=300>No canvas in your browser...sorry...</canvas>
          <canvas id=PumpWatts width=300 height=300></canvas>
+         <canvas id=PumpRPM width=300 height=300></canvas>
+         <canvas id=PumpGPM width=300 height=300></canvas>
          <canvas id=FilterPSI width=300 height=300></canvas>
          <canvas id=PoolLevel width=300 height=300></canvas>
          <canvas id=FillTime width=300 height=300></canvas>
@@ -245,9 +260,45 @@ richard@sears.net
                                       lcdColor: steelseries.LcdColor.RED,
                                       ledColor: steelseries.LedColor.RED_LED,
                               });
+              var radial3 = new steelseries.Radial(
+                              'PumpRPM', {
+                                      gaugeType: steelseries.GaugeType.TYPE4,
+			//	      minValue: 0
+                                      maxValue: 3000,
+                                      threshold: 2750,
+                                      section: Array(steelseries.Section(0,2500,'rgba(0,255,0,0.3)')),
+                                      area: Array(steelseries.Section(2500,3000,'rgba(255,0,0,0.5)')),
+                                      titleString: 'Pump',
+                                      unitString: 'RPM',
+                      //              lcdVisible: false,
+                                      frameDesign: steelseries.FrameDesign.BLACK_METAL,
+                                      backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+                                      pointerType: steelseries.PointerType.TYPE16,
+                                  //    pointerColor: steelseries.ColorDef.BLUE,
+                                      lcdColor: steelseries.LcdColor.RED,
+                                      ledColor: steelseries.LedColor.RED_LED,
+                              });
+              var radial4 = new steelseries.Radial(
+                              'PumpGPM', {
+                                      gaugeType: steelseries.GaugeType.TYPE4,
+			//	      minValue: 0
+                                      maxValue: 100,
+                                      threshold: 80,
+                                      section: Array(steelseries.Section(0,50,'rgba(0,255,0,0.3)')),
+                                      area: Array(steelseries.Section(50,100,'rgba(255,0,0,0.5)')),
+                                      titleString: 'Pump',
+                                      unitString: 'GPM',
+                      //              lcdVisible: false,
+                                      frameDesign: steelseries.FrameDesign.BLACK_METAL,
+                                      backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+                                      pointerType: steelseries.PointerType.TYPE16,
+                                  //    pointerColor: steelseries.ColorDef.BLUE,
+                                      lcdColor: steelseries.LcdColor.RED,
+                                      ledColor: steelseries.LedColor.RED_LED,
+                              });
       
               // Create a radial bargraph gauge
-              var radial3 = new steelseries.Radial(
+              var radial5 = new steelseries.Radial(
                               'FilterPSI', {
                                       gaugeType: steelseries.GaugeType.TYPE4,
                                       section: Array(steelseries.Section(0,50,'rgba(0,255,0,0.3)')),
@@ -263,22 +314,22 @@ richard@sears.net
                                       lcdColor: steelseries.LcdColor.RED,
                                       ledColor: steelseries.LedColor.RED_LED,
                               });
-              var radial4 = new steelseries.Radial(
+              var radial6 = new steelseries.Radial(
                               'PoolLevel', {
-      //                              section: Array(steelseries.Section(70,85,'rgba(220,220,0,0.3)')),
-                                      area: areas,
+      //                              section: Array(steelseries.Section(70,75,'rgba(220,220,0,0.3)')),
+                                      area: Array(steelseries.Section(70,75,'rgba(255,0,0,0.5)')),
                                       minValue: 70,
                                       maxValue: 100,
                                       ledVisible: false,
                                       lcdVisible: false,
-                                      threshold: 80,
+                                      threshold: 75,
                                       titleString: 'Water',
                                       unitString: 'Level',
                                       frameDesign: steelseries.FrameDesign.BLACK_METAL,
                                       backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
                                       pointerType: steelseries.PointerType.TYPE16
                               });
-              var radial5 = new steelseries.Radial(
+              var radial7 = new steelseries.Radial(
                               'FillTime', {
                                 //   section: Array(steelseries.Section(110,120,'rgba(220,220,0,0.3)')),
                                       area: Array(steelseries.Section(110,120,'rgba(255,0,0,0.3)')),
@@ -294,7 +345,7 @@ richard@sears.net
                                       lcdColor: steelseries.LcdColor.RED,
                                       pointerType: steelseries.PointerType.TYPE16
                               });
-              var radial6 = new steelseries.Radial(
+              var radial8 = new steelseries.Radial(
                               'CurrentFillGallons', {
                                 //   section: Array(steelseries.Section(110,120,'rgba(220,220,0,0.3)')),
                                 //      area: Array(steelseries.Section(110,120,'rgba(255,0,0,0.3)')),
@@ -310,7 +361,7 @@ richard@sears.net
                                       lcdColor: steelseries.LcdColor.RED,
                                       pointerType: steelseries.PointerType.TYPE16
                               });
-              var radial7 = new steelseries.Radial(
+              var radial9 = new steelseries.Radial(
                               'LastFillGallons', {
                                 //   section: Array(steelseries.Section(110,120,'rgba(220,220,0,0.3)')),
                                 //      area: Array(steelseries.Section(110,120,'rgba(255,0,0,0.3)')),
@@ -326,7 +377,7 @@ richard@sears.net
                                       lcdColor: steelseries.LcdColor.RED,
                                       pointerType: steelseries.PointerType.TYPE16
                               });
-              var radial8 = new steelseries.Radial(
+              var radial10 = new steelseries.Radial(
                               'PoolpH', {
                                       section: Array(steelseries.Section(5,7.2,'rgba(225,0,0,0.3)'),
 				                    steelseries.Section(7.2,7.8,'rgba(0,255,0,0.3)'),
@@ -344,7 +395,7 @@ richard@sears.net
                                       lcdColor: steelseries.LcdColor.RED,
                                       pointerType: steelseries.PointerType.TYPE16
                               });
-              var radial9 = new steelseries.Radial(
+              var radial11 = new steelseries.Radial(
                               'PoolORP', {
                                       section: Array(steelseries.Section(500,675,'rgba(225,0,0,0.3)')),
                                       area: Array(steelseries.Section(675,800,'rgba(0,255,0,0.3)')),
@@ -385,13 +436,15 @@ richard@sears.net
       
               radial1.setValue({{pool_current_temp}});
               radial2.setValue({{current_pool_watts}});
-              radial3.setValue({{filter_current_psi}});
-              radial4.setValue({{pool_level_percentage}});
-	      radial5.setValue({{pool_fill_total_time}});
-	      radial6.setValue({{gallons_current_fill}});
-	      radial7.setValue({{gallons_last_fill}});
-              radial8.setValue(7.5);
-              radial9.setValue(700);
+	      radial3.setValue({{pump_rpm}});
+	      radial4.setValue({{pump_gpm}});
+              radial5.setValue({{filter_current_psi}});
+              radial6.setValue({{pool_level_percentage}});
+	      radial7.setValue({{pool_fill_total_time}});
+	      radial8.setValue({{gallons_current_fill}});
+	      radial9.setValue({{gallons_last_fill}});
+              radial10.setValue(7.5);
+              radial11.setValue(700);
 	      single3.setValue({{total_system_gallons}});
       
       }
