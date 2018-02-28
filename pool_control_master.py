@@ -3,7 +3,7 @@
 
 # Can be run manually or via cron
 __author__ = 'Richard J. Sears'
-VERSION = "V3.3.04 (2018-02-24)"
+VERSION = "V3.3.05 (2018-02-27)"
 # richard@sears.net
 
 # Manage Imports
@@ -19,6 +19,9 @@ import subprocess
 import logging
 import datetime
 from twilio.rest import Client
+import urllib2
+import json
+import httplib
 
 config = ConfigParser.ConfigParser()
 current_timestamp = int(time.time())
@@ -240,6 +243,130 @@ def get_battery_percentage(voltage):
     else:
         batt_level = 20
     return batt_level
+
+
+
+# is our pump control system active and responding?
+def check_pump_control_url():
+    check_url = pooldb.PUMP_DATA_TEST_URL
+    conn = httplib.HTTPConnection(check_url, timeout=3)
+    try:
+        conn.request("HEAD", "/")
+        conn.close()
+        update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_control_active", True)
+        return True
+    except:
+        conn.close()
+        update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_control_active", False)
+        return False
+
+
+# Function to talk to pump control software
+# See https://github.com/tagyoureit/nodejs-poolController
+def get_pump_data(key):
+    global json
+    global pump_data
+    req = urllib2.Request(pooldb.PUMP_DATA_URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    json = json.loads(f.read())
+    pump_data = json["pump"]["1"][key]
+    return pump_data
+
+
+def pump_control(command):
+    pump_control_active = check_pump_control_url()
+    DEBUG = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "debug")
+    LOGGING = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "logging")
+    EMAIL = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "email")
+    PUSHBULLET = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "pushbullet")
+    SMS = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms")
+    if pump_control_active:
+        if command == "START":
+            urllib2.urlopen(pooldb.PUMP_START_URL)
+            update_pool_sensor_status_values("pool_sensor_status", "led_status", "pump_run_led", True)
+            if DEBUG == "True":
+                print("pump_control() called with START command")
+            if LOGGING == "True":
+                logger.warn("pump_control() called with START command.")
+            if EMAIL == "True":
+                send_email(pooldb.alert_email, 'Your pool pump has been Started', 'Your pool pump has been started.')
+            if PUSHBULLET == "True":
+                send_push_notification("Your pool pump has been started.", "Your pool pump has been started.")
+            if SMS == "True":
+                send_sms_notification("Your pool pump has been started.")
+        else:
+            urllib2.urlopen(pooldb.PUMP_STOP_URL)
+            update_pool_sensor_status_values("pool_sensor_status", "led_status", "pump_run_led", False)
+            if DEBUG == "True":
+                print("pump_control() called with STOP command")
+            if LOGGING == "True":
+                logger.warn("pump_control() called with STOP command.")
+            if EMAIL == "True":
+                send_email(pooldb.alert_email, 'Your pool pump has been stopped', 'Your pool pump has been stopped.')
+            if PUSHBULLET == "True":
+                send_push_notification("Your pool pump has been stopped.", "Your pool pump has been stopped.")
+            if SMS == "True":
+                send_sms_notification("Your pool pump has been stopped.")
+    else:
+        pass
+
+
+def get_pump_gpm():
+    pump_control_active = check_pump_control_url()
+    if pump_control_active:
+        if pooldb.PUMP_DATA == "NODEJS":
+            global gpm 
+            global pump_gpm
+            req = urllib2.Request(pooldb.PUMP_DATA_URL)
+            opener = urllib2.build_opener()
+            g = opener.open(req)
+            gpm = json.loads(g.read())
+            pump_gpm = gpm["pump"]["1"]["gpm"]
+            update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_gpm", pump_gpm)
+            return pump_gpm
+        else:
+            pump_gpm = 0
+            update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_gpm", pump_gpm)
+            return pump_gpm
+    else:
+        pump_gpm = 0
+        update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_gpm", pump_gpm)
+        return pump_gpm
+
+def get_pump_rpm():
+    pump_control_active = check_pump_control_url()
+    if pump_control_active:
+        if pooldb.PUMP_DATA == "NODEJS":
+            global rpm 
+            global pump_rpm
+            req = urllib2.Request(pooldb.PUMP_DATA_URL)
+            opener = urllib2.build_opener()
+            f = opener.open(req)
+            rpm = json.loads(f.read())
+            pump_rpm = rpm["pump"]["1"]["rpm"]
+            update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_rpm", pump_rpm)
+            return pump_rpm
+        else:
+            pump_rpm = 0
+            update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_rpm", pump_rpm)
+            return pump_rpm
+    else:
+        pump_rpm = 0
+        update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_rpm", pump_rpm)
+        return pump_rpm
+
+
+def get_pump_watts():
+    global watts 
+    global pump_watts
+    req = urllib2.Request(pooldb.PUMP_DATA_URL)
+    opener = urllib2.build_opener()
+    f = opener.open(req)
+    watts = json.loads(f.read())
+    pump_watts = watts["pump"]["1"]["watts"]
+    return pump_watts
+
 
 
 def get_sprinkler_status():
@@ -1064,23 +1191,40 @@ def is_pool_pump_running():
     """ Function to determine if our pool pump is running. """
     if DEBUG == "True":
         print("Started is_pool_pump_running()")
-    cnx = mysql.connector.connect(user=pooldb.username,
-                                  password=pooldb.password,
-                                  host=pooldb.servername,
-                                  database=pooldb.emoncms_db)
-    cursor = cnx.cursor(buffered=True)
-    cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (
-        pooldb.pump_running_watts_table))
+    if pooldb.PUMP_DATA == "NODEJS":
+        pump_control_active = check_pump_control_url()
+        if pump_control_active:
+            pool_pump_running_watts = get_pump_watts()
+        else:
+            cnx = mysql.connector.connect(user=pooldb.username,
+                                          password=pooldb.password,
+                                          host=pooldb.servername,
+                                          database=pooldb.emoncms_db)
+            cursor = cnx.cursor(buffered=True)
+            cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (
+                pooldb.pump_running_watts_table))
 
-    for data in cursor:
-        pool_pump_running_watts = int("%1.0f" % data)
-        cursor.close()
-        if DEBUG == "True":
-            print(
-                "pool_pump_running_watts returned %s watts in use by "
-                "pump." %
-                pool_pump_running_watts)
-            update_pool_sensor_status_values("pool_sensor_status", "system_status", "pump_current_watts", pool_pump_running_watts)
+            for data in cursor:
+                pool_pump_running_watts = int("%1.0f" % data)
+                cursor.close()
+    else:
+        cnx = mysql.connector.connect(user=pooldb.username,
+                                      password=pooldb.password,
+                                      host=pooldb.servername,
+                                      database=pooldb.emoncms_db)
+        cursor = cnx.cursor(buffered=True)
+        cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (
+            pooldb.pump_running_watts_table))
+
+        for data in cursor:
+            pool_pump_running_watts = int("%1.0f" % data)
+            cursor.close()
+    if DEBUG == "True":
+        print(
+            "pool_pump_running_watts returned %s watts in use by "
+            "pump." %
+            pool_pump_running_watts)
+    update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_watts", pool_pump_running_watts)
 
     if pool_pump_running_watts > pooldb.max_wattage:
         led_control(pump_run_led, "True")
@@ -1198,6 +1342,10 @@ def main():
     get_pool_level_resistance()
     get_gallons_total()
     acid_level()
+    pump_gpm = get_pump_gpm()
+    print ("Current GPM: %s" % pump_gpm)
+    pump_rpm = get_pump_rpm()
+    print ("Current RPM: %s" % pump_rpm)
 
 if __name__ == '__main__':
     main()

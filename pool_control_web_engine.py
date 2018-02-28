@@ -3,7 +3,7 @@
 # Flask file for pool_control_web_engine
 
 __author__ = 'Richard J. Sears'
-VERSION = "V3.3.04 (2018-02-24)"
+VERSION = "V3.3.05 (2018-02-27)"
 # richard@sears.net
 
 
@@ -35,7 +35,7 @@ def update_pool_sensor_status_values(file, section, status, value):
 @app.route("/")
 def pool_control():
     filter_current_psi = read_pool_sensor_status_values("pool_sensor_status", "system_status", "filter_current_psi" )
-    current_pool_watts = read_pool_sensor_status_values("pool_sensor_status", "system_status", "pump_current_watts" )
+    current_pool_watts = read_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_watts" )
     pool_current_temp = read_pool_sensor_status_values("pool_sensor_status", "system_status", "pool_current_temp" )
     pool_temp_batt_percentage = read_pool_sensor_status_values("pool_sensor_status", "system_status", "pool_temp_batt_percentage" )
     pool_level_batt_percentage = read_pool_sensor_status_values("pool_sensor_status", "system_status", "pool_level_batt_percentage" )
@@ -56,6 +56,9 @@ def pool_control():
     gallons_current_fill = read_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_current_fill" )
     gallons_last_fill = read_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_last_fill" )
     total_system_gallons = read_pool_sensor_status_values("pool_sensor_status", "filling_gallons", "gallons_stop" )
+    pump_gpm = read_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_gpm" )
+    pump_rpm = read_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_rpm" )
+    pump_control_active = read_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_control_active" )
     sms = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms" )
     return render_template("index.html", current_pool_watts = current_pool_watts, 
             filter_current_psi = filter_current_psi, 
@@ -79,6 +82,9 @@ def pool_control():
             gallons_current_fill = gallons_current_fill,
             gallons_last_fill = gallons_last_fill,
             total_system_gallons = total_system_gallons,
+            pump_gpm = pump_gpm,
+            pump_rpm = pump_rpm,
+            pump_control_active = pump_control_active,
             pool_level_batt_percentage = pool_level_batt_percentage)
 
 
@@ -98,6 +104,17 @@ def web_button_press():
 def web_auto_fill_cancel():
     pool_control_master.pool_fill_valve("WEBCLOSE")
     return redirect(url_for('pool_control'))
+
+@app.route('/pump_start')
+def pump_start():
+    pool_control_master.pump_control("START")
+    return redirect(url_for('pool_control'))
+
+@app.route('/pump_stop')
+def pump_stop():
+    pool_control_master.pump_control("STOP")
+    return redirect(url_for('pool_control'))
+
 
 @app.route('/debug')
 def toggle_debug():
