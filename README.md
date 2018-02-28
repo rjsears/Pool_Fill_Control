@@ -154,5 +154,5 @@ This project is licensed under the MIT License - see the MIT License for details
 
 * [Gerrit Grunwald, Mark Crossley](https://github.com/HanSolo/SteelSeries-Canvas) - Steel Series Gauges
 * [Randomchars](https://github.com/randomchars) - pushbullet.py
-* [Russell Goldin] (https://github.com/tagyoureit/nodejs-poolController/tree/4.x-DEV) - Pentair Control Code
+* [Russell Goldin](https://github.com/tagyoureit/nodejs-poolController/tree/4.x-DEV) - Pentair Control Code
 * My amazing family that puts up with all of my coding projects!
