@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """ Config file for Pool_Fill_Control"""
-""" V3.03.04 """
+""" V3.03.05 (2018-02-27) """
 
 ## Set Notification Types
 ## No longer set here - see pool_sensor_status file instead.
