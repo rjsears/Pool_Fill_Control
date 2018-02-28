@@ -16,6 +16,14 @@ twilio_account = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 twilio_token = 'kjsdhfkjshdkfjhksdhuhifudsjhskfj'
 twilio_to = '+18582224444'
 
+# Set DB here to read pump watts (only) from DB via emoncms or
+# set NODEJS to use Russ Goldin's nodeJS Pump control software
+# https://github.com/tagyoureit/nodejs-poolController
+PUMP_DATA = "NODEJS"
+PUMP_DATA_URL = "http://localhost:3000/pump"
+PUMP_DATA_TEST_URL = "localhost:3000"
+PUMP_START_URL = "http://localhost:3000/pumpCommand/run/pump/1"
+PUMP_STOP_URL = "http://localhost:3000/pumpCommand/off/pump/1"
 
 
 ## Setup our Database Connection
