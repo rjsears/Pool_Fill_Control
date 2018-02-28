@@ -1,11 +1,10 @@
 [system_status]
 system_reset_required = False
-pump_current_watts = 822
-filter_current_psi = 23
-pool_current_temp = 58.5
+filter_current_psi = 8
+pool_current_temp = 56.0
 pool_level_batt_percentage = 100
 pool_temp_batt_percentage = 100
-current_military_time = Tuesday Feb 02, 2018  17:27:01
+current_military_time = Tuesday Feb 02, 2018  17:29:02
 
 [sensor_status]
 pool_level_sensor_ok = True
@@ -25,10 +24,30 @@ pool_database_error_alert_sent = False
 acid_level_low_alert_sent = False
 acid_level_low_alert_sent_time = 1518221932
 
+[notification_methods]
+pushbullet = True
+email = False
+sms = False
+logging = False
+debug = True
+
 [filling_status]
 pool_is_filling = False
 fill_critical_stop = False
 pool_manual_fill = False
+
+[filling_gallons]
+gallons_start = 17808
+gallons_stop = 18370
+gallons_last_fill = 562
+gallons_current_fill = 0
+
+[pump_status]
+pump_control_active = True
+pump_running = True
+pump_watts = 477
+pump_gpm = 30
+pump_rpm = 1920
 
 [manual_buttons]
 pool_manual_fill_button = False
@@ -36,10 +55,10 @@ pool_valve_disabled_button = False
 
 [pool_level]
 pool_level = MIDWAY
-pool_level_percentage = 86
+pool_level_percentage = 85
 
 [filling_time]
-pool_fill_start_time = 1519154643
+pool_fill_start_time = 1519680485
 pool_fill_total_time = 0
 
 [led_status]
