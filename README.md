@@ -125,12 +125,16 @@ V3.3.03.01 (2018-02-22)
   an/or paid Twilio account. 
   
 V3.3.05 (2018-02-27)
-- Added pump control of Pentair Intelliflo VSF pump. MAJOR thanks to Russell Goldin
+- Added pump control of Pentair Intelliflo VF pump. MAJOR thanks to Russell Goldin
   (russ.goldin@gmail.com) for his amazing work on the Pentair RS-485 control software 
   needed for my system to be able to talk to and control my pump. You can check out his github
   [HERE](https://github.com/tagyoureit/nodejs-poolController/tree/4.x-DEV).
 - Updated templates/index.html to add pump status and controls to web interface
 - Updated main code to include start/stop and system checks for pump control
+- Added ability to start and stop pump control software from web interface
+- Added House Main power watts, total watts in use and Solar production to interface
+Eventually this will allow me to control my pump based on solar output
+- Minor logging and bug fixes
  
 
 Based on the following hardware:
