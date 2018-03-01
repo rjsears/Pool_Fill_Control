@@ -22,6 +22,7 @@ from twilio.rest import Client
 import urllib2
 import json
 import httplib
+from subprocess import call
 
 config = ConfigParser.ConfigParser()
 current_timestamp = int(time.time())
@@ -368,6 +369,39 @@ def get_pump_watts():
     return pump_watts
 
 
+def pump_control_software(startstop):
+    DEBUG = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "debug")
+    LOGGING = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "logging")
+    EMAIL = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "email")
+    PUSHBULLET = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "pushbullet")
+    SMS = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms")
+    if startstop == "START":
+        call(["pm2", "start", "index"])
+        update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_control_active", True)
+        if DEBUG == "True":
+            print("pump_control_software() called with START command")
+        if LOGGING == "True":
+            logger.warn("pump_control_software() called with START command.")
+        if EMAIL == "True":
+            send_email(pooldb.alert_email, 'Your Pump Control Software is Active', 'Your pump control software is active.')
+        if PUSHBULLET == "True":
+            send_push_notification("Your pump control software is active.", "Your pump control software has been started.")
+        if SMS == "True":
+            send_sms_notification("Your pump control software is active.")
+    else:
+        call(["pm2", "stop", "index"])
+        update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_control_active", False)
+        if DEBUG == "True":
+            print("pump_control_software() called with STOP command")
+        if LOGGING == "True":
+            logger.warn("pump_control_software() called with STOP command.")
+        if EMAIL == "True":
+            send_email(pooldb.alert_email, 'Your Pump Control Software has been disabled.', 'Your pump control software has been disabled.')
+        if PUSHBULLET == "True":
+            send_push_notification("Your pump control software has been disabled.", "Your pump control software has been disabled.")
+        if SMS == "True":
+            send_sms_notification("Your pump control software has been disabled.")
+
 
 def get_sprinkler_status():
     """ Function to determine if our sprinklers are currently running. """
@@ -642,6 +676,50 @@ def pool_fill_valve(openclose):
             send_sms_notification("Your Swimming Pool Is Done (MANUALLY) Filling.")
         if EMAIL == "True":
             send_email(pooldb.alert_email, 'Your Pool is done MANUALLY Filling.', 'Your Pool is done MANUALLY Filling.')
+
+
+def get_main_power_readings():
+    cnx = mysql.connector.connect(user=pooldb.username,
+                                  password=pooldb.password,
+                                  host=pooldb.servername,
+                                  database=pooldb.emoncms_db)
+    cursor = cnx.cursor(buffered=True)
+    cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (
+        pooldb.power_total_use))
+
+    for data in cursor:
+        power_total_use = int("%1.0f" % data)
+        cursor.close()
+        update_pool_sensor_status_values("pool_sensor_status", "power_solar", "total_current_power_utilization", power_total_use)
+        if DEBUG == "True":
+            print("Total Current Power Utilization: %s watts" % power_total_use)
+
+    cursor = cnx.cursor(buffered=True)
+    cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (
+        pooldb.power_importing))
+
+    for data in cursor:
+        power_importing = int("%1.0f" % data)
+        cursor.close()
+        update_pool_sensor_status_values("pool_sensor_status", "power_solar", "total_current_power_import", power_importing)
+        if DEBUG == "True":
+            print("Total Current Power Import: %s watts" % power_importing)
+
+    cursor = cnx.cursor(buffered=True)
+    cursor.execute(("SELECT data FROM `%s` ORDER by time DESC LIMIT 1") % (
+        pooldb.power_solar))
+
+    for data in cursor:
+        power_solar = int("%1.0f" % data)
+        cursor.close()
+        update_pool_sensor_status_values("pool_sensor_status", "power_solar", "total_current_solar_production", power_solar)
+        if DEBUG == "True":
+            print("Total Current Solar Production: %s watts" % power_solar)
+
+    cnx.close()
+
+
+
 
 
 # Track total gallons added to pool during fill times
@@ -1342,10 +1420,12 @@ def main():
     get_pool_level_resistance()
     get_gallons_total()
     acid_level()
+    get_main_power_readings()
     pump_gpm = get_pump_gpm()
     print ("Current GPM: %s" % pump_gpm)
     pump_rpm = get_pump_rpm()
     print ("Current RPM: %s" % pump_rpm)
+#    pump_control_software("START")
 
 if __name__ == '__main__':
     main()
