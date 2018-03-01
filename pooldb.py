@@ -72,6 +72,11 @@ pool_resistance_table = "feed_221"
 ## What is the table name for our pool_running_watts feed?
 pump_running_watts_table = "feed_153"
 
+# Settings for Power & Solar if using Solar Module to manage pump
+power_total_use = "feed_282"
+power_importing = "feed_281"
+power_solar = "feed_280"
+
 ## What is the table name for our pool_filter_psi?
 pool_filter_psi_table = "feed_273"
 pool_filter_max_psi = 40
