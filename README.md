@@ -132,7 +132,7 @@ V3.3.05 (2018-02-27)
 - Updated templates/index.html to add pump status and controls to web interface
 - Updated main code to include start/stop and system checks for pump control
 - Added ability to start and stop pump control software from web interface.
-- Added House Main power watts, total watts in use and Solar production to interface
+- Added House Main power watts, total watts in use and Solar production to web interface.
 Eventually this will allow me to control my pump based on solar output instead of just ON & OFF.
 - Minor logging and bug fixes
  
