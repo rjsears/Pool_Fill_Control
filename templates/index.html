@@ -104,9 +104,9 @@ richard@sears.net
 </td>
     <td class="tg-3a3g">
                {% if pump_control_active == "True" %}
-               <img src="{{url_for('static', filename='led_circle_green.png')}}" height="50" width="50">
+               <a href="{{ url_for('pump_control_software_stop') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a>
                {% else %}
-               <img src="{{url_for('static', filename='led_circle_grey.png')}}" height="50" width="50">
+               <a href="{{ url_for('pump_control_software_start') }}"><img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70"></a>
                {% endif %}
 </td>
   </tr>
@@ -202,9 +202,12 @@ richard@sears.net
     </td>
   </tr>
 </table>
-<center>
+<center><br>
+<canvas id=TotalGallons></canvas> 
+<canvas id=TotalPowerUse></canvas> 
+<canvas id=TotalPowerImporting></canvas> 
+<canvas id=TotalSolar></canvas> 
 	<h4>Last System Update: {{current_military_time}}</h4>
-<canvas id=TotalGallons></canvas><br><br> 
    </body>
    <script>
       function init()
@@ -421,7 +424,7 @@ richard@sears.net
                       size: 100,
                       value: {{pool_level_batt_percentage}}
               });
-	      var single3 = new steelseries.DisplaySingle('TotalGallons', {
+	      total_gallons_used = new steelseries.DisplaySingle('TotalGallons', {
                             width: 120,
                             height: 40,
 			    lcdDecimals:  0,
@@ -429,6 +432,37 @@ richard@sears.net
                             unitStringVisible: false,
                             headerString: "Total Gallons To Date",
                             headerStringVisible: true,
+                            lcdColor: steelseries.LcdColor.SECTIONS,
+                            });
+	      watts_in_use = new steelseries.DisplaySingle('TotalPowerUse', {
+                            width: 120,
+                            height: 40,
+			    lcdDecimals:  0,
+                            unitString: "unit",
+                            unitStringVisible: false,
+                            headerString: "Total Watts in Use",
+                            headerStringVisible: true,
+                            lcdColor: steelseries.LcdColor.SECTIONS,
+                            });
+	      watts_importing = new steelseries.DisplaySingle('TotalPowerImporting', {
+                            width: 120,
+                            height: 40,
+			    lcdDecimals:  0,
+                            unitString: "unit",
+                            unitStringVisible: false,
+                            headerString: "Watts from APS",
+                            headerStringVisible: true,
+                            lcdColor: steelseries.LcdColor.RED,
+                            });
+	      watts_solar = new steelseries.DisplaySingle('TotalSolar', {
+                            width: 120,
+                            height: 40,
+			    lcdDecimals:  0,
+                            unitString: "unit",
+                            unitStringVisible: false,
+                            headerString: "Solar Generation Watts",
+                            headerStringVisible: true,
+                            lcdColor: steelseries.LcdColor.SECTIONS,
                             });
 
 
@@ -445,7 +479,10 @@ richard@sears.net
 	      radial9.setValue({{gallons_last_fill}});
               radial10.setValue(7.5);
               radial11.setValue(700);
-	      single3.setValue({{total_system_gallons}});
+	      total_gallons_used.setValue({{total_system_gallons}});
+	      watts_in_use.setValue({{total_current_power_utilization}});
+	      watts_importing.setValue({{total_current_power_import}});
+	      watts_solar.setValue({{total_current_solar_production}});
       
       }
    </script>
