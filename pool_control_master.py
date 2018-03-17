@@ -3,7 +3,7 @@
 
 # Can be run manually or via cron
 __author__ = 'Richard J. Sears'
-VERSION = "V3.3.05 (2018-02-27)"
+VERSION = "V3.4 (2018-03-16)"
 # richard@sears.net
 
 # Manage Imports
@@ -23,6 +23,9 @@ import urllib2
 import json
 import httplib
 from subprocess import call
+import requests
+from utilities import get_ph
+from utilities import get_orp
 
 config = ConfigParser.ConfigParser()
 current_timestamp = int(time.time())
@@ -274,7 +277,7 @@ def get_pump_data(key):
     pump_data = json["pump"]["1"][key]
     return pump_data
 
-
+# This funtcion is only called externally by our Flask template
 def pump_control(command):
     pump_control_active = check_pump_control_url()
     DEBUG = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "debug")
@@ -282,6 +285,8 @@ def pump_control(command):
     EMAIL = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "email")
     PUSHBULLET = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "pushbullet")
     SMS = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms")
+    pump_program_running = read_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_program_running")
+    pump_control_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pump_control_notifications")
     if pump_control_active:
         if command == "START":
             urllib2.urlopen(pooldb.PUMP_START_URL)
@@ -290,12 +295,76 @@ def pump_control(command):
                 print("pump_control() called with START command")
             if LOGGING == "True":
                 logger.warn("pump_control() called with START command.")
-            if EMAIL == "True":
+            if EMAIL == "True" and  pump_control_notifications == "True":
                 send_email(pooldb.alert_email, 'Your pool pump has been Started', 'Your pool pump has been started.')
-            if PUSHBULLET == "True":
+            if PUSHBULLET == "True" and  pump_control_notifications == "True":
                 send_push_notification("Your pool pump has been started.", "Your pool pump has been started.")
-            if SMS == "True":
+            if SMS == "True" and  pump_control_notifications == "True":
                 send_sms_notification("Your pool pump has been started.")
+        elif command == "PROGRAM_1":
+            if pump_program_running == "program_1":
+                pass
+            else:
+                urllib2.urlopen(pooldb.PUMP_PROGRAM1_URL)
+                update_pool_sensor_status_values("pool_sensor_status", "led_status", "pump_run_led", True)
+                if DEBUG == "True":
+                    print("pump_control() called with PROGRAM 1 command")
+                if LOGGING == "True":
+                    logger.warn("pump_control() called with PROGRAM 1 command.")
+                if EMAIL == "True" and  pump_control_notifications == "True":
+                    send_email(pooldb.alert_email, 'Your pool pump has started Program 1', 'Your pool pump has started Program 1.')
+                if PUSHBULLET == "True" and  pump_control_notifications == "True":
+                    send_push_notification("Pool Pump Program 1.", "Your pool pump has started Program 1.")
+                if SMS == "True" and  pump_control_notifications == "True":
+                    send_sms_notification("Your pool pump has started Program 1.")
+        elif command == "PROGRAM_2":
+            if pump_program_running == "program_2":
+                pass
+            else:
+                urllib2.urlopen(pooldb.PUMP_PROGRAM2_URL)
+                update_pool_sensor_status_values("pool_sensor_status", "led_status", "pump_run_led", True)
+                if DEBUG == "True":
+                    print("pump_control() called with PROGRAM 2 command")
+                if LOGGING == "True":
+                    logger.warn("pump_control() called with PROGRAM 2 command.")
+                if EMAIL == "True" and  pump_control_notifications == "True":
+                    send_email(pooldb.alert_email, 'Your pool pump has started Program 2', 'Your pool pump has started Program 2.')
+                if PUSHBULLET == "True" and  pump_control_notifications == "True":
+                    send_push_notification("Pool Pump Program 2.", "Your pool pump has started Program 2.")
+                if SMS == "True" and  pump_control_notifications == "True":
+                    send_sms_notification("Your pool pump has started Program 2.")
+        elif command == "PROGRAM_3":
+            if pump_program_running == "program_3":
+                pass
+            else:
+                urllib2.urlopen(pooldb.PUMP_PROGRAM3_URL)
+                update_pool_sensor_status_values("pool_sensor_status", "led_status", "pump_run_led", True)
+                if DEBUG == "True":
+                    print("pump_control() called with PROGRAM 3 command")
+                if LOGGING == "True":
+                    logger.warn("pump_control() called with PROGRAM 3 command.")
+                if EMAIL == "True" and  pump_control_notifications == "True":
+                    send_email(pooldb.alert_email, 'Your pool pump has started Program 3', 'Your pool pump has started Program 3.')
+                if PUSHBULLET == "True" and  pump_control_notifications == "True":
+                    send_push_notification("Pool Pump Program 3.", "Your pool pump has started Program 3.")
+                if SMS == "True" and  pump_control_notifications == "True":
+                    send_sms_notification("Your pool pump has started Program 3.")
+        elif command == "PROGRAM_4":
+            if pump_program_running == "program_4":
+                pass
+            else:
+                urllib2.urlopen(pooldb.PUMP_PROGRAM4_URL)
+                update_pool_sensor_status_values("pool_sensor_status", "led_status", "pump_run_led", True)
+                if DEBUG == "True":
+                    print("pump_control() called with PROGRAM 4 command")
+                if LOGGING == "True":
+                    logger.warn("pump_control() called with PROGRAM 4 command.")
+                if EMAIL == "True" and  pump_control_notifications == "True":
+                    send_email(pooldb.alert_email, 'Your pool pump has started Program 4', 'Your pool pump has started Program 4.')
+                if PUSHBULLET == "True" and  pump_control_notifications == "True":
+                    send_push_notification("Pool Pump Program 4.", "Your pool pump has started Program 4.")
+                if SMS == "True" and  pump_control_notifications == "True":
+                    send_sms_notification("Your pool pump has started Program 4.")
         else:
             urllib2.urlopen(pooldb.PUMP_STOP_URL)
             update_pool_sensor_status_values("pool_sensor_status", "led_status", "pump_run_led", False)
@@ -303,11 +372,11 @@ def pump_control(command):
                 print("pump_control() called with STOP command")
             if LOGGING == "True":
                 logger.warn("pump_control() called with STOP command.")
-            if EMAIL == "True":
+            if EMAIL == "True" and  pump_control_notifications == "True":
                 send_email(pooldb.alert_email, 'Your pool pump has been stopped', 'Your pool pump has been stopped.')
-            if PUSHBULLET == "True":
+            if PUSHBULLET == "True" and  pump_control_notifications == "True":
                 send_push_notification("Your pool pump has been stopped.", "Your pool pump has been stopped.")
-            if SMS == "True":
+            if SMS == "True" and  pump_control_notifications == "True":
                 send_sms_notification("Your pool pump has been stopped.")
     else:
         pass
@@ -375,6 +444,7 @@ def pump_control_software(startstop):
     EMAIL = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "email")
     PUSHBULLET = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "pushbullet")
     SMS = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms")
+    pump_control_software_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pump_control_software_notifications")
     if startstop == "START":
         call(["pm2", "start", "index"])
         update_pool_sensor_status_values("pool_sensor_status", "pump_status", "pump_control_active", True)
@@ -382,11 +452,11 @@ def pump_control_software(startstop):
             print("pump_control_software() called with START command")
         if LOGGING == "True":
             logger.warn("pump_control_software() called with START command.")
-        if EMAIL == "True":
+        if EMAIL == "True" and pump_control_software_notifications == "True":
             send_email(pooldb.alert_email, 'Your Pump Control Software is Active', 'Your pump control software is active.')
-        if PUSHBULLET == "True":
+        if PUSHBULLET == "True" and pump_control_software_notifications == "True":
             send_push_notification("Your pump control software is active.", "Your pump control software has been started.")
-        if SMS == "True":
+        if SMS == "True" and pump_control_software_notifications == "True":
             send_sms_notification("Your pump control software is active.")
     else:
         call(["pm2", "stop", "index"])
@@ -395,11 +465,11 @@ def pump_control_software(startstop):
             print("pump_control_software() called with STOP command")
         if LOGGING == "True":
             logger.warn("pump_control_software() called with STOP command.")
-        if EMAIL == "True":
+        if EMAIL == "True" and pump_control_software_notifications == "True":
             send_email(pooldb.alert_email, 'Your Pump Control Software has been disabled.', 'Your pump control software has been disabled.')
-        if PUSHBULLET == "True":
+        if PUSHBULLET == "True" and pump_control_software_notifications == "True":
             send_push_notification("Your pump control software has been disabled.", "Your pump control software has been disabled.")
-        if SMS == "True":
+        if SMS == "True" and pump_control_software_notifications == "True":
             send_sms_notification("Your pump control software has been disabled.")
 
 
@@ -455,8 +525,93 @@ def get_sprinkler_status():
     return sprinklers_on
 
 
+## Here is where we get our pH reading if we have a probe installed.
+## In order to get an accurate pH reading the way the sensors are
+## installed, we must have the pool pump running. Here is where we
+## check to see if the pool pump is running. If it is, we get the
+## pH reading, if it is not, we do nothing but log the fact the pump
+## is not running.
+
+def get_ph_reading():
+    pool_pump_running = read_pool_sensor_status_values("pool_sensor_status", "led_status", "pump_run_led" )
+    if pool_pump_running == "True":
+        if DEBUG == "True":
+            print("Starting get_ph_reading().")
+        if pooldb.temp_probe == "Yes":
+            pool_temp = float(read_pool_sensor_status_values("pool_sensor_status", "system_status", "pool_current_temp" ))
+            ph_value = get_ph.get_current_ph_with_temp(pool_temp)
+        else:
+            ph_value = get_ph.get_current_ph_no_temp()
+        if DEBUG == "True":
+            print ("Current pH is: %s" % ph_value)
+        if pooldb.emoncms_server1 == "Yes":
+            res = requests.get("http://" + pooldb.server1 + "/" + pooldb.emoncmspath1 + "/input/post.json?&node=" + str(
+                pooldb.ph_node) + "&csv=" + ph_value + "&apikey=" + pooldb.apikey1)
+            if LOGGING == "True":
+                logger.debug("Sent current PH Value: %s to Emoncms Server 1",  ph_value)
+            if DEBUG == "True":
+                print ("Sent Emoncms Server 1 current PH Value: %s" % ph_value)
+        if pooldb.emoncms_server2 == "Yes":
+            res = requests.get("http://" + pooldb.server2 + "/" + pooldb.emoncmspath2 + "/input/post.json?&node=" + str(
+                pooldb.ph_node) + "&csv=" + ph_value + "&apikey=" + pooldb.apikey2)
+            if LOGGING == "True":
+                logger.debug("Sent current PH Value: %s to Emoncms Server 2", ph_value)
+            if DEBUG == "True":
+                print ("Sent Emoncms Server 2 current PH Value: %s" % ph_value)
+        update_pool_sensor_status_values("pool_sensor_status", "pool_chemicals", "pool_current_ph", ph_value)
+        if DEBUG == "True":
+            print("Completed get_ph_reading()")
+    else:
+        if LOGGING == "True":
+            logger.info("Pool Pump is NOT running, cannot get accurate pH reading!")
+        if DEBUG == "True":
+            print("Pool pump is NOT running, cannot get accurate pH reading!")
+
+
+
+## If we have an ORP Probe installed (Atlas Scientific USB) set it up here.
+## In order to get an accurate ORP reading the way the sensors are
+## installed, we must have the pool pump running. Here is where we
+## check to see if the pool pump is running. If it is, we get the
+## ORP reading, if it is not, we do nothing but log the fact the pump
+## is not running.
+
+def get_orp_reading():
+    pool_pump_running = read_pool_sensor_status_values("pool_sensor_status", "led_status", "pump_run_led" )
+    if pool_pump_running == "True":
+        if DEBUG == "True":
+            print("Starting get_orp_reading().")
+        orp_value = get_orp.get_current_orp()
+        if pooldb.emoncms_server1 == "Yes":
+            res = requests.get("http://" + pooldb.server1 + "/" + pooldb.emoncmspath1 + "/input/post.json?&node=" + str(
+                pooldb.orp_node) + "&csv=" + orp_value + "&apikey=" + pooldb.apikey1)
+            if LOGGING == "True":
+                logger.debug("Sent current ORP Value: %s to Emoncms Server 1", orp_value)
+            if DEBUG == "True":
+                print ("Sent Emoncms Server 1 current ORP Value: %s" % orp_value)
+        if pooldb.emoncms_server2 == "Yes":
+            res = requests.get("http://" + pooldb.server2 + "/" + pooldb.emoncmspath2 + "/input/post.json?&node=" + str(
+                pooldb.orp_node) + "&csv=" + orp_value + "&apikey=" + pooldb.apikey2)
+            if LOGGING == "True":
+                logger.debug("Sent current ORP Value: %s to Emoncms Server 2", orp_value)
+            if DEBUG == "True":
+                print ("Sent Emoncms Server 2 current ORP Value: %s" % orp_value)
+        
+        update_pool_sensor_status_values("pool_sensor_status", "pool_chemicals", "pool_current_orp", orp_value)
+        if DEBUG == "True":
+            print("Completed get_orp_reading()")
+    else:
+        if LOGGING == "True":
+            logger.info("Pool Pump is NOT running, cannot get accurate ORP reading!")
+        if DEBUG == "True":
+            print("Pool pump is NOT running, cannot get accurate ORP reading!")
+
+
+
+
 # TODO - Complete this function, add notification via PB once until PFV reenabled!
 def pfv_disabled():
+    pool_fill_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_fill_notifications")
     # TODO Complete and test pfv_disabled() function
     """ Function to determine if our PFV has been manually disabled. """
     if DEBUG == "True":
@@ -467,7 +622,7 @@ def pfv_disabled():
     pool_fill_valve_disabled = GPIO.input(pool_fill_valve_disabled_pin)
     if pool_fill_valve_disabled == True:
         led_control(pool_fill_valve_disabled_led, "True")
-        if PUSHBULLET == "True":
+        if PUSHBULLET == "True" and pool_fill_notifications == "True":
             send_push_notification("Pool Fill Valve DISABLED", "Your pool fill valve has been DISABLED. Pool will not fill.")
     if DEBUG == "True":
         print("Completed pfv_disabled() function")
@@ -480,6 +635,7 @@ def pool_fill_valve(openclose):
     EMAIL = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "email")
     PUSHBULLET = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "pushbullet")
     SMS = read_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms")
+    pool_fill_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_fill_notifications")
     current_timestamp = int(time.time())
     if openclose == "OPEN":
        sprinkler_status = get_sprinkler_status()
@@ -495,11 +651,11 @@ def pool_fill_valve(openclose):
                print("There is a problem with your pool level sensor and we cannot fill the pool.")
            if LOGGING == "True":
                logger.warn("There is a problem with your pool level sensor and we cannot fill the pool.")
-           if EMAIL == "True":
+           if EMAIL == "True" and pool_fill_notifications == "True":
                send_email(pooldb.alert_email, 'Problem with your Pool Level Sensor', 'There is a problem with your Pool Level Sensor and we cannot refill the pool!')
-           if PUSHBULLET == "True":
+           if PUSHBULLET == "True" and pool_fill_notifications == "True":
                send_push_notification("There is a problem with your Pool Level Sensor", "Pool Level Sesnor Error - We cannot refill your pool!")
-           if SMS == "True":
+           if SMS == "True" and pool_fill_notifications == "True":
                send_sms_notification("There is a problem with your Pool Level Sensor and we cannot refill your pool!")
            pass
        gallons_start = get_gallons_total()
@@ -518,11 +674,11 @@ def pool_fill_valve(openclose):
            print("pool_fill_relay is now powered and sprinkler valve solenoid is now powered.")
            print("Both relays should now be active and Sprinkler valve should be open and water should be running.")
            print("Pool Filling LED should be on. This is a BLUE LED")
-       if PUSHBULLET == "True":
+       if PUSHBULLET == "True" and pool_fill_notifications == "True":
            send_push_notification("Your Pool Is Automatically Filling", "Your swimming pool is low and is automatically refilling.")
-       if SMS == "True":
+       if SMS == "True" and pool_fill_notifications == "True":
            send_sms_notification("Your Swimming Pool Is Automatically Filling")
-       if EMAIL == "True":
+       if EMAIL == "True" and pool_fill_notifications == "True":
            send_email(pooldb.alert_email, 'Your Pool is Automatically Filling', 'Your Pool is low and is automatically refilling.')
     elif openclose == "CLOSE":
         GPIO.output(pool_fill_relay, False)  # Turns off the sprinkler valve
@@ -542,11 +698,11 @@ def pool_fill_valve(openclose):
             print("pool_fill_relay is now powered OFF and sprinkler valve solenoid is no longer powered.")
             print("pool_fill_transformer_relay is now powered off and pool transformer is now OFF.")
             print("Both relays should no longer be active. Sprinkler valve and transformer are now off.")
-        if PUSHBULLET == "True":
+        if PUSHBULLET == "True" and pool_fill_notifications == "True":
             send_push_notification("Your Pool is Done Automatically Filling", "Your swimming pool is done refilling.")
-        if SMS == "True":
+        if SMS == "True" and pool_fill_notifications == "True":
             send_sms_notification("Your Pool is Done Automatically Filling")
-        if EMAIL == "True":
+        if EMAIL == "True" and pool_fill_notifications == "True":
             send_email(pooldb.alert_email, 'Your Pool is Done Automatically Filling', 'Your pool is done refilling!')
     elif openclose == "WEBCLOSE":
         GPIO.output(pool_fill_relay, False)  # Turns off the sprinkler valve
@@ -566,11 +722,11 @@ def pool_fill_valve(openclose):
             print("pool_fill_relay is now powered OFF and sprinkler valve solenoid is no longer powered.")
             print("pool_fill_transformer_relay is now powered off and pool transformer is now OFF.")
             print("Both relays should no longer be active. Sprinkler valve and transformer are now off.")
-        if PUSHBULLET == "True":
+        if PUSHBULLET == "True" and pool_fill_notifications == "True":
             send_push_notification("Pool Auto Fill terminated by Web Request", "Your swimming pool has stopped filling due to a Web request.")
-        if SMS == "True":
+        if SMS == "True" and pool_fill_notifications == "True":
             send_sms_notification("Pool Auto Fill terminated by Web Request")
-        if EMAIL == "True":
+        if EMAIL == "True" and pool_fill_notifications == "True":
             send_email(pooldb.alert_email, 'Pool Auto Fill Terminated by Web Request', 'Your swimming pool has stopped filling due to a web request')
     elif openclose == "CRITICALCLOSE":
         GPIO.output(pool_fill_relay, False)  # Turns off the sprinkler valve
@@ -594,11 +750,11 @@ def pool_fill_valve(openclose):
             print("System Error LED should be on. This is a RED LED.")
             print("pool_fill_transformer_relay is now powered off and pool transformer is now OFF.")
             print("Both relays should no longer be active. Sprinkler valve and transformer are now off.")
-        if PUSHBULLET == "True":
+        if PUSHBULLET == "True" and pool_fill_notifications == "True":
             send_push_notification("Pool Fill Stopped with CRITICAL CLOSE", "Your swimming pool fill was stopped by a CRITICAL CLOSE Command.")
-        if SMS == "True":
+        if SMS == "True" and pool_fill_notifications == "True":
             send_sms_notification("Pool Fill Stopped with CRITICAL CLOSE! Check Your System!")
-        if EMAIL == "True":
+        if EMAIL == "True" and pool_fill_notifications == "True":
             send_email(pooldb.alert_email, 'Pool Fill - CRITICAL STOP!', 'You pool has stopped filling due to a CRITICAL STOP! Please check the system.')
     elif openclose == "RESET":
         GPIO.output(pool_fill_relay, False)  # Turns off the sprinkler valve
@@ -636,13 +792,13 @@ def pool_fill_valve(openclose):
         led_control(manual_fill_button_led, "True")
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "pool_filling_led", True)
         update_pool_sensor_status_values("pool_sensor_status", "led_status", "manual_fill_button_led", True)
-        if PUSHBULLET == "True":
+        if PUSHBULLET == "True" and pool_fill_notifications == "True":
             send_push_notification("Your Pool is MANUALLY Filling", "Your swimming pool is MANUALLY refilling.")
-        if SMS == "True":
+        if SMS == "True" and pool_fill_notifications == "True":
             send_sms_notification("Your Swimming Pool is MANUALLY Filling")
         if LOGGING == "True":
             logger.info("Your Pool is MANUALLY Filling.")
-        if EMAIL == "True":
+        if EMAIL == "True" and pool_fill_notifications == "True":
             send_email(pooldb.alert_email, 'Your pool is MANUALLY Filling', 'Your pool is being manually filled!')
         if DEBUG == "True":
             print("MANUAL FILL BUTTON - pool_fill_valve called with OPEN command")
@@ -670,11 +826,11 @@ def pool_fill_valve(openclose):
             print("pool_fill_relay is now powered OFF and sprinkler valve solenoid is no longer powered.")
             print("pool_fill_transformer_relay is now powered off and pool transformer is now OFF.")
             print("Both relays should no longer be active. Sprinkler valve and transformer are now off.")
-        if PUSHBULLET == "True":
+        if PUSHBULLET == "True" and pool_fill_notifications == "True":
             send_push_notification("Your Pool Is Done (MANUALLY) Filling", "Your swimming pool is done (MANUALLY) refilling.")
-        if SMS == "True":
+        if SMS == "True" and pool_fill_notifications == "True":
             send_sms_notification("Your Swimming Pool Is Done (MANUALLY) Filling.")
-        if EMAIL == "True":
+        if EMAIL == "True" and pool_fill_notifications == "True":
             send_email(pooldb.alert_email, 'Your Pool is done MANUALLY Filling.', 'Your Pool is done MANUALLY Filling.')
 
 
@@ -827,6 +983,9 @@ def check_pool_sensors():
     pool_temp_timeout_alert_sent = read_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_temp_sensor_timeout_alert_sent")
     pool_temp_lowvoltage_alert_sent = read_pool_sensor_status_values("pool_sensor_status", "notification_status","pool_temp_low_voltage_alert_sent")
     pool_filter_psi_alert_sent = read_pool_sensor_status_values("pool_sensor_status", "notification_status","pool_filter_psi_alert_sent")
+    pool_level_sensor_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings","pool_level_sensor_notifications")
+    pool_temp_sensor_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings","pool_temp_sensor_notifications")
+    pool_filter_psi_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings","pool_filter_psi_notifications")
 
     if DEBUG == "True":
         print ("Time dfference between last pool LEVEL sensor reading is: %s "
@@ -838,15 +997,15 @@ def check_pool_sensors():
         if pool_level_timeout_alert_sent == "True":
             pass
         else:
-            if PUSHBULLET == "True":
+            if PUSHBULLET == "True" and pool_level_sensor_notifications == "True":
                 send_push_notification("Pool Level Sensor Timeout", "Your Pool Level Sensor has Timed Out!")
-            if SMS == "True":
+            if SMS == "True" and pool_level_sensor_notifications == "True":
                 send_sms_notification("Your Pool Level Sensor has Timed Out!")
             update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_level_sensor_timeout_alert_sent", True)
             update_pool_sensor_status_values("pool_sensor_status", "sensor_status", "pool_level_sensor_ok", False)
             if LOGGING == "True":
                 logger.warn("Pool LEVEL sensor timeout!")
-            if EMAIL == "True":
+            if EMAIL == "True" and pool_level_sensor_notifications == "True":
                 send_email(pooldb.alert_email, 'Pool LEVEL sensor timeout.', 'Your Pool Level sensor has timed out.')
         if DEBUG == "True":
             print ("* * * * WARNING * * * *")
@@ -854,13 +1013,13 @@ def check_pool_sensors():
     elif pool_level_sensor_time_delta < pooldb.max_pool_level_sensor_time_delta and pool_level_timeout_alert_sent == "True":
         update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_level_sensor_timeout_alert_sent", False)
         update_pool_sensor_status_values("pool_sensor_status", "sensor_status", "pool_level_sensor_ok", True)
-        if PUSHBULLET == "True":
+        if PUSHBULLET == "True" and pool_level_sensor_notifications == "True":
             send_push_notification("Pool Level Sensor Timeout Has Ended", "Your Pool Level Sensor is Back Online!")
-        if SMS == "True":
+        if SMS == "True" and pool_level_sensor_notifications == "True":
             send_sms_notification("Your Pool Level Sensor is Back Online!")
         if LOGGING == "True":
             logger.info("Pool LEVEL sensor timeout has ended! Pool level sensor back online.")
-        if EMAIL == "True":
+        if EMAIL == "True" and pool_level_sensor_notifications == "True":
             send_email(pooldb.alert_email, 'Pool LEVEL sensor back Online.', 'Your Pool Level sensor is back Online.')
 
     elif get_pool_level_sensor_battery_voltage < pooldb.pool_level_sensor_low_voltage:
@@ -869,13 +1028,13 @@ def check_pool_sensors():
         else:
             update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_level_low_voltage_alert_sent", True)
             update_pool_sensor_status_values("pool_sensor_status", "sensor_status", "pool_level_sensor_ok", False)
-            if PUSHBULLET == "True":
+            if PUSHBULLET == "True" and pool_level_sensor_notifications == "True":
                 send_push_notification("Pool Level Sensor Low Voltage", "The battery is low in your pool level sensor.")
-            if SMS == "True":
+            if SMS == "True" and pool_level_sensor_notifications == "True":
                 send_sms_notification("The battery is low in your pool level sensor.")
             if LOGGING == "True":
                 logger.warn("Pool LEVEL sensor Low Voltage!")
-            if EMAIL == "True":
+            if EMAIL == "True" and pool_level_sensor_notifications == "True":
                 send_email(pooldb.alert_email, 'Pool LEVEL sensor LOW VOLTAGE.', 'Please replace the Pool LEVEL sensor batteries.')
         if DEBUG == "True":
             print ("* * * * WARNING * * * *")
@@ -891,26 +1050,26 @@ def check_pool_sensors():
             pass
         else:
             update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_temp_sensor_timeout_alert_sent", True)
-            if PUSHBULLET == "True":
+            if PUSHBULLET == "True" and pool_temp_sensor_notifications == "True":
                 send_push_notification("Pool Temp Sensor Timeout", "Your Pool Temp Sensor has Timed Out!")
-            if SMS == "True":
+            if SMS == "True" and pool_temp_sensor_notifications == "True":
                 send_sms_notification("Your Pool Temp Sensor has Timed Out!")
             if LOGGING == "True":
                 logger.warn("Pool TEMP sensor timeout!")
-            if EMAIL == "True":
+            if EMAIL == "True" and pool_temp_sensor_notifications == "True":
                 send_email(pooldb.alert_email, 'Pool Temp sensor TIME OUT.', 'Your Pool temperature sensor has timed out.')
         if DEBUG == "True":
             print ("* * * * WARNING * * * *")
             print ("Pool TEMP Sensor Timeout!")
     elif pool_temp_sensor_time_delta < pooldb.max_pool_temp_sensor_time_delta and pool_temp_timeout_alert_sent == "True":
         update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_temp_sensor_timeout_alert_sent", False)
-        if PUSHBULLET == "True":
+        if PUSHBULLET == "True" and pool_temp_sensor_notifications == "True":
             send_push_notification("Pool Temp Sensor Timeout Has Ended", "Your Pool Temp Sensor is Back Online!")
-        if SMS == "True":
+        if SMS == "True" and pool_temp_sensor_notifications == "True":
             send_sms_notification("Your Pool Temp Sensor is Back Online!")
         if LOGGING == "True":
             logger.info("Pool TEMP Sensor is back online")
-        if EMAIL == "True":
+        if EMAIL == "True" and pool_temp_sensor_notifications == "True":
             send_email(pooldb.alert_email, 'Pool TEMP sensor back Online.', 'Your Pool Temperature sensor is back Online.')
 
     elif get_pool_temp_sensor_battery_voltage < pooldb.pool_level_sensor_low_voltage:
@@ -918,13 +1077,13 @@ def check_pool_sensors():
             pass
         else:
             update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_temp_low_voltage_alert_sent", True)
-            if PUSHBULLET == "True":
+            if PUSHBULLET == "True" and pool_temp_sensor_notifications == "True":
                 send_push_notification("Pool Temp Sensor Low Voltage", "The battery is low in your pool temp sensor.")
-            if SMS == "True":
+            if SMS == "True" and pool_temp_sensor_notifications == "True":
                 send_sms_notification("The battery is low in your pool temp sensor.")
             if LOGGING == "True":
                 logger.warn("Pool TEMP sensor Low Voltage!")
-            if EMAIL == "True":
+            if EMAIL == "True" and pool_temp_sensor_notifications == "True":
                 send_email(pooldb.alert_email, 'Pool TEMP sensor LOW VOLTAGE.', 'Please replace the Pool floating TEMP sensor batteries.')
         if DEBUG == "True":
             print ("* * * * WARNING * * * *")
@@ -939,11 +1098,11 @@ def check_pool_sensors():
             pass
         else:
             update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_filter_psi_alert_sent", True)
-            if PUSHBULLET == "True":
+            if PUSHBULLET == "True" and pool_filter_psi_notifications == "True":
                 send_push_notification("Pool Filter HIGH PSI", "It is time to BACK FLUSH your pool filter")
-            if SMS == "True":
+            if SMS == "True" and pool_filter_psi_notifications == "True":
                 send_sms_notification("Pool Filter HIGH PSI - It is time to BACK FLUSH your pool filter")
-            if EMAIL == "True":
+            if EMAIL == "True" and pool_filter_psi_notifications == "True":
                 send_email(pooldb.alert_email, 'Pool Filter HIGH PSI', 'Your Pool Filter needs to be backflushed or checked!')
             if LOGGING == "True":
                 logger.warn("Pool filter PSI is HIGH!")
@@ -962,6 +1121,7 @@ def check_pool_sensors():
 
 def get_pool_level_resistance():
     pool_manual_fill = read_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_manual_fill")
+    pool_fill_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_fill_notifications")
     if pool_manual_fill == "True":
         current_timestamp = int(time.time())
         if DEBUG == "True":
@@ -975,11 +1135,11 @@ def get_pool_level_resistance():
             print ("Current gallons of water added to pool: %s gallons." % current_fill_gallons)
         if pool_fill_total_time >= pooldb.max_pool_fill_time:
             update_pool_sensor_status_values("pool_sensor_status", "filling_status", "fill_critical_stop", True)
-            if PUSHBULLET == "True":
+            if PUSHBULLET == "True" and pool_fill_notifications == "True":
                 send_push_notification("Pool MANUAL Fill Critical Stop", "Your Pool has been MANUALLY filling too long. Critical Stop. Check System!")
-            if SMS == "True":
+            if SMS == "True" and pool_fill_notifications == "True":
                 send_sms_notification("Pool MANUAL Fill Critical Stop - Your Pool has been MANUALLY filling too long. Critical Stop. Check System!")
-            if EMAIL == "True":
+            if EMAIL == "True" and pool_fill_notifications == "True":
                send_email(pooldb.alert_email, 'Pool MANUAL Fill Critical Stop', 'Your Pool has been manually filling too long. Critical Stop. Check System!')
             update_pool_sensor_status_values("pool_sensor_status", "notification_status", "critical_stop_warning_sent", True)
             pool_fill_valve("CRITICALCLOSE")
@@ -1026,11 +1186,11 @@ def get_pool_level_resistance():
                     print ("Current number of gallons added to pool: %s gallons." % current_fill_gallons)
                 if pool_fill_total_time >= pooldb.max_pool_fill_time:
                     update_pool_sensor_status_values("pool_sensor_status", "filling_status", "fill_critical_stop", True)
-                    if PUSHBULLET == "True":
+                    if PUSHBULLET == "True" and pool_fill_notifications == "True":
                         send_push_notification("Pool Fill Critical Stop", "Your Pool has been filling too long. Critical Stop. Check System!")
-                    if SMS == "True":
+                    if SMS == "True" and pool_fill_notifications == "True":
                         send_sms_notification("Pool Fill Critical Stop - Your Pool has been filling too long. Critical Stop. Check System!")
-                    if EMAIL == "True":
+                    if EMAIL == "True" and pool_fill_notifications == "True":
                         send_email(pooldb.alert_email, 'Pool Fill Critical Stop', 'Your Pool has been filling too long. Critical Stop. Check System!')
                     update_pool_sensor_status_values("pool_sensor_status", "notification_status", "critical_stop_warning_sent", True)
                     pool_fill_valve("CRITICALCLOSE")
@@ -1045,11 +1205,11 @@ def get_pool_level_resistance():
                         print ("Critical Stop Enabled, pool will not fill! Check System")
                     critical_stop_enabled_warning_sent = read_pool_sensor_status_values("pool_sensor_status", "notification_status", "critical_stop_enabled_warning_sent")
                     if critical_stop_enabled_warning_sent == "False":
-                        if PUSHBULLET == "True":
+                        if PUSHBULLET == "True" and pool_fill_notifications == "True":
                             send_push_notification("Pool Fill Requested During Critical Stop", "Your Pool Fill is DISABLED due to Critical Stop and is LOW. Please check system!")
-                        if SMS == "True":
+                        if SMS == "True" and pool_fill_notifications == "True":
                             send_sms_notification("Pool Fill Requested During Critical Stop - Your Pool Fill is DISABLED due to Critical Stop and is LOW. Please check system!")
-                        if EMAIL == "True":
+                        if EMAIL == "True" and pool_fill_notifications == "True":
                             send_email(pooldb.alert_email, 'Pool Fill Requested During Critical Stop', 'Your Pool Fill is DISABLED due to Critical Stop and is LOW. Please check system!')
                         if LOGGING == "True":
                             logger.warn("Pool Fill Requested During Critical Stop - Your Pool Fill is DISABLED due to Critical Stop and is LOW. Please check system!")
@@ -1082,9 +1242,9 @@ def get_pool_level_resistance():
                     print ("Current number of gallons added to pool: %s gallons." % current_fill_gallons)
                 if pool_fill_total_time >= pooldb.max_pool_fill_time:
                     update_pool_sensor_status_values("pool_sensor_status", "filling_status", "fill_critical_stop", True)
-                    if PUSHBULLET == "True":
+                    if PUSHBULLET == "True" and pool_fill_notifications == "True":
                         send_push_notification("Pool Fill Critical Stop", "Your Pool has been filling too long. Critical Stop. Check System!")
-                    if SMS == "True":
+                    if SMS == "True" and pool_fill_notifications == "True":
                         send_sms_notification("Pool Fill Critical Stop - Your Pool has been filling too long. Critical Stop. Check System!")
                     if LOGGING == "True":
                         logger.warn("Pool Fill Critical Stop - Your Pool has been filling too long. Critical Stop. Check System!")
@@ -1092,7 +1252,7 @@ def get_pool_level_resistance():
                     pool_fill_valve("CRITICALCLOSE")
                     if DEBUG == "True":
                         print("CRITICAL STOP!! Pool Max Fill Time Exceeded!")
-                    if EMAIL == "True":
+                    if EMAIL == "True" and pool_fill_notifications == "True":
                         send_email(pooldb.alert_email, 'Pool Fill Critical Stop', 'Your Pool has been filling too long. Critical Stop. Check System!')
                 get_pool_level = "MIDWAY"
             else:
@@ -1116,6 +1276,7 @@ def acid_level():
         if DEBUG == "True":
             print("Acid Level OK")
     else:
+        pool_acid_level_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_acid_level_notifications")
         acid_alert_sent = read_pool_sensor_status_values("pool_sensor_status", "notification_status", "acid_level_low_alert_sent")
         if acid_alert_sent == "True":
             acid_alert_sent_time = int(read_pool_sensor_status_values("pool_sensor_status", "notification_status", "acid_level_low_alert_sent_time"))
@@ -1125,11 +1286,11 @@ def acid_level():
                 print("Acid LOW Alert sent %s minutes ago. " % acid_alert_sent_delta_time)
                 print("Next Acid LOW Level Alert will be sent in %s minutes. " % time_to_next_acid_alert)
             if acid_alert_sent_delta_time >= pooldb.pool_acid_alert_max_minutes:
-                if PUSHBULLET == "True":
+                if PUSHBULLET == "True" and pool_acid_level_notifications == "True":
                     send_push_notification("Pool Acid Level is STILL LOW", "Your Acid Level is STILL LOW. Please refill!")
-                if SMS == "True":
+                if SMS == "True" and pool_acid_level_notifications == "True":
                     send_sms_notification("Pool Acid Level is STILL LOW - Your Acid Level is LOW. Please refill!")
-                if EMAIL == "True":
+                if EMAIL == "True" and pool_acid_level_notifications == "True":
                     send_email(pooldb.alert_email, 'Pool Acid Level is LOW', 'Your Acid Level is LOW. Please refill!')
                 update_pool_sensor_status_values("pool_sensor_status", "notification_status", "acid_level_low_alert_sent_time", current_timestamp)
                 if LOGGING == "True":
@@ -1139,11 +1300,11 @@ def acid_level():
         else:    
             if DEBUG == "True":
                 print("Acid Level LOW")
-            if PUSHBULLET == "True":
+            if PUSHBULLET == "True" and pool_acid_level_notifications == "True":
                 send_push_notification("Pool Acid Level is LOW", "Your Acid Level is LOW. Please refill!")
-            if SMS == "True":
+            if SMS == "True" and pool_acid_level_notifications == "True":
                 send_sms_notification("Pool Acid Level is LOW - Your Acid Level is LOW. Please refill!")
-            if EMAIL == "True":
+            if EMAIL == "True" and pool_acid_level_notifications == "True":
                 send_email(pooldb.alert_email, 'Pool Acid Level is LOW', 'Your Acid Level is LOW. Please refill!')
             update_pool_sensor_status_values("pool_sensor_status", "acid_level", "acid_level_ok", False)
             update_pool_sensor_status_values("pool_sensor_status", "notification_status", "acid_level_low_alert_sent", True)
@@ -1191,6 +1352,7 @@ def check_system_status():
     critical_stop = read_pool_sensor_status_values("pool_sensor_status", "filling_status", "fill_critical_stop")
     
     if system_reset_required == "True":
+        pool_fill_control_reset_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_fill_control_reset_notifications")
         if LOGGING == "True":
             logger.info("System Reset Requested.")
         if DEBUG == "True":
@@ -1238,11 +1400,11 @@ def check_system_status():
         # Reset out Reset Required Value
         update_pool_sensor_status_values("pool_sensor_status", "system_status", "system_reset_required", False)
         # Let me know the reset has been completed
-        if PUSHBULLET == "True":
+        if PUSHBULLET == "True" and pool_fill_control_reset_notifications == "True":
             send_push_notification("Pool Fill Control RESET Complete", "Your Pool Fill Control has been reset to normal conditions.")
-        if SMS == "True":
+        if SMS == "True" and pool_fill_control_reset_notifications == "True":
             send_sms_notification("Pool Fill Control RESET Complete - Your Pool Fill Control has been reset to normal conditions.")
-        if EMAIL == "True":
+        if EMAIL == "True" and pool_fill_control_reset_notifications == "True":
             send_email(pooldb.alert_email, 'Pool Fill Control RESET Complete', 'Your Pool Fill Control has been reset to normal conditions.')
     else:
         if LOGGING == "True":
@@ -1322,6 +1484,7 @@ def is_pool_pump_running():
 # This is where we check to see if we can talk to our database. If not, stop and send notification.
 def is_database_online():
     pool_database_error_alert_sent = read_pool_sensor_status_values("pool_sensor_status", "notification_status","pool_database_error_alert_sent")
+    pool_database_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_database_notifications")
     if DEBUG == "True":
         print("Started is_database_online()")
     try:
@@ -1335,11 +1498,11 @@ def is_database_online():
             if LOGGING == "True":
                 logger.warn("Database Error: Access Error - Check username or password.")
             if pool_database_error_alert_sent == "False":
-                if PUSHBULLET == "True":
+                if PUSHBULLET == "True" and pool_database_notifications == "True":
                     send_push_notification("Pool DB ACCESS DENIED Failure!", "Pool DB ACCESS DENIED Failure. Check your username/password and other access settings and reenable the system!")
-                if SMS == "True":
+                if SMS == "True" and pool_database_notifications == "True":
                     send_sms_notification("Pool DB ACCESS DENIED Failure! - Pool DB ACCESS DENIED Failure. Check your username/password and other access settings and reenable the system!")
-                if EMAIL == "True":
+                if EMAIL == "True" and pool_database_notifications == "True":
                     send_email(pooldb.alert_email, 'Pool Control DB Access Denied Failure!', 'Check your username/password and other access settings and reenable the system!')
                 update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_database_error_alert_sent", True)
             if DEBUG == "True":
@@ -1351,11 +1514,11 @@ def is_database_online():
             if LOGGING == "True":
                 logger.warn("Database Error: Database does not exist.")
             if pool_database_error_alert_sent == "False":
-                if PUSHBULLET == "True":
+                if PUSHBULLET == "True" and pool_database_notifications == "True":
                     send_push_notification("Pool DB Connection Failure!", "Pool DB does not exist. Check your settings and reenable the system!")
-                if SMS == "True":
+                if SMS == "True" and pool_database_notifications == "True":
                     send_sms_notification("Pool DB Connection Failure! - Pool DB does not exist. Check your settings and reenable the system!")
-                if EMAIL == "True":
+                if EMAIL == "True" and pool_database_notifications == "True":
                     send_email(pooldb.alert_email, 'Pool DB Connection Failure!', 'Pool DB does not exist. Check your settings and reenable the system!')
                 update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_database_error_alert_sent", True)
             if DEBUG == "True":
@@ -1365,11 +1528,11 @@ def is_database_online():
             if LOGGING == "True":
                 logger.warn("Database Error: Cannot connect to MySQL database.")
             if pool_database_error_alert_sent == "False":
-                if PUSHBULLET == "True":
+                if PUSHBULLET == "True" and pool_database_notifications == "True":
                     send_push_notification("Pool DB Connection Failure!", "Cannot Connect to MySQL Server. Check your settings and reenable the system!")
-                if SMS == "True":
+                if SMS == "True" and pool_database_notifications == "True":
                     send_sms_notification("Pool DB Connection Failure! - Cannot Connect to MySQL Server. Check your settings and reenable the system!")
-                if EMAIL == "True":
+                if EMAIL == "True" and pool_database_notifications == "True":
                     send_email(pooldb.alert_email, 'Pool DB Connection Failure!', 'Cannot Connect to MySQL Server. Check your settings and reenable the system!')
                 update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_database_error_alert_sent", True)
             if DEBUG == "True":
@@ -1379,11 +1542,11 @@ def is_database_online():
             if LOGGING == "True":
                 logger.warn("Database Error: Unknown Error.")
             if pool_database_error_alert_sent == "False":
-                if PUSHBULLET == "True":
+                if PUSHBULLET == "True" and pool_database_notifications == "True":
                     send_push_notification("Pool DB Connection Failure!", "Pool DB error. Check your settings and reenable the system!")
-                if SMS == "True":
+                if SMS == "True" and pool_database_notifications == "True":
                     send_sms_notification("Pool DB Connection Failure! - Pool DB error. Check your settings and reenable the system!")
-                if EMAIL == "True":
+                if EMAIL == "True" and pool_database_notifications == "True":
                     send_email(pooldb.alert_email, 'Pool DB Connection Failure!', 'Pool DB error. Check your settings and reenable the system!')
                 update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_database_error_alert_sent", True)
             if DEBUG == "True":
@@ -1395,17 +1558,35 @@ def is_database_online():
         if pool_database_error_alert_sent == "True":
             update_pool_sensor_status_values("pool_sensor_status", "notification_status", "pool_database_error_alert_sent", False)
             send_push_notification("Pool DB Back Online!", "Your Pool Database is back online. System is Normal!")
-            if PUSHBULLET == "True":
+            if PUSHBULLET == "True" and pool_database_notifications == "True":
                 send_push_notification("Pool DB Back Online!", "Your Pool Database is back online. System is Normal!")
-            if SMS == "True":
+            if SMS == "True" and pool_database_notifications == "True":
                 send_sms_notification("Pool DB Back Online - Your Pool Database is back online. System is Normal!")
-            if EMAIL == "True":
+            if EMAIL == "True" and pool_database_notifications == "True":
                 send_email(pooldb.alert_email, 'Pool DB Back Online!', 'Your Pool Database is back online. System is Normal!')
             cnx.close()
             pass
         else:
             cnx.close()
             pass
+
+
+def get_current_ph():
+    if pooldb.temp_probe == "Yes":
+        pool_temp = float(read_pool_sensor_status_values("pool_sensor_status", "system_status", "pool_current_temp" ))
+        current_ph = get_ph.get_current_ph_with_temp(pool_temp)
+    else:
+        current_ph = get_ph.get_current_ph_no_temp()
+    return current_ph
+
+def get_current_orp():
+    if pooldb.orp_probe == "Yes":
+        current_orp = get_orp.get_current_orp()
+        return current_orp
+    else:
+        pass
+
+
 
 # Here we go.......
 def main():
@@ -1425,7 +1606,8 @@ def main():
     print ("Current GPM: %s" % pump_gpm)
     pump_rpm = get_pump_rpm()
     print ("Current RPM: %s" % pump_rpm)
-#    pump_control_software("START")
+    get_ph_reading()
+    get_orp_reading()
 
 if __name__ == '__main__':
     main()
