@@ -1,9 +1,9 @@
-# Pool_Fill_Control V3.3.05 (2018-02-27)
+# Pool_Fill_Control V3.4 (2018-03-16)
 > Major rewrite of the code. Please see the bottom of this readme for updates!
 
 Raspberry Pi / Arduino / Python Project to automate filling of swimming pool. Includes Flask based Web Interface.
 
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.3/pictures/pool_control_web_interface_v32.jpg?raw=true)
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.3/pictures/Web_interface_V3_4.jpg?raw=true)
 
 
 System designed by me to automatically fill my pool when a liquid level sensor determines the pool is below a preset level. The pool is filled by opening a sprinkler valve and then monitoring the liquid level sensor until the pool is full, or a pre-set time has been reached. Also tracks and logs pool water temp, pH, ORP and filter water pressure as well as water used by the pool.
@@ -135,6 +135,15 @@ V3.3.05 (2018-02-27)
 - Added House Main power watts, total watts in use and Solar production to web interface.
 Eventually this will allow me to control my pump based on solar output instead of just ON & OFF.
 - Minor logging and bug fixes
+
+V3.4 (2018-03-16)
+- Started the process to pull functions into their own modules. Started with get_ph.py and get_orp.py but will be doing more of this as I move forward just to clean up the code and separate out various functions.
+- Built in the ability to toggle (via the web interface) notifications based on various systems (pump control, fill, DB errors, time outs, etc) so that you can fine tune the types of notifications that you get on a regular basis.
+- Rewrote the get_ph and get_orp functions to clean up serial utilization and take care of some weird data errors. Also they can be called as standalone scripts or via the main pool_control_master.py. 
+- Rewrote temperature correction for pH and now allow pH recording less temperature correction if there is no water temp probe on the system. This will result in slightly inaccurate pH, but it is better than nothing.
+- Updated Web interface to add pH and ORP active gauges.
+- Updated web interface Pump GPM so that if the pump control is offline the gauge will now read "0" instead of "31" which is what the pump reports even thought is is off. 
+- Cleaned up the code in the web interface. Still more to do here.
  
 
 Based on the following hardware:
