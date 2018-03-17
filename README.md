@@ -150,7 +150,7 @@ V3.4 (2018-03-16)
 - Built in the ability to toggle (via the web interface) notifications based on various systems (pump control, fill, DB errors, time outs, etc) so that you can fine tune the types of notifications that you get on a regular basis.
 - Rewrote the get_ph and get_orp functions to clean up serial utilization and take care of some weird data errors. Also they can be called as standalone scripts or via the main pool_control_master.py. 
 - Rewrote temperature correction for pH and now allow pH recording less temperature correction if there is no water temp probe on the system. This will result in slightly inaccurate pH, but it is better than nothing.
-- Updated Web interface to add pH and ORP active gauges.
+- Updated web interface to add pH and ORP active gauges.
 - Updated web interface Pump GPM so that if the pump control is offline the gauge will now read "0" instead of "31" which is what the pump reports even thought is is off. 
 - Cleaned up the code in the web interface. Still more to do here.
  
