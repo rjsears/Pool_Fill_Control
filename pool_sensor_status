@@ -1,11 +1,10 @@
 [system_status]
 system_reset_required = False
-pump_current_watts = 698
-filter_current_psi = 8
-pool_current_temp = 56.7
+filter_current_psi = 14
+pool_current_temp = 65.3
 pool_level_batt_percentage = 100
 pool_temp_batt_percentage = 100
-current_military_time = Wednesday Feb 02, 2018  19:22:02
+current_military_time = Friday Mar 03, 2018  20:23:02
 
 [sensor_status]
 pool_level_sensor_ok = True
@@ -32,28 +31,21 @@ sms = False
 logging = False
 debug = True
 
+[notification_settings]
+pump_control_notifications = True
+pump_control_software_notifications = True
+pool_fill_notifications = True
+pool_level_sensor_notifications = False
+pool_temp_sensor_notifications = False
+pool_filter_psi_notifications = True
+pool_acid_level_notifications = True
+pool_fill_control_reset_notifications = False
+pool_database_notifications = True
+
 [filling_status]
 pool_is_filling = False
 fill_critical_stop = False
 pool_manual_fill = False
-
-[filling_gallons]
-gallons_start = 17808
-gallons_stop = 18370
-gallons_last_fill = 562
-gallons_current_fill = 0
-
-[pump_status]
-pump_control_active = True
-pump_running = True
-pump_watts = 476
-pump_gpm = 30
-pump_rpm = 1920
-
-[power_solar]
-total_current_power_utilization = 1855
-total_current_power_import = 1853
-total_current_solar_production = 2
 
 [manual_buttons]
 pool_manual_fill_button = False
@@ -61,10 +53,10 @@ pool_valve_disabled_button = False
 
 [pool_level]
 pool_level = MIDWAY
-pool_level_percentage = 80
+pool_level_percentage = 100
 
 [filling_time]
-pool_fill_start_time = 1519680485
+pool_fill_start_time = 1521159001
 pool_fill_total_time = 0
 
 [led_status]
@@ -78,7 +70,28 @@ manual_fill_button_led = False
 
 [sprinkler_status]
 sprinklers_on = False
-
 [acid_level]
 acid_level_ok = True
 
+[filling_gallons]
+gallons_start = 22024
+gallons_stop = 22025
+gallons_last_fill = 1
+gallons_current_fill = 0
+
+[pump_status]
+pump_control_active = True
+pump_running =
+pump_watts = 386
+pump_gpm = 15
+pump_rpm = 1870
+pump_program_running = program_1
+
+[power_solar]
+total_current_power_utilization = 2058
+total_current_power_import = 2057
+total_current_solar_production = 1
+
+[pool_chemicals]
+pool_current_ph = 7.780
+pool_current_orp = 658.8
