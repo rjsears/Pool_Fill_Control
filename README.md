@@ -98,9 +98,14 @@ V3.1 (2016-10-08)
   can change the level of when we want to fill the pool 
   within pooldb.py instead of having to physically reflash
   the pool_level arduino sensor.
+  
+  
 <br>
+
 V3.2 (Unpublished)
+
 <br>
+
 V3.3.03.01 (2018-02-22)
 - Major rewrite of code. Instead of a very large, nearly monolithic threaded
   application, I rewrote the code into various parts. The first part is a
@@ -123,7 +128,9 @@ V3.3.03.01 (2018-02-22)
   
 - Added email and twilio (SMS) notifications to pushbullet. Requires (free) pushbullet
   an/or paid Twilio account. 
+  
   <br>
+  
 V3.3.05 (2018-02-27)
 - Added pump control of Pentair Intelliflo VF pump. MAJOR thanks to Russell Goldin
   (russ.goldin@gmail.com) for his amazing work on the Pentair RS-485 control software 
@@ -135,7 +142,9 @@ V3.3.05 (2018-02-27)
 - Added House Main power watts, total watts in use and Solar production to web interface.
 Eventually this will allow me to control my pump based on solar output instead of just ON & OFF.
 - Minor logging and bug fixes
+
 <br>
+
 V3.4 (2018-03-16)
 - Started the process to pull functions into their own modules. Started with get_ph.py and get_orp.py but will be doing more of this as I move forward just to clean up the code and separate out various functions.
 - Built in the ability to toggle (via the web interface) notifications based on various systems (pump control, fill, DB errors, time outs, etc) so that you can fine tune the types of notifications that you get on a regular basis.
@@ -145,6 +154,7 @@ V3.4 (2018-03-16)
 - Updated web interface Pump GPM so that if the pump control is offline the gauge will now read "0" instead of "31" which is what the pump reports even thought is is off. 
 - Cleaned up the code in the web interface. Still more to do here.
  
+<br>
 
 Based on the following hardware:
 
