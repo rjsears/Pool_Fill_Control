@@ -12,7 +12,7 @@ System designed by me to automatically fill my pool when a liquid level sensor d
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.3/pictures/PFC_internal.jpg?raw=true)
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.3/pictures/PFC_Internal_Connected.jpg?raw=true)
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.3/pictures/PFC_external.jpg?raw=true)
-
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.3/pictures/pc_external.jpg?raw=true)
 
 
 The pool can be filled automatically, or it can be filled by pressing a manual fill button.  A cutout switch on the system prevents the relay from opening the sprinkler valve in the event there is a problem with the system. 
