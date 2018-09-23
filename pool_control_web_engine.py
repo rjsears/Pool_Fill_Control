@@ -3,7 +3,7 @@
 # Flask file for pool_control_web_engine
 
 __author__ = 'Richard J. Sears'
-VERSION = "V3.4 (2018-03-16)"
+VERSION = "V3.4.6 (2018-09-23)"
 # richard@sears.net
 
 import ConfigParser
@@ -75,6 +75,8 @@ def pool_control():
     pool_acid_level_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_acid_level_notifications")
     pool_fill_control_reset_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_fill_control_reset_notifications")
     pool_database_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_database_notifications")
+    pool_autofill_active = read_pool_sensor_status_values("pool_sensor_status", "system_status", "pool_autofill_active")
+    pool_pump_error_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pump_error_notifications")
     return render_template("index.html", current_pool_watts = current_pool_watts, 
             filter_current_psi = filter_current_psi, 
             pool_current_temp = pool_current_temp,
@@ -114,7 +116,9 @@ def pool_control():
             pool_filter_psi_notifications = pool_filter_psi_notifications,
             pool_acid_level_notifications = pool_acid_level_notifications,
             pool_fill_control_reset_notifications = pool_fill_control_reset_notifications,
+            pool_pump_error_notifications = pool_pump_error_notifications,
             pool_database_notifications = pool_database_notifications,
+            pool_autofill_active = pool_autofill_active,
             pool_level_batt_percentage = pool_level_batt_percentage)
 
 
@@ -237,6 +241,16 @@ def toggle_notifications_pool_acid_level():
         update_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_acid_level_notifications", True)
     return redirect(url_for('pool_control'))
 
+@app.route('/notifications_pool_pump_error')
+def toggle_notifications_pool_pump_error():
+    pool_pump_error_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pump_error_notifications" )
+    if pool_pump_error_notifications == "True":
+        update_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pump_error_notifications", False)
+    else:
+        update_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pump_error_notifications", True)
+    return redirect(url_for('pool_control'))
+
+
 @app.route('/notifications_pool_fill_control_reset')
 def toggle_notifications_pool_fill_control_reset():
     pool_fill_control_reset_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_fill_control_reset_notifications" )
@@ -298,6 +312,15 @@ def toggle_sms():
         update_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms", False)
     else:
         update_pool_sensor_status_values("pool_sensor_status", "notification_methods", "sms", True)
+    return redirect(url_for('pool_control'))
+
+@app.route('/pool_autofill')
+def toggle_pool_autofill():
+    pool_autofill_active = read_pool_sensor_status_values("pool_sensor_status", "system_status", "pool_autofill_active" )
+    if pool_autofill_active == "True":
+        update_pool_sensor_status_values("pool_sensor_status", "system_status", "pool_autofill_active", False)
+    else:
+        update_pool_sensor_status_values("pool_sensor_status", "system_status", "pool_autofill_active", True)
     return redirect(url_for('pool_control'))
 
 if __name__ == "__main__":
