@@ -163,6 +163,8 @@ V3.4.6 (2018-09-23)
 - Added pool pH and ORP graphs to bottom of web interface via Grafana and InfluxDB.
 - Continued code cleanup as I learn more about python and better ways of doing things!
 
+<br>
+
 Based on the following hardware:
 
 -Raspberry Pi 3<br>
