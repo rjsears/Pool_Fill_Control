@@ -1,4 +1,4 @@
-# Pool_Fill_Control V3.4 (2018-03-16)
+# Pool_Fill_Control V3.4.6 (2018-09-23)
 > Major rewrite of the code. Please see the bottom of this readme for updates!
 
 Raspberry Pi / Arduino / Python Project to automate filling of swimming pool. Includes Flask based Web Interface.
@@ -155,6 +155,13 @@ V3.4 (2018-03-16)
 - Cleaned up the code in the web interface. Still more to do here.
  
 <br>
+
+V3.4.6 (2018-09-23)
+- Rewrote all notification functions including logging, debug, sms, email, and pushbullet. (notifications.py)
+- Integrated InfluxDB for reading and writing various temperature, power and pH/Orp data points.
+- Added ability to toggle automatic pool fill function via the web interface.
+- Added pool pH and ORP graphs to bottom of web interface via Grafana and InfluxDB.
+- Continued code cleanup as I learn more about python and better ways of doing things!
 
 Based on the following hardware:
 
