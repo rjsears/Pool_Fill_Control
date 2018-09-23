@@ -1,6 +1,6 @@
 <!-- Template File for pool_control web interface 
 __author__ = 'Richard J. Sears'
-VERSION = "V3.4 (2018-03-16)"
+VERSION = "V3.4.6 (2018-09-23)"
 richard@sears.net
 -->
 
@@ -34,7 +34,7 @@ richard@sears.net
 <center>
 <table class="tg" width=65% border="0">
   <tr>
-    <th class="tg-6f4q" colspan="6">System Status and Functions</th>
+    <th class="tg-6f4q" colspan="7">System Status and Functions</th>
   </tr>
   <tr>
     <td class="tg-lrzf">System Status<br></td>
@@ -43,6 +43,7 @@ richard@sears.net
     <td class="tg-3a3g">Manual Fill</td>
     <td class="tg-3a3g">Sprinklers</td>
     <td class="tg-3a3g">Acid Level</td>
+      <td class="tg-3a3g">Auto Fill</td>
   </tr>
   <tr>
     <td class="tg-lrzf">
@@ -92,6 +93,13 @@ richard@sears.net
                {% else %}
                <img src="{{url_for('static', filename='dark-red-led-circle-md.png')}}" height="50" width="50">
                {% endif %}
+</td>
+      <td class="tg-3a3g">
+                     {% if pool_autofill_active == "True" %}
+		     <a href="{{ url_for('toggle_pool_autofill') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a>
+                     {% else %}
+		     <a href="{{ url_for('toggle_pool_autofill') }}"><img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70"></a>
+                     {% endif %}
 </td>
   </tr>
   </tr>
@@ -239,10 +247,11 @@ richard@sears.net
 <br>
 <table class="tf">
   <tr>
-    <th class="tf-82bq" colspan="9">Toggle Notification Categories</th>
+    <th class="tf-82bq" colspan="10">Toggle Notification Categories</th>
   </tr>
   <tr>
 	  <td class="tf-3a3g">Pump<br>Control</td>
+      <td class="tf-3a3g">Pump<br>Errors</td>
 	  <td class="tf-3a3g">Pump<br>Programs</td>
     <td class="tf-3a3g">Pool<br>Filling</td>
     <td class="tf-3a3g">Level<br>Sensor</td>
@@ -258,6 +267,13 @@ richard@sears.net
                <a href="{{ url_for('toggle_notifications_pump_control_software') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a>
                {% else %}
                <a href="{{ url_for('toggle_notifications_pump_control_software') }}"><img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70"></a>
+               {% endif %}
+    </td>
+    <td class="tf-baqh">
+               {% if pool_pump_error_notifications == "True" %}
+               <a href="{{ url_for('toggle_notifications_pool_pump_error') }}"><img src="{{url_for('static', filename='on_switch.png')}}" height="70" width="70"></a>
+               {% else %}
+               <a href="{{ url_for('toggle_notifications_pool_pump_error') }}"><img src="{{url_for('static', filename='off_switch.png')}}" height="70" width="70"></a>
                {% endif %}
     </td>
     <td class="tf-baqh">
@@ -326,6 +342,11 @@ richard@sears.net
 <canvas id=TotalPowerImporting></canvas> 
 <canvas id=TotalSolar></canvas> 
 	<h4>Last System Update: {{current_military_time}}</h4>
+
+	<iframe src="http://scripts:3000/d-solo/gkG8Rhzgz/pool-conditions?panelId=4&orgId=1&tab=legend&theme=light" width="550" height="300" frameborder="0"></iframe>
+	<iframe src="http://scripts:3000/d-solo/gkG8Rhzgz/pool-conditions?panelId=2&orgId=1&tab=legend&theme=light" width="550" height="300" frameborder="0"></iframe>
+	<!--	<iframe src="http://scripts:3000/d-solo/FinFyMmik/electrical?orgId=1&panelId=4&tab=legend&theme=light" width="550" height="300" frameborder="0"></iframe> -->
+	<br>
    </body>
    <script>
       function init()
