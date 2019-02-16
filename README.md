@@ -291,5 +291,6 @@ This project is licensed under the MIT License - see the MIT License for details
 ## Acknowledgments
 While there are a lot of people that deserve acknowledgments because they wrote amazing code, these folks went out of their way to help me out on this project and I want to call them out:
 * [Russell Goldin (tagyoureit)](https://github.com/tagyoureit/nodejs-poolController) - Thank you for all the extra time you spent helping to get my pool pump under control of my software.
+* [Felix over at LowPowerLabs](https://lowpowerlab.com/about/) - Not only did Felix design the Moteinos that I use throughout my project, but he (and others in the LPL forums) put up with all of my questions trying to understand how to get the most out of my battery life.
 * Everyone that provided the code in the list above for use with this project!
 * My amazing family that puts up with all of my coding projects!
