@@ -81,6 +81,16 @@ I have also been working on adding in Alexa integration and learning how to buil
    - Flow cell purchased from [Sunplay](https://sunplay.com/products/ips-controllers-flow-cell-complete-fc100g) to house our pH and ORP sensors as well as to provide water flow sensing.
 8. [Elecall Stainless Steel Tank Water Level Sensor Float Switch](https://www.amazon.com/gp/product/B01M1HAN4O)
    - Stainless steel dual level water level sensor used to monitor the water level in the pool so we know when to refill it. Has "low" and a "high" side floats that are monitored with an EmonTH sensor.
+9. [MySQL](https://www.mysql.com/)
+   - Used by EmonCMS as well as our pool control system to store both environmental data as well as system states and other data.
+10. [InfluxDB](https://github.com/influxdata/influxdb)
+    - Used to store temperature, humidity, pH, ORP and electrical data specifically for graphing by Grafana. 
+11. [Grafana](https://grafana.com/)
+    - Used to build grahing interfaces for web interface via i-frames for our web interface (pH & ORP) as well as other system graphing needs.
+12. [Flask](http://flask.pocoo.org/)
+    - Python Microframework used to build the front-end web interface for our pool control project.
+13. [Flask-Ask](https://github.com/johnwheeler/flask-ask)
+    - Alexa skills kit for Python by John Wheeler. (Will be moving away from Flask-Ask as the rumor is that John is no longer maintaining the project). 
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg" width="500" height="300">
