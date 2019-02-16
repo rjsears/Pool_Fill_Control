@@ -55,6 +55,11 @@ I have also been working on adding in Alexa integration and learning how to buil
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pc_external.jpg?raw=true)
 
 
+Our system relies on a *lot* of external applications and systems. Here is a current list:
+- OpenEnergyMonitors EmonCMS Platform
+  - This system gathers and writes various sensor data to a MySQL database for use by pool_fill_control.
+
+
 The pool can be filled automatically, or it can be filled by pressing a manual fill button.  A cutout switch on the system prevents the relay from opening the sprinkler valve in the event there is a problem with the system. 
 
 Because our irrigation system is required to have a backfeed prevention vacuum breaker system already, I choose to connect our pool fill project to our irrigation system. Because of this, I needed a way to make sure I did not try to fill the pool while the sprinklers are running. I can check this in two ways, the first is a simple “black out timer” that you would set to the times your sprinklers run, or with an API integration with the Rachio sprinkler system (which we have).  In this case, before we fill the pool, we query the API and determine in real time if our sprinklers are running.
