@@ -69,6 +69,8 @@ I have also been working on adding in Alexa integration and learning how to buil
    - A [RaspberryPi powered hardware device](https://guide.openenergymonitor.org/setup/) that allows for electrical and temperature monitoring as well as being a hub for the reception of all wireless sensor data. Manages storing data to MySQL for use by other systems as well as forwarding this data to other EmonCMS instances (locally or in the cloud).
 3. OpenEnergyMonitor's Open Source Energy Monitoring Platform [(EmonCMS)](https://emoncms.org/)
    - This system gathers and writes various sensor data to a MySQL database for use by pool_fill_control. We utilize 433Mhz radios from our sensors and transmit our data to EmonCMS. From there we can access it from our program. This runs on our EmonPi as well as on several "backup" servers to house our environmental data.
+4. LowPowerLab's [MightyHat](https://lowpowerlab.com/guide/mightyhat/)
+   - MightyHat is a Raspberry Pi Hat with that makes it easy to build a compact, robust, battery backed-up gateway for the internet of things. It accepts RFM69W/HW/HCW or LoRa transceivers and acts as a power controller and UPS for the RaspberryPi.
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg" width="500" height="300">
