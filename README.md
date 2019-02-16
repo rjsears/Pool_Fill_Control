@@ -52,7 +52,7 @@ I have also been working on adding in Alexa integration and learning how to buil
 
 <br>
 
-**Alexa Show Interface**
+**Alexa Echo Show Display**
 ![](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pool_control_Alexa_interface_01_v350.jpeg)
 
 <br>
