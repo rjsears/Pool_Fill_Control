@@ -57,9 +57,9 @@ I have also been working on adding in Alexa integration and learning how to buil
 <br>
 
 
-######Our system relies on a *lot* of external applications and systems. Here is a current list:
+###### Our system relies on a *lot* of external applications and systems. Here is a current list:
 - OpenEnergyMonitors Open Source Energy Monitoring Platform [(EmonCMS)](https://emoncms.org/)
-  - This system gathers and writes various sensor data to a MySQL database for use by pool_fill_control.
+  - This system gathers and writes various sensor data to a MySQL database for use by pool_fill_control. We utilize 433Mhz radios from our sensors and transmit our data to EmonCMS. From there we can access it from our program.
 
 
 The pool can be filled automatically, or it can be filled by pressing a manual fill button.  A cutout switch on the system prevents the relay from opening the sprinkler valve in the event there is a problem with the system. 
