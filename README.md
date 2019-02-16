@@ -73,6 +73,8 @@ I have also been working on adding in Alexa integration and learning how to buil
    - MightyHat is a Raspberry Pi Hat with that makes it easy to build a compact, robust, battery backed-up gateway for the internet of things. It accepts RFM69W/HW/HCW or LoRa transceivers and acts as a power controller and UPS for the RaspberryPi. This is on the main RaspberryPi that runs our system at the pool.
 5. LowPowerLab's [R6 Moteino](https://lowpowerlab.com/shop/moteinousb)
    - The Moteino is a super-low-power Arduino clone that incorpoprates a 433Mhz FSK (RFM69HCW) transceiver which transmits data to our EmonPi.
+6. [Atlas Scientific](https://www.atlas-scientific.com/) pH and ORP Probes and boards
+   - Atlas Scientific USB input boards and sensors for [pH](https://www.atlas-scientific.com/ph.html) and [ORP](https://www.atlas-scientific.com/orp.html). 
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg" width="500" height="300">
