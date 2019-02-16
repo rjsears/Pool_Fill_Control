@@ -264,6 +264,7 @@ V3.5.0 (2019-02-16)
 - Added Alexa skill.
 - Added code to integrate with Alexa's ability to fill or stop filling pool.
 - Added code to integrate with Alexa's ability to tell us all of our system information.
+- Added code to integrate Alexa with web interface so you can tell if pool fill was called automatically, manually or by Alexa.
 - Added additional sensors to monitoring:
   - Garage & Attic Temperature Sensor Battery Voltage
   - Pool Temp and Pool Level Temperature & Humidity for sensor boxes (sealed & waterproof) to monitor internal temps and humidity and alert me when they go over a specified value.
@@ -273,6 +274,7 @@ V3.5.0 (2019-02-16)
 - Removed eTape for water level, replaed it with dual level float and rewrote sketch as well as updated code that reads the actual pool level for starting and stopping water.
 - Added several functions for internal testing, noted as such in code.
 - Consolidated get_pump_rpm(), get_pump_gpm(), get_pump_watts() into a single function get_pump_data(key) where key is rpm, gpm or watts. Works only when pumpControl software is active, otherwise we zero out rpm and gpm and derive watts from separate (Greeneye) electrical moniting system.
+- Added web interface ability to force a system reset if necessary. 
 - Starting the process of looking at every single *global* variable to see if I can rewrite my code to eliminate as many of them as possible. 
 <hr>
 
