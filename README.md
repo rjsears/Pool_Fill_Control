@@ -4,8 +4,6 @@
 <i>Raspberry Pi / Arduino / Python / Alexa Project to automate pump management and filling of swimming pool along with tracking of various temperature and humidity sensors, smart water meters and more. Includes Flask based Web Interface and Alexa Skill.</i> 
 <br>
 <br>
-
-<font size="-3">
  
 - Pool Water Level (with auto and manual fill functions)
 - Pool Water Level Sensor Temperature, Humidity & Battery Level
@@ -27,8 +25,6 @@
 - Household Electrical Usage
 - Household Solar Production
 - Notifications via SMS, E-Mail, Pushbullet, Logging and Debug
-
- </font>
  
 <br>
 <p align="center">
