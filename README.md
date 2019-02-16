@@ -273,8 +273,6 @@ V3.5.0 (2019-02-16)
 - Added several functions for internal testing, noted as such in code.
 - Consolidated get_pump_rpm(), get_pump_gpm(), get_pump_watts() into a single function get_pump_data(key) where key is rpm, gpm or watts. Works only when pumpControl software is active, otherwise we zero out rpm and gpm and derive watts from separate (Greeneye) electrical moniting system.
 - Starting the process of looking at every single *global* variable to see if I can rewrite my code to eliminate as many of them as possible. 
-<br>
-<br>
 <hr>
 
 ## Authors
