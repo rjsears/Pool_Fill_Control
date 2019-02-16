@@ -71,11 +71,11 @@ I have also been working on adding in Alexa integration and learning how to buil
    - This system gathers and writes various sensor data to a MySQL database for use by pool_fill_control. We utilize 433Mhz radios from our sensors and transmit our data to EmonCMS. From there we can access it from our program. This runs on our EmonPi as well as on several "backup" servers to house our environmental data.
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
-![alt_tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg)
+![alt_tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg | width = 100)
 We utilize the EmonPI as our wireless hub:
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonPI.jpg)
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonPI.jpg | width = 100)
 We utilize the EmonTH to monitor Temperature and Humidity:
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonTH.jpg)
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonTH.jpg | width = 100)
 
 
 
