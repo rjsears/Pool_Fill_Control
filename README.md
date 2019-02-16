@@ -78,6 +78,7 @@ We utilize the EmonPI as our wireless hub:
 ![](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonPI.jpg?s=50)
 
 We utilize the EmonTH to monitor Temperature and Humidity:
+<img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonTH.jpg" width="50" height="50">
 ![](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonTH.jpg?s=50)
 
 
