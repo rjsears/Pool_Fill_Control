@@ -1,7 +1,28 @@
 # Pool_Fill_Control V3.5.0 (2019-02-16)
-> Major updates to data storage of the code. Please see the bottom of this readme for updates!
+> Major updates to data storage using MySQL and InfluxDB and away from flat files. Please see the bottom of this readme for more updates!
 
-Raspberry Pi / Arduino / Python / Alexa Project to automate management and filling of swimming pool. Includes Flask based Web Interface.
+Raspberry Pi / Arduino / Python / Alexa Project to automate pump management and filling of swimming pool along with tracking of various temperature and humidity sensors, smart water meters and more. Includes Flask based Web Interface and Alexa Skill. 
+
+- Pool Water Level (with auto and manual fill functions)
+- Pool Water Level Sensor Temperature, Humidity & Battery Level
+- Sprinkler System - Tracking Only (On or Off)
+- Pool Temperature
+- Pool Temperature Sensor Temperature, Humidity & Battery Level
+- Acid Tank Level
+- Pool pH & ORP
+- Pool Filter PSI
+- Pool Pump Parameters (GPM, RPM, Watts)
+- Pool Pump Management (Start, Stop, Change Running Programs)
+- Pool Electrical Panel Electrical Usage
+- Pool water usage during fill and overall water usage
+- Pool Fill Timer while filling
+- Pool filling (automatically, manually, or manually via Alexa skill)
+- Alexa readback of all system parameters
+- Alexa ability to fill or stop filling pool
+- Household Electrical Usage
+- Household Solar Production
+- Notifications via SMS, E-Mail, Pushbullet, Logging and Debug
+
 
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pool_control_web_interface_v350.jpg?raw=true)
 
