@@ -3,7 +3,7 @@
 
 Raspberry Pi / Arduino / Python / Alexa Project to automate management and filling of swimming pool. Includes Flask based Web Interface.
 
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.4/pictures/pool_control_web_interface_v350.jpg?raw=true)
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pool_control_web_interface_v350.jpg?raw=true)
 
 
 System designed by me to automatically fill my pool when a liquid level sensor determines the pool is below a preset level. The pool is filled by opening a sprinkler valve and then monitoring the liquid level sensor until the pool is full, or a pre-set time has been reached. Also tracks and logs pool water temp, pH, ORP and filter water pressure as well as water used by the pool.
