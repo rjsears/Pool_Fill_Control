@@ -258,6 +258,7 @@ V3.4.6 (2018-09-23)
 <br>
 
 V3.5.0 (2019-02-16)
+- Renamed project files _db.py to identify new database functionality.
 - Rewrote code to remove reading system status and other information from flat files - now using MySQL instead. This solved an occasional error where I would get a file lock problem on the flat file causing the system to crash.
 - Removed all database functions from main code and created a use_database.py function to manage database calls systemwide.
 - Reworked code that tracks how many gallons of water have been added to the pool to fix an error in water tracking. See reset_gallon_stop_meter().
@@ -276,6 +277,7 @@ V3.5.0 (2019-02-16)
 - Consolidated get_pump_rpm(), get_pump_gpm(), get_pump_watts() into a single function get_pump_data(key) where key is rpm, gpm or watts. Works only when pumpControl software is active, otherwise we zero out rpm and gpm and derive watts from separate (Greeneye) electrical moniting system.
 - Added web interface ability to force a system reset if necessary. 
 - Starting the process of looking at every single *global* variable to see if I can rewrite my code to eliminate as many of them as possible. 
+- Updated notifications_db.py to include a flask specific logging function log_flask().
 <hr>
 
 ## Authors
