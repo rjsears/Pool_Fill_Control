@@ -3,6 +3,19 @@
 <br>
 <i>Raspberry Pi / Arduino / Python / Alexa Project to automate pump management and filling of swimming pool along with tracking of various temperature and humidity sensors, smart water meters and more. Includes Flask based Web Interface and Alexa Skill.</i> 
 <br>
+
+<br>
+<p align="center">
+ <b>Updated Web Interface created and managed with Flask</b>
+</p>
+
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pool_control_web_interface_v350.jpg?raw=true)
+
+<br>
+
+This pool control software system was designed to automate and manage some everyday pool management tasks. It started out with just filling the pool, hence the name of the repo: pool_fill_control. It grew into far more than that and now is integrated into a variety of system around our home. Here is a current (as of V3.5.0) list of items managed or monitored by the system:
+
+<br>
 <br>
  
 - Pool Water Level (with auto and manual fill functions)
@@ -27,20 +40,19 @@
 - Notifications via SMS, E-Mail, Pushbullet, Logging and Debug
  
 <br>
-<p align="center">
- <b>Updated Web Interface created and managed with Flask</b>
-</p>
 
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pool_control_web_interface_v350.jpg?raw=true)
+The basic premise of the system is pretty simple. Utilizing a variety of low-power arduino clones as system "sensors" we measure the water level of the pool and check to see if the sprinklers are running. If the water is low and the sprinklers are not running, we turn on a transformer that powers a sprinkler valve and we refill the pool. Once the pool has been filled to a specific level, we shut off the water. Since we fill from our irrigation system, we need to know if the sprinklers are running. If they are, we do not have enough water pressure to run several zones at once so the system will keep checking and will refill the pool once the sprinklers are done.
+<br>
+Over time I added temperature monitoring, pH and ORP monitoring (but not control), Acid tank level monitoring, pool filter pressure monitoring, electrical (including solar) monitoring and pool pump management utilizing Russell Goldin's [poolController Software] (https://github.com/tagyoureit/nodejs-poolController). Because much of our house has other sensors I included monitoring of battery levels of various temperature and humidity sensors around the house that have nothing to do with the pool, but since I had the system in place to monitor and alert for these I went ahead and added them anyway. This is the same for overall power utilization and solar production.
+<br>
 
 
-System designed by me to automatically fill my pool when a liquid level sensor determines the pool is below a preset level. The pool is filled by opening a sprinkler valve and then monitoring the liquid level sensor until the pool is full, or a pre-set time has been reached. Also tracks and logs pool water temp, pH, ORP and filter water pressure as well as water used by the pool.
 
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.4/pictures/screen%202016-05-30%20at%201.50.40%20PM.jpg?raw=true)
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.4/pictures/PFC_internal.jpg?raw=true)
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.4/pictures/PFC_Internal_Connected.jpg?raw=true)
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.4/pictures/PFC_external.jpg?raw=true)
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.4/pictures/pc_external.jpg?raw=true)
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/screen%202016-05-30%20at%201.50.40%20PM.jpg?raw=true)
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/PFC_internal.jpg?raw=true)
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/PFC_Internal_Connected.jpg?raw=true)
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/PFC_external.jpg?raw=true)
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pc_external.jpg?raw=true)
 
 
 The pool can be filled automatically, or it can be filled by pressing a manual fill button.  A cutout switch on the system prevents the relay from opening the sprinkler valve in the event there is a problem with the system. 
