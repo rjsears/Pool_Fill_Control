@@ -24,9 +24,9 @@ Raspberry Pi / Arduino / Python / Alexa Project to automate pump management and 
 - Household Solar Production
 - Notifications via SMS, E-Mail, Pushbullet, Logging and Debug
 
-
-###### **Updated Web Interface created and managed with Flask**
-
+<p align="center">
+###### Updated Web Interface created and managed with Flask
+</p>
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pool_control_web_interface_v350.jpg?raw=true)
 
 
