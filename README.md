@@ -105,6 +105,8 @@ I have also been working on adding in Alexa integration and learning how to buil
     - Gauges for use with our web interface.
 20. [DF Robot Liquid Level Sensor](http://www.dfrobot.com)
     - Non-Contact liquid level sensor used to monitor the level of Acid in our holding tank. Connected to a Raspberry Pi.
+21. [Brultech GEM Greeneye Electrical Monitor](http://www.brultech.com/greeneye/)
+    - Home electrical monitoring system and dashboard. Monitors every single electrical circuit in our house and utilizes a python script to write all of the data to EmonCMS where we can use it to monitor pool system electrical load, solar production and household electrical usage.
 
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
@@ -113,22 +115,9 @@ I have also been working on adding in Alexa integration and learning how to buil
 We utilize the EmonPI as our wireless hub:<br>
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonPI.jpg" width="500" height="300">
 
+<br>
 
-
-
-
-The pool can be filled automatically, or it can be filled by pressing a manual fill button.  A cutout switch on the system prevents the relay from opening the sprinkler valve in the event there is a problem with the system. 
-
-Because our irrigation system is required to have a backfeed prevention vacuum breaker system already, I choose to connect our pool fill project to our irrigation system. Because of this, I needed a way to make sure I did not try to fill the pool while the sprinklers are running. I can check this in two ways, the first is a simple “black out timer” that you would set to the times your sprinklers run, or with an API integration with the Rachio sprinkler system (which we have).  In this case, before we fill the pool, we query the API and determine in real time if our sprinklers are running.
-
-Because we fill the pool via existing pool water lines, I do not want to fill the pool while my pool pump is running. I monitor all electrical usage in the house utilizing OpenEnergyMonitor’s (OEM) emoncms along with hardware from both OEM as well as Brultech. This information is stored in a MySQL database. I simply query that database and see how many watts are currently being used by my pool subpanel and if it is over a certain amount, I do not allow the pool to be filled (automatically or manually).
-
-In case of a problem with the software or hardware, I have a timer that runs anytime we are filling the pool automatically. If we go over a preset amount of time, we force the sprinkler valve closed, log the error and send a notification.
-There is a manual fill button that allows me to fill the pool when I want to fill it as opposed to waiting for the automatic system to do it for me. Because it is manual, it does not care how long it will run and is not subject to the run timer. However, it is subject to the sprinkler and pump controls. 
-
-I am not a programmer and this is just some fun stuff that I have been working on in my spare time. Eventually I will expand this to include a full monitoring system of the pool chemicals and other automation including a web interface to view all of the system parameters.
-
-Currrently the only notifications that are included are logging and pushbullet.
+# History
 
 V2.4 now includes 5 different system status LEDs. These include:
  - Sprinklers Running (BLUE)
@@ -267,14 +256,22 @@ V3.4.6 (2018-09-23)
 
 <br>
 
-Based on the following hardware:
-
--Raspberry Pi 3<br>
--LowPowerLabs MightyHat (http://lowpowerlab.com/mightyhat)<br>
--eTape Resistive Liquid Measuring tape (http://www.milonetech.com)<br>
--OpenEnergyMonitor emonTH & emonPi (http://www.openenergymonitor.org)<br>
--Atlas Scientific USB based pH and ORP probes (http://www.atlas-scientific.com)<br>
--DFRobot Liquid Level Sensor (Acid Level Monitoring) (http://www.dfrobot.com)
+V3.5.0 (2019-02-16)
+- Rewrote code to remove reading system status and other information from flat files - now using MySQL instead. This solved an occasional error where I would get a file lock problem on the flat file causing the system to crash.
+- Removed all database functions from main code and created a use_database.py function to manage database calls systemwide.
+- Reworked code that tracks how many gallons of water have been added to the pool to fix an error in water tracking. See reset_gallon_stop_meter().
+- Added Alexa skill.
+- Added code to integrate with Alexa's ability to fill or stop filling pool.
+- Added code to integrate with Alexa's ability to tell us all of our system information.
+- Added additional sensors to monitoring:
+  - Garage & Attic Temperature Sensor Battery Voltage
+  - Pool Temp and Pool Level Temperature & Humidity for sensor boxes (sealed & waterproof) to monitor internal temps and humidity and alert me when they go over a specified value.
+- Cleaned up sensor testing/checking code. Prevents pool fill if level sensor has timed out (for obvious reasons).
+- Switched to local MySQL database as opposed to cloud based MySQL install.
+- *Starting* the process of docstring integration into my code.
+- Removed eTape for water level, replaed it with dual level float and rewrote sketch as well as updated code that reads the actual pool level for starting and stopping water.
+- Added several functions for internal testing, noted as such in code.
+- Consolidated get_pump_rpm(), get_pump_gpm(), get_pump_watts() into a single function get_pump_data(key) where key is rpm, gpm or watts. Works only when pumpControl software is active, otherwise we zero out rpm and gpm and derive watts from separate (Greeneye) electrical moniting system.
 
 ## Authors
 
