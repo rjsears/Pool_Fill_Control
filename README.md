@@ -2,9 +2,7 @@
 > Major updates to data storage using MySQL and InfluxDB and away from flat files. Please see the bottom of this readme for more updates!
 <br>
 <i>Raspberry Pi / Arduino / Python / Alexa Project to automate pump management and filling of swimming pool along with tracking of various temperature and humidity sensors, smart water meters and more. Includes Flask based Web Interface and Alexa Skill.</i> 
-
 <br><br>
-
 This software is not really intended to be "plug-and-play" but rather sharing of code, hardware and sensor ideas that you can use as a starting point in your own pool management system. *Enjoy!*
 <br>
 
