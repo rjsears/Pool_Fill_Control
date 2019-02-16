@@ -77,9 +77,8 @@ I have also been working on adding in Alexa integration and learning how to buil
 We utilize the EmonPI as our wireless hub:
 ![](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonPI.jpg?s=50)
 
-We utilize the EmonTH to monitor Temperature and Humidity:
-<img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonTH.jpg" width="50" height="50">
-![](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonTH.jpg?s=50)
+We utilize the EmonTH to monitor Temperature and Humidity:<br>
+<img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonTH.jpg" width="100" height="100">
 
 
 
