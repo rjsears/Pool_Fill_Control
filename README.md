@@ -51,7 +51,6 @@ I have also been working on adding in Alexa integration and learning how to buil
 <br>
 
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/screen%202016-05-30%20at%201.50.40%20PM.jpg?raw=true)
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/PFC_internal.jpg?raw=true)
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/PFC_Internal_Connected.jpg?raw=true)
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/PFC_external.jpg?raw=true)
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pc_external.jpg?raw=true)
