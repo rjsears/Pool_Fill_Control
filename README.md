@@ -64,9 +64,11 @@ I have also been working on adding in Alexa integration and learning how to buil
 ###### Our system relies on a *lot* of external applications and hardware. Depending on how you plan on setting up your system you may or may not need all of these applications or hardware devices. It is outside the scope of this readme to go through the installation procedures of the various software system and setup of hardware, but you can always email if you run into trouble:
 
 1. Raspberry Pi
-   - The "brains" behind the operation. Our main python code runs on a [Raspberry Pi Model 3](https://www.raspberrypi.org/) with a 65GB Sd Card. 
-2. OpenEnergyMonitors Open Source Energy Monitoring Platform [(EmonCMS)](https://emoncms.org/)
-   - This system gathers and writes various sensor data to a MySQL database for use by pool_fill_control. We utilize 433Mhz radios from our sensors and transmit our data to EmonCMS. From there we can access it from our program.
+   - The "brains" behind the operation. Our main python code runs on a [Raspberry Pi Model 3](https://www.raspberrypi.org/) with a 65GB SD Card.
+2. OpenEnergyMonitor's EmonPi
+   - A [RaspberryPi powered hardware device](https://guide.openenergymonitor.org/setup/) that allows for electrical and temperature monitoring as well as being a hub for the reception all wireless sensor data. Manages storing data to MySQL for use by other systems.
+3. OpenEnergyMonitor's Open Source Energy Monitoring Platform [(EmonCMS)](https://emoncms.org/)
+   - This system gathers and writes various sensor data to a MySQL database for use by pool_fill_control. We utilize 433Mhz radios from our sensors and transmit our data to EmonCMS. From there we can access it from our program. This runs on our EmonPi as well as on several "backup" servers to house our environmental data.
 
 
 The pool can be filled automatically, or it can be filled by pressing a manual fill button.  A cutout switch on the system prevents the relay from opening the sprinkler valve in the event there is a problem with the system. 
