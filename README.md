@@ -72,10 +72,10 @@ I have also been working on adding in Alexa integration and learning how to buil
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
 <br>
-<img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg" width="300" height="200">
+<img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg" width="400" height="300">
 
 We utilize the EmonPI as our wireless hub:<br>
-<img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonPI.jpg" width="300" height="200">
+<img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonPI.jpg" width="400" height="300">
 
 We utilize the EmonTH to monitor Temperature and Humidity:<br>
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonTH.jpg" width="200" height="200">
