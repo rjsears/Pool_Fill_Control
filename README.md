@@ -5,6 +5,7 @@
 <br>
 <br>
 
+<font size="-3">
 - Pool Water Level (with auto and manual fill functions)
 - Pool Water Level Sensor Temperature, Humidity & Battery Level
 - Sprinkler System - Tracking Only (On or Off)
@@ -25,6 +26,8 @@
 - Household Electrical Usage
 - Household Solar Production
 - Notifications via SMS, E-Mail, Pushbullet, Logging and Debug
+ </font>
+ 
 <br>
 <p align="center">
  <b>Updated Web Interface created and managed with Flask</b>
