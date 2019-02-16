@@ -61,7 +61,7 @@ I have also been working on adding in Alexa integration and learning how to buil
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pc_external.jpg?raw=true)
 
 <br>
-
+<hr>
 
 ###### Our system relies on a *lot* of external applications and hardware. Depending on how you plan on setting up your system you may or may not need all of these applications or hardware devices. It is outside the scope of this readme to go through the installation procedures of the various software system and setup of hardware, but you can always email if you run into trouble. I am sure I might have missed something so this might not be an exhaustive list:
 
@@ -107,17 +107,17 @@ I have also been working on adding in Alexa integration and learning how to buil
     - Non-Contact liquid level sensor used to monitor the level of Acid in our holding tank. Connected to a Raspberry Pi.
 21. [Brultech GEM Greeneye Electrical Monitor](http://www.brultech.com/greeneye/)
     - Home electrical monitoring system and dashboard. Monitors every single electrical circuit in our house and utilizes a python script to write all of the data to EmonCMS where we can use it to monitor pool system electrical load, solar production and household electrical usage.
-
+<hr>
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg" width="500" height="300">
 
 We utilize the EmonPI as our wireless hub:<br>
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonPI.jpg" width="500" height="300">
-
+<hr>
 <br>
 
-# History
+# Revision History
 
 V2.4 now includes 5 different system status LEDs. These include:
  - Sprinklers Running (BLUE)
