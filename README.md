@@ -15,7 +15,7 @@ While this readme is more specific to the code portion of the project, an [in-de
  <b>Updated Web Interface created and managed with Flask</b>
 </p>
 
-![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pool_control_web_interface_v350.jpg?raw=true)
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pool_control_web_interface_v350_01.jpg)
 
 <br>
 
