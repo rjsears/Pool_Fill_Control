@@ -272,7 +272,7 @@ V3.5.0 (2019-02-16)
 - Cleaned up sensor testing/checking code. Prevents pool fill if level sensor has timed out (for obvious reasons).
 - Switched to local MySQL database as opposed to cloud based MySQL install.
 - *Starting* the process of docstring integration into my code.
-- Removed eTape for water level, replaed it with dual level float and rewrote sketch as well as updated code that reads the actual pool level for starting and stopping water.
+- Removed eTape for water level, replaced it with dual level float and rewrote Arduino (emonTH) sketch as well as updated code that reads the actual pool level for starting and stopping water.
 - Added several functions for internal testing, noted as such in code.
 - Consolidated get_pump_rpm(), get_pump_gpm(), get_pump_watts() into a single function get_pump_data(key) where key is rpm, gpm or watts. Works only when pumpControl software is active, otherwise we zero out rpm and gpm and derive watts from separate (Greeneye) electrical moniting system.
 - Added web interface ability to force a system reset if necessary. 
