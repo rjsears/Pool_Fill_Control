@@ -44,6 +44,14 @@ Over time I added temperature monitoring, pH and ORP monitoring (but not control
 
 <br><br>
 
+I have also been working on adding in Alexa integration and learning how to build Alexa skills around the house. I have created a skill that allows you to query the system for all of the pool stats as well as to start and stop filling of the pool. The kids can also ask it if it is ok to go swimming and Alexa will ask them for the temperature they like the water and then compare that to the current water temperature and then let them know if it is ok to go swimming. More a programming challenge than anything else. The Alexa interface is code using the Flask-Ask python framework, but as I understand it, Flask-Ask is no longer being maintained so I may have to more to the much more difficult Pythin Alexa SDK in the future.
+
+<br>
+
+![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pool_control_alexa_v350.jpeg)
+
+<br>
+
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/screen%202016-05-30%20at%201.50.40%20PM.jpg?raw=true)
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/PFC_internal.jpg?raw=true)
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/PFC_Internal_Connected.jpg?raw=true)
