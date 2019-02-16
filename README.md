@@ -62,6 +62,7 @@ I have also been working on adding in Alexa integration and learning how to buil
 
 
 ###### Our system relies on a *lot* of external applications and hardware. Depending on how you plan on setting up your system you may or may not need all of these applications or hardware devices. It is outside the scope of this readme to go through the installation procedures of the various software system and setup of hardware, but you can always email if you run into trouble:
+
 1. Raspberry Pi
    - The "brains" behind the operation. Our main python code runs on a [Raspberry Pi Model 3](https://www.raspberrypi.org/) with a 65GB Sd Card.
   
