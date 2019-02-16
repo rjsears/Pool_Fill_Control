@@ -57,7 +57,7 @@ I have also been working on adding in Alexa integration and learning how to buil
 <br>
 
 
-###### Our system relies on a *lot* of external applications and systems. Here is a current list:
+###### Our system relies on a *lot* of external applications and hardware. Depending on how you plan on setting up your system you may or may not need all of these applications or hardware devices. It is outside the scope of this readme to go through the installation procedures of the various software system and setup of hardware, but you can always email if you run into trouble:
 - OpenEnergyMonitors Open Source Energy Monitoring Platform [(EmonCMS)](https://emoncms.org/)
   - This system gathers and writes various sensor data to a MySQL database for use by pool_fill_control. We utilize 433Mhz radios from our sensors and transmit our data to EmonCMS. From there we can access it from our program.
 
