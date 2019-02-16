@@ -40,13 +40,10 @@ This pool control software system was designed to automate and manage some every
 - Notifications via SMS, E-Mail, Pushbullet, Logging and Debug
  
 <br>
-<br>
 The basic premise of the system is pretty simple. Utilizing a variety of low-power arduino clones as system "sensors" we measure the water level of the pool and check to see if the sprinklers are running. If the water is low and the sprinklers are not running, we turn on a transformer that powers a sprinkler valve and we refill the pool. Once the pool has been filled to a specific level, we shut off the water. Since we fill from our irrigation system, we need to know if the sprinklers are running. If they are, we do not have enough water pressure to run several zones at once so the system will keep checking and will refill the pool once the sprinklers are done.
 <br><br>
 Over time I added temperature monitoring, pH and ORP monitoring (but not control), Acid tank level monitoring, pool filter pressure monitoring, electrical (including solar) monitoring and pool pump management utilizing Russell Goldin's [poolController Software] (https://github.com/tagyoureit/nodejs-poolController). Because much of our house has other sensors I included monitoring of battery levels of various temperature and humidity sensors around the house that have nothing to do with the pool, but since I had the system in place to monitor and alert for these I went ahead and added them anyway. This is the same for overall power utilization and solar production.
 <br><br>
-
-
 
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/screen%202016-05-30%20at%201.50.40%20PM.jpg?raw=true)
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/PFC_internal.jpg?raw=true)
