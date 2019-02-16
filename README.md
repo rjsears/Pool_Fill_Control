@@ -1,7 +1,7 @@
-# Pool_Fill_Control V3.4.6 (2018-09-23)
-> Major rewrite of the code. Please see the bottom of this readme for updates!
+# Pool_Fill_Control V3.5.0 (2019-02-16)
+> Major updates to data storage of the code. Please see the bottom of this readme for updates!
 
-Raspberry Pi / Arduino / Python Project to automate filling of swimming pool. Includes Flask based Web Interface.
+Raspberry Pi / Arduino / Python / Alexa Project to automate management and filling of swimming pool. Includes Flask based Web Interface.
 
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.4/pictures/pool_control_web_interface_v346.jpg?raw=true)
 
