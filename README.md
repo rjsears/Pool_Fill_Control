@@ -17,12 +17,14 @@ Raspberry Pi / Arduino / Python / Alexa Project to automate pump management and 
 - Pool water usage during fill and overall water usage
 - Pool Fill Timer while filling
 - Pool filling (automatically, manually, or manually via Alexa skill)
+- Alexa Skill via Flask-Ask
 - Alexa readback of all system parameters
 - Alexa ability to fill or stop filling pool
 - Household Electrical Usage
 - Household Solar Production
 - Notifications via SMS, E-Mail, Pushbullet, Logging and Debug
 
+> Updated Web Interface created and managed with Flask
 
 ![alt tag](https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/pool_control_web_interface_v350.jpg?raw=true)
 
