@@ -23,7 +23,7 @@ Raspberry Pi / Arduino / Python / Alexa Project to automate pump management and 
 - Household Electrical Usage
 - Household Solar Production
 - Notifications via SMS, E-Mail, Pushbullet, Logging and Debug
-
+<br>
 <p align="center">
 ###### Updated Web Interface created and managed with Flask
 </p>
