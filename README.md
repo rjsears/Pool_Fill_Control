@@ -6,7 +6,6 @@
 
 This software is not really intended to be "plug-and-play" but rather sharing of code, hardware and sensor ideas that you can use as a starting point in your own pool management system. *Enjoy!*
 
-<br>
 While this readme is more specific to the code portion of the project, an [in-depth writeup of the project](https://www.hackster.io/user3424878278/pool-fill-control-119ab7) is available on Hackster.io with tons more detail and pictures!
 
 <br>
