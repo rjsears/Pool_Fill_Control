@@ -63,7 +63,7 @@ I have also been working on adding in Alexa integration and learning how to buil
 <br>
 
 
-###### Our system relies on a *lot* of external applications and hardware. Depending on how you plan on setting up your system you may or may not need all of these applications or hardware devices. It is outside the scope of this readme to go through the installation procedures of the various software system and setup of hardware, but you can always email if you run into trouble:
+###### Our system relies on a *lot* of external applications and hardware. Depending on how you plan on setting up your system you may or may not need all of these applications or hardware devices. It is outside the scope of this readme to go through the installation procedures of the various software system and setup of hardware, but you can always email if you run into trouble. I am sure I might have missed something so this might not be an exhaustive list:
 
 1. Raspberry Pi
    - The "brains" behind the operation. Our main python code runs on a [Raspberry Pi Model 3](https://www.raspberrypi.org/) with a 65GB SD Card.
@@ -91,6 +91,10 @@ I have also been working on adding in Alexa integration and learning how to buil
     - Python Microframework used to build the front-end web interface for our pool control project.
 13. [Flask-Ask](https://github.com/johnwheeler/flask-ask)
     - Alexa skills kit for Python by John Wheeler. (Will be moving away from Flask-Ask as the rumor is that John is no longer maintaining the project). 
+14. [PoolController](https://github.com/tagyoureit/nodejs-poolController)
+    - Software written by Russell Goldin to manage Pentair pool pumps via an RS485 interface. This is how we control our pump.
+15. [Apache](https://httpd.apache.org/)
+    - Web server for both the web frontend as well as https frontend for our Alexa skills.
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg" width="500" height="300">
