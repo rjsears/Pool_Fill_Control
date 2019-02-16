@@ -74,7 +74,11 @@ I have also been working on adding in Alexa integration and learning how to buil
 5. LowPowerLab's [R6 Moteino](https://lowpowerlab.com/shop/moteinousb)
    - The Moteino is a super-low-power Arduino clone that incorpoprates a 433Mhz FSK (RFM69HCW) transceiver which transmits data to our EmonPi.
 6. [Atlas Scientific](https://www.atlas-scientific.com/) pH and ORP Probes and boards
-   - Atlas Scientific USB input boards and sensors for [pH](https://www.atlas-scientific.com/ph.html) and [ORP](https://www.atlas-scientific.com/orp.html). 
+   - USB input boards and probes for [pH](https://www.atlas-scientific.com/ph.html) and [ORP](https://www.atlas-scientific.com/orp.html).
+7. pH and ORP Flow Cell
+   - Flow cell purchased from [Sunplay](https://sunplay.com/products/ips-controllers-flow-cell-complete-fc100g) to house our pH and ORP sensors as well as to provide water flow sensing.
+8. [Elecall Stainless Steel Tank Water Level Sensor Float Switch](https://www.amazon.com/gp/product/B01M1HAN4O)
+   - Stainless steel dual level water level sensor used to monitor the water level in the pool so we know when to refill it. Has "low" and a "high" side floats that are monitored with an EmonTH sensor.
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg" width="500" height="300">
