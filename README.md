@@ -70,7 +70,9 @@ I have also been working on adding in Alexa integration and learning how to buil
 3. OpenEnergyMonitor's Open Source Energy Monitoring Platform [(EmonCMS)](https://emoncms.org/)
    - This system gathers and writes various sensor data to a MySQL database for use by pool_fill_control. We utilize 433Mhz radios from our sensors and transmit our data to EmonCMS. From there we can access it from our program. This runs on our EmonPi as well as on several "backup" servers to house our environmental data.
 4. LowPowerLab's [MightyHat](https://lowpowerlab.com/guide/mightyhat/)
-   - MightyHat is a Raspberry Pi Hat with that makes it easy to build a compact, robust, battery backed-up gateway for the internet of things. It accepts RFM69W/HW/HCW or LoRa transceivers and acts as a power controller and UPS for the RaspberryPi.
+   - MightyHat is a Raspberry Pi Hat with that makes it easy to build a compact, robust, battery backed-up gateway for the internet of things. It accepts RFM69W/HW/HCW or LoRa transceivers and acts as a power controller and UPS for the RaspberryPi. This is on the main RaspberryPi that runs our system at the pool.
+5. LowPowerLab's [R6 Moteino](https://lowpowerlab.com/shop/moteinousb)
+   - The Moteino is a super-low-power Arduino clone that incorpoprates a 433Mhz FSK (RFM69HCW) transceiver which transmits data to our EmonPi.
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg" width="500" height="300">
