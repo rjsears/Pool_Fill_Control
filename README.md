@@ -290,6 +290,6 @@ This project is licensed under the MIT License - see the MIT License for details
 
 ## Acknowledgments
 While there are a lot of people that deserve acknowledgments because they wrote amazing code, these folks went out of their way to help me out on this project and I want to call them out:
-* Russell Goldin [tagyourit](https://github.com/tagyoureit/nodejs-poolController) - Thank you for all the extra time you spent helping to get my pool pump under control of my software.
+* [Russell Goldin (tagyoureit)](https://github.com/tagyoureit/nodejs-poolController) - Thank you for all the extra time you spent helping to get my pool pump under control of my software.
 * Everyone that provided the code in the list above for use with this project!
 * My amazing family that puts up with all of my coding projects!
