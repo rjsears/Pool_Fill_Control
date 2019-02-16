@@ -95,6 +95,14 @@ I have also been working on adding in Alexa integration and learning how to buil
     - Software written by Russell Goldin to manage Pentair pool pumps via an RS485 interface. This is how we control our pump.
 15. [Apache](https://httpd.apache.org/)
     - Web server for both the web frontend as well as https frontend for our Alexa skills.
+16. [Pushbullet](https://www.pushbullet.com/)
+    - Used as one of our notification methods.
+17. [pushbullet.py](https://github.com/rbrcsk/pushbullet.py)
+    - Python client for working with PushBullet
+18. [Twilio](https://www.twilio.com/)
+    - Used to send SMS text messages as one of our notification methods.
+19. [Steel Series Gauges](https://github.com/HanSolo/SteelSeries-Canvas)
+    - Gauges for use with our web interface.
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg" width="500" height="300">
@@ -274,8 +282,5 @@ Based on the following hardware:
 This project is licensed under the MIT License - see the MIT License for details
 
 ## Acknowledgments
-
-* [Gerrit Grunwald, Mark Crossley](https://github.com/HanSolo/SteelSeries-Canvas) - Steel Series Gauges
-* [Randomchars](https://github.com/randomchars) - pushbullet.py
-* [Russell Goldin](https://github.com/tagyoureit/nodejs-poolController/tree/4.x-DEV) - Pentair Control Code
+* Everyone that provided the code in the list above for use with this project!
 * My amazing family that puts up with all of my coding projects!
