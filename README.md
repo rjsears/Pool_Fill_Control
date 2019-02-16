@@ -42,8 +42,6 @@ The basic premise of the system is pretty simple. Utilizing a variety of low-pow
 
 Over time I added temperature monitoring, pH and ORP monitoring (but not control), Acid tank level monitoring, pool filter pressure monitoring, electrical (including solar) monitoring and pool pump management utilizing Russell Goldin's [poolController Software](https://github.com/tagyoureit/nodejs-poolController). Because much of our house has other sensors I included monitoring of battery levels of various temperature and humidity sensors around the house that have nothing to do with the pool, but since I had the system in place to monitor and alert for these I went ahead and added them anyway. This is the same for overall power utilization and solar production.
 
-<br><br>
-
 I have also been working on adding in Alexa integration and learning how to build Alexa skills around the house. I have created a skill that allows you to query the system for all of the pool stats as well as to start and stop filling of the pool. The kids can also ask it if it is ok to go swimming and Alexa will ask them for the temperature they like the water, compare that to the current water temperature and then let them know if it is ok to go swimming. More a programming challenge than anything else. The Alexa interface is coded using the [Flask-Ask python framework](https://github.com/johnwheeler/flask-ask), but as I understand it, Flask-Ask is no longer being maintained so I may have to move to the much more difficult Pythin Alexa SDK in the future.
 
 <br>
