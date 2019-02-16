@@ -103,6 +103,9 @@ I have also been working on adding in Alexa integration and learning how to buil
     - Used to send SMS text messages as one of our notification methods.
 19. [Steel Series Gauges](https://github.com/HanSolo/SteelSeries-Canvas)
     - Gauges for use with our web interface.
+20. [DF Robot Liquid Level Sensor](http://www.dfrobot.com)
+    - Non-Contact liquid level sensor used to monitor the level of Acid in our holding tank. Connected to a Raspberry Pi.
+
 
 ###### EmonCMS software EmonPi Hub and EmonTH sensors comprise the core of our sensor monitoring capabilities! 
 <img src="https://github.com/rjsears/Pool_Fill_Control/blob/V3.5/pictures/emonCMS.jpg" width="500" height="300">
