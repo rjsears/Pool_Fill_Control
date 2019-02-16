@@ -14,10 +14,7 @@
 <br>
 
 This pool control software system was designed to automate and manage some everyday pool management tasks. It started out with just filling the pool, hence the name of the repo: pool_fill_control. It grew into far more than that and now is integrated into a variety of system around our home. Here is a current (as of V3.5.0) list of items managed or monitored by the system:
-
-<br>
-<br>
- 
+ <br>
 - Pool Water Level (with auto and manual fill functions)
 - Pool Water Level Sensor Temperature, Humidity & Battery Level
 - Sprinkler System - Tracking Only (On or Off)
