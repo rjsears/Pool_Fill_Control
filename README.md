@@ -290,9 +290,9 @@ This project is licensed under the MIT License - see the MIT License for details
 While there are a lot of people that deserve acknowledgments because they wrote amazing code, these folks went out of their way to help me out on this project and I want to call them out:
 * [Russell Goldin (tagyoureit)](https://github.com/tagyoureit/nodejs-poolController) - Thank you for all the extra time you spent helping to get my pool pump under control of my software.
 * [Felix over at LowPowerLabs](https://lowpowerlab.com/about/) - Not only did Felix design the Moteinos that I use throughout my project, but he (and others in the LPL forums) put up with all of my questions trying to understand how to get the most out of my battery life.
-* The amazing community over at [Openenergymonitor.org](https://community.openenergymonitor.org) including @Paul, @Robert.Wall and @TrystanLea (among others).
+* The great community over at [Openenergymonitor.org](https://community.openenergymonitor.org) including @Paul, @Robert.Wall and @TrystanLea (among others).
 
-* **My Amazing and loving family!** My wonderful wife and kids put up with all of my coding and automation projects and encourage me *in all things*. Without them this project would not be possible and I will still be filling our pool with a hose.
-* And last but not least, [my brother James](https://www.youtube.com/channel/UCt4FOn_sTZkEWpADBAWrQ3g) who is a continual source of inspiration to me and to others.
+* **My Amazing and loving family!** My wonderful wife and kids who put up with all of my coding and automation projects and who encourage me *in all things*. Without them this project would not be possible and I will still be filling our pool with a hose.
+* And last but not least, [my brother James](https://www.youtube.com/channel/UCt4FOn_sTZkEWpADBAWrQ3g) who is a continual source of inspiration to me and to others. Every person should have a brother as awesome as mine!
 
 
