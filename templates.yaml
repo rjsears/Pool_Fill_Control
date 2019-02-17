@@ -1,0 +1,66 @@
+welcome: |
+    <speak>
+        What temperature do you like your pool water?
+    </speak>
+
+2welcome: |
+    <speak>
+        Welcome to the Pool Temperature checker. I will help you decide if you should go swimming right now. 
+        What temperature do you like your pool water?
+    </speak>
+help: |
+    Dad designed me to help you determine if you can go swimming without having to get in the water
+    first. All you need to do is tell me what temperature you like your pool water and I will
+    tell you if it is ok to swim. So, please tell me ... What temperature do you like your pool water?
+
+
+too_cold: |
+        NO! Don't go swimming..... Since you like your pool water at {{temperature}} and the pool is actually at {{pool_current_temp}},
+        you might not want to go swimming right now because it is too cold!
+
+just_right: |
+        Yes! Let's go swimming..... Since you like your pool water at {{temperature}} and the pool is actually at {{pool_current_temp}},
+        now is the perfect time to go swimming!
+
+
+unknown: I did not understand your number, please use whole numbers only and nothing else. Please try again.
+
+our_stats: |
+        <speak>
+        The pool temperature is currently {{temperature}} degrees. The P H of our pool water is currently {{ph}}, while our oxygen reduction potential
+        is right at {{orp}}. The level of our water is at {{level}} percent. Meanwhile our solar plant is producing {{solar}} watts of power while we 
+        import {{power_import}} watts from A P S.
+        </speak>
+
+solar_output: |
+    <speak>
+    Our solar plant is currently producing {{solar}} watts of power while we import {{power_import}} watts from A P S.
+    </speak>
+
+bye: Goodbye
+
+sprinklers_running:  |
+    I am sorry but we cannot fill the pool right now. Your sprinklers are running.
+    Please try again later.
+
+fill_pool: |
+    Your pool is now filling. We will fill the pool for {{alexa_max_pool_fill_time}} minutes.
+    If the pool still needs more water after this amount of time, please ask us to fill it again.
+
+stop_filling: |
+    We have stopped filling your pool. We added {{gallons_current_fill}} gallons of water in {{pool_fill_total_time}} minutes.
+
+pool_already_filling: |
+    I am sorry, but we are already filling your pool. Please try again later.
+
+pool_fill_time: |
+    Your pool has been filling for {{pool_fill_total_time}} minutes.
+
+pool_not_filling: |
+    Your pool is not currently being filled. To fill your pool, ask Our Crazy Family to fill our pool.
+
+current_gallons: |
+    We have added {{gallons_current_fill}} gallons over the last {{pool_fill_total_time}} minutes.
+
+last_gallons: |
+    We are not currently filling our pool. However, The last time we filled our pool we added {{gallons_last_fill}} gallons.
