@@ -2,19 +2,18 @@
 # and influx database for various power readings. This is intended to be located in the utilities
 # subdirectory.
 
-# Last updated 2018-09-23
+# Last updated 2019-02-16
 
 __author__ = 'Richard J. Sears'
-PCM_VERSION = "pool_control_master.VERSION"
+VERSION = "V3.5.0 (2019-02-16)"
 
 import sys
 sys.path.append('../')
 from influxdb import InfluxDBClient
-import pooldb
-
+import db_info
 
 def write_data(measurement, value):
-    client = InfluxDBClient(pooldb.influx_host, pooldb.influx_port, pooldb.influx_user, pooldb.influx_password, pooldb.influx_dbname)
+    client = InfluxDBClient(db_info.influx_host, db_info.influx_port, db_info.influx_user, db_info.influx_password, db_info.influx_dbname)
 
     json_body = [
             {
@@ -28,7 +27,7 @@ def write_data(measurement, value):
     client.write_points(json_body)
 
 def read_energy_data(db, measurement, device):
-    client = InfluxDBClient(pooldb.influx_host, pooldb.influx_port, pooldb.influx_user, pooldb.influx_password, db)
+    client = InfluxDBClient(db_info.influx_host, db_info.influx_port, db_info.influx_user, db_info.influx_password, db)
     results = client.query(("SELECT %s from %s ORDER by time DESC LIMIT 1") % (device, measurement))
     points = results.get_points()
     for item in points:
