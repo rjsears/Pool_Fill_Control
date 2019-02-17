@@ -281,7 +281,7 @@ V3.5.0 (2019-02-16)
 <hr>
 
 ## Author
-* **Richard J. Sears** - *richard@sears.net* - [The RS Technical Group, Inc.](http://github.com/rjsears)
+**Richard J. Sears** - *richard@sears.net* - [The RS Technical Group, Inc.](http://github.com/rjsears)
 
 ## License
 This project is licensed under the MIT License - see the MIT License for details
@@ -292,5 +292,7 @@ While there are a lot of people that deserve acknowledgments because they wrote 
 * [Felix over at LowPowerLabs](https://lowpowerlab.com/about/) - Not only did Felix design the Moteinos that I use throughout my project, but he (and others in the LPL forums) put up with all of my questions trying to understand how to get the most out of my battery life.
 * The amazing community over at [Openenergymonitor.org](https://community.openenergymonitor.org) including @Paul, @Robert.Wall and @TrystanLea (among others).
 
-* Everyone that provided the code in the list above for use with this project!
-* My amazing family that puts up with all of my coding projects!
+* **My Amazing and loving family!** My wonderful wife and kids put up with all of my coding and automation projects and encourage me *in all things*. Without them this project would not be possible and I will still be filling our pool with a hose.
+* And last but not least, [my brother James](https://www.youtube.com/channel/UCt4FOn_sTZkEWpADBAWrQ3g) who is a continual source of inspiration to me and to others.
+
+
