@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ## MySQL Database integration Module. Holds all functions to read and update
-## data for Pool Control System from MySQL database.
+## data for Pool Control System from MySQL database. 
 
 __author__ = 'Richard J. Sears'
 VERSION = "V3.5.0 (2019-02-16)"
