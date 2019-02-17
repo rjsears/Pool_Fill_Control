@@ -293,6 +293,6 @@ While there are a lot of people that deserve acknowledgments because they wrote 
 * The great community over at [Openenergymonitor.org](https://community.openenergymonitor.org) including @Paul, @Robert.Wall and @TrystanLea (among others).
 
 * **My Amazing and loving family!** My wonderful wife and kids who put up with all of my coding and automation projects and who encourage me *in all things*. Without them this project would not be possible and I will still be filling our pool with a hose.
-* And last but not least, [my brother James](https://www.youtube.com/channel/UCt4FOn_sTZkEWpADBAWrQ3g) who is a continual source of inspiration to me and to others. Every person should have a brother as awesome as mine!
+* And last but not least, [my brother James](https://www.youtube.com/channel/UCt4FOn_sTZkEWpADBAWrQ3g) who is a continual source of inspiration to me and to others. Everyone should have a brother as awesome as mine!
 
 
