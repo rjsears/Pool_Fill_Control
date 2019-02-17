@@ -4,9 +4,9 @@
 <i>Raspberry Pi / Arduino / Python / Alexa Project to automate pump management and filling of swimming pool along with tracking of various temperature and humidity sensors, smart water meters and more. Includes Flask based Web Interface and Alexa Skill.</i> 
 <br><br>
 
-This software is not really intended to be "plug-and-play" but rather sharing of code, hardware and sensor ideas that you can use as a starting point in your own pool management system. *Enjoy!*
+This software is not really intended to be "plug-and-play" but rather sharing of code, hardware and sensor ideas that you can use as a starting point in your own pool management and/or home automation system. *Enjoy!*
 
-While this readme is more specific to the code portion of the project, an [in-depth writeup of the entire project](https://www.hackster.io/user3424878278/pool-fill-control-119ab7) from start to finish is available on Hackster.io with tons more detail and pictures!
+While this readme is pretty specific to the code portion of the project, an [in-depth writeup of the entire project](https://www.hackster.io/user3424878278/pool-fill-control-119ab7) from start to finish is available on Hackster.io with tons more detail and pictures! I have tried to include the different parts of the system in this readme, and over time I will expand this readme to include more about the project.
 
 <br>
 
@@ -19,18 +19,18 @@ While this readme is more specific to the code portion of the project, an [in-de
 
 <br>
 
-This pool control software system was designed to automate and manage some everyday pool management tasks. It started out with just filling the pool, hence the name of the repo: pool_fill_control. It grew into far more than that and now is integrated into a variety of system around our home. Here is a current (as of V3.5.0) list of items managed or monitored by the system:
+This pool control software system was designed to automate and manage some everyday pool management tasks. It started out with just filling the pool, hence the name of the repo: pool_fill_control. It grew into far more than that and now is integrated into a variety of systems around our home. Here is a current (as of V3.5.0) list of items managed or monitored by the system:
  <br>
 - Pool Water Level (with auto and manual fill functions)
 - Pool Water Level Sensor Temperature, Humidity & Battery Level
-- Sprinkler System - Tracking Only (On or Off)
+- Sprinkler System - Tracking Only (On or Off) using Rachio Sprinkler Controller
 - Pool Temperature
 - Pool Temperature Sensor Temperature, Humidity & Battery Level
 - Acid Tank Level
 - Pool pH & ORP
 - Pool Filter PSI
 - Pool Pump Parameters (GPM, RPM, Watts)
-- Pool Pump Management (Start, Stop, Change Running Programs)
+- Pool Pump Management (Start, Stop, Change Running Program)
 - Pool Electrical Panel Electrical Usage
 - Pool water usage during fill and overall water usage
 - Pool Fill Timer while filling
