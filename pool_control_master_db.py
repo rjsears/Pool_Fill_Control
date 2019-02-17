@@ -1529,7 +1529,7 @@ def main():
     is_pool_pump_running()
     pool_pump_running_chemical()
     check_system_status()
-  #  mightyhat_serial_setup() # See comment in function.
+    mightyhat_serial_setup() # See comment in function.
     get_pool_temp()
     check_pool_sensors()
     get_sprinkler_status()
