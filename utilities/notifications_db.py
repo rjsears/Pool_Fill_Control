@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 # Main Notifications module that handles all logging and notifications system
 # wide. This resides in the Utilities directory.
 #
@@ -24,9 +23,10 @@
 
 
 __author__ = 'Richard J. Sears'
-PCM_VERSION = "pool_control_master_db.VERSION"
+VERSION = "V3.5.0 (2019-02-16)"
+# richard@sears.net
 
-import pooldb
+
 import time
 import logging
 import subprocess
@@ -95,13 +95,13 @@ def send_email(recipient, subject, body):
 
 # Setup to send out Pushbillet alerts. Pushbullet config is in pooldb.py
 def send_push_notification(title, message):
-    pb = Pushbullet(pooldb.pushbilletAPI)
+    pb = Pushbullet(db_info.pushbilletAPI)
     push = pb.push_note(title, message)
 
 # Setup to send SMS Text messages via Twilio. Configured in pooldb.py
 def send_sms_notification(body):
-    client = Client(pooldb.twilio_account, pooldb.twilio_token)
-    message = client.messages.create(to=pooldb.twilio_to, from_=pooldb.twilio_from,
+    client = Client(db_info.twilio_account, db_info.twilio_token)
+    message = client.messages.create(to=db_info.twilio_to, from_=db_info.twilio_from,
                                          body=body)
 
 # Output debugging messages to the console if set via the web interface
