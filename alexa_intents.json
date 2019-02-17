@@ -1,0 +1,227 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "pool control",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AnswerIntent",
+                    "slots": [
+                        {
+                            "name": "temperature",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "{temperature}"
+                    ]
+                },
+                {
+                    "name": "GetPoolLevel",
+                    "slots": [],
+                    "samples": [
+                        "what is the level of the pool",
+                        "what is the pool level",
+                        "what is the level of the pool water",
+                        "what is the water level in the pool",
+                        "what is the water level"
+                    ]
+                },
+                {
+                    "name": "GetPoolORP",
+                    "slots": [],
+                    "samples": [
+                        "o. r. p.",
+                        "what is the o. r. p.",
+                        "what is the orp",
+                        "orp",
+                        "what is the O. R. P.  of our water",
+                        "what is our O. R. P.",
+                        "what is the O. R. P.  of the pool",
+                        "what is the oxygen reduction potential of our pool",
+                        "what is our oxygen reduction potential",
+                        "what is the O. R. P. of our pool water",
+                        "what is the O. R. P. of our pool"
+                    ]
+                },
+                {
+                    "name": "GetPoolPH",
+                    "slots": [],
+                    "samples": [
+                        "ph",
+                        "what is the ph",
+                        "what is the ph of the pool water",
+                        "what is the ph of our pool water",
+                        "what is ph",
+                        "what is our ph",
+                        "what is our P. H.",
+                        "what is the P. H. of the water",
+                        "what is the P. H. of the pool water",
+                        "what is the P. H. of our water",
+                        "what is the P. H.",
+                        "what is the P. H. of the pool"
+                    ]
+                },
+                {
+                    "name": "GetPoolTemp",
+                    "slots": [],
+                    "samples": [
+                        "the water temp",
+                        "the pool temp",
+                        "the pool temperature",
+                        "the water temperature",
+                        "the temperature of the water",
+                        "the temperature of the pool",
+                        "what the temperature of the pool is",
+                        "what is the temperature of the pool"
+                    ]
+                },
+                {
+                    "name": "GetSolarOutput",
+                    "slots": [],
+                    "samples": [
+                        "how much power are we producing",
+                        "solar",
+                        "how much solar power we are producing",
+                        "how much solar power are we producing",
+                        "what is our solar output",
+                        "solar output",
+                        "what our current solar output is"
+                    ]
+                },
+                {
+                    "name": "OKToSwim",
+                    "slots": [],
+                    "samples": [
+                        "is it ok to swim",
+                        "can I go swimming",
+                        "if I can go swimming",
+                        "if it is ok to swim"
+                    ]
+                },
+                {
+                    "name": "GetAllStats",
+                    "slots": [],
+                    "samples": [
+                        "for system status",
+                        "for our pool status",
+                        "for our status",
+                        "for our system status",
+                        "for system stats",
+                        "for power stats",
+                        "for solar stats",
+                        "for our stats",
+                        "for our system stats",
+                        "for all of our stats",
+                        "for stats",
+                        "for our pool stats",
+                        "what our our stats",
+                        "our stats"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.MoreIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateSettingsIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NextIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PageUpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PageDownIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PreviousIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollRightIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollDownIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollLeftIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollUpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "FillPool",
+                    "slots": [],
+                    "samples": [
+                        "to fill up the pool",
+                        "to add water to the pool",
+                        "to put water in the pool",
+                        "to put water in our pool",
+                        "to fill the pool",
+                        "to fill pool",
+                        "to add water to our pool",
+                        "to please fill our pool",
+                        "to fill our pool"
+                    ]
+                },
+                {
+                    "name": "StopFillingPool",
+                    "slots": [],
+                    "samples": [
+                        "to shut the water off to our pool",
+                        "stop filling the pool",
+                        "stop filling our pool",
+                        "to stop water to the pool",
+                        "to shut off the water to the pool",
+                        "to stop filling our pool",
+                        "to stop filling the pool"
+                    ]
+                },
+                {
+                    "name": "CurrentGallons",
+                    "slots": [],
+                    "samples": [
+                        "how many gallons of water we have added to the pool",
+                        "how many gallons of water we have added to our pool",
+                        "how much water we added to our pool",
+                        "how much water we added to the pool",
+                        "how much water we have added to the pool",
+                        "how much water we have added to our pool",
+                        "how many gallons we have added to the pool",
+                        "the number of gallons we have added to our pool",
+                        "the number of gallons we have added to the pool",
+                        "the number of gallons we have added",
+                        "how many gallons we have added",
+                        "how many gallons we have added to our pool"
+                    ]
+                }
+            ],
+            "types": []
+        }
+    }
+}
