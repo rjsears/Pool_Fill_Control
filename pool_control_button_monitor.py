@@ -1,46 +1,32 @@
 #!/usr/bin/env python
 
 # Threaded Python App that monitors physical push button
-# switch on RPi.
+# switch on RPi. This has been converted to MySQL mode
+# on 02-16-2019.
 
 __author__ = 'Richard J. Sears'
-VERSION = "V3.3.04 (2018-02-24)"
+VERSION = "V3.5.0 (2019-02-16)"
 # richard@sears.net
 
 
-#import time
+import sys
+sys.path.append('/var/www/utilities')
 import pigpio # http://abyz.co.uk/rpi/pigpio/python.html
 import threading
-import ConfigParser
-import pool_control_master
+import pool_control_master_db
+from use_database import update_database, read_database
 
-config = ConfigParser.ConfigParser()
 
 manual_fill_button = 2
 
-# Setup to read and write to a status file:
-def read_pool_sensor_status_values(file, section, status):
-    pathname = '/var/www/' + file
-    config.read(pathname)
-    current_status = config.get(section, status)
-    return current_status
-def update_pool_sensor_status_values(file, section, status, value):
-    pathname = '/var/www/' + file
-    config.read(pathname)
-    cfgfile = open(pathname, 'w')
-    config.set(section, status, value)
-    config.write(cfgfile)
-    cfgfile.close()
-
-
 def manual_fill_button_push(gpio, level, tick):
-    pool_manual_fill = read_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_manual_fill")
-    if pool_manual_fill == "False":
-        pool_control_master.pool_fill_valve("MANUAL_OPEN")
-        update_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_manual_fill", True)
+    pool_manual_fill = read_database("filling_status", "pool_manual_fill")
+    if not pool_manual_fill:
+        pool_control_master_db.pool_fill_valve("MANUAL_OPEN")
+        update_database("filling_status", "pool_manual_fill", True)
     else:
-        pool_control_master.pool_fill_valve("MANUAL_CLOSE")
-        update_pool_sensor_status_values("pool_sensor_status", "filling_status", "pool_manual_fill", False)
+        pool_control_master_db.pool_fill_valve("MANUAL_CLOSE")
+        update_database("filling_status", "pool_manual_fill", False)
 
 
 GLITCH=5000
