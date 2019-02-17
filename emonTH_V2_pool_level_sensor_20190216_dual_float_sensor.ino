@@ -1,7 +1,7 @@
 /*
   pool_level V2 Low Power SI7021 Humidity & Temperature, Two Float Pool Water level
   emonTH_V2_pool_level_sensor_20190216_dual_float_sensor.ino
-  Current as of February 10th, 2019
+  Current as of February 16th, 2019
 
   Modified for pool control project by Richard J. Sears
   richard@sears.net
