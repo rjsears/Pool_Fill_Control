@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 # Main Notifications module that handles all logging and notifications system
 # wide. This resides in the Utilities directory.
 #
@@ -106,15 +107,11 @@ def send_sms_notification(body):
 # Output debugging messages to the console if set via the web interface
 def debug(message):
     DEBUG = read_database("notification_methods", "debug")
-#    DEBUG = read_pool_sensor_status_values("pool_sensor_status",
-#                                           "notification_methods", "debug")
     if DEBUG:
         print(message)
 
 def verbose_debug(message):
     VERBOSE_DEBUG = read_database("notification_methods", "verbose_debug")
-#    VERBOSE_DEBUG = read_pool_sensor_status_values("pool_sensor_status",
-#                                           "notification_methods", "verbose_debug")
     if VERBOSE_DEBUG:
         print(message)
 
