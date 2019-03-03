@@ -1,20 +1,42 @@
 #!/usr/bin/python
 
 ## MySQL Database integration Module. Holds all functions to read and update
-## data for Pool Control System from MySQL database. 
+## data for Pool Control System from MySQL database.
 
 __author__ = 'Richard J. Sears'
-VERSION = "V3.5.0 (2019-02-16)"
+VERSION = "V3.5.1 (2019-03-02)"
 # richard@sears.net
-
 
 import db_info
 import mysql.connector
-from mysql.connector import Error 
-from notifications_db import log
+import logging.handlers
+from mysql.connector import Error
+from notifications_db import notifications_read_database
+
+
+# Setup our Logging:
+# If I fail to read from my DB, set logging to DEBUG and turn it on
+try:
+    LOG_LEVEL = notifications_read_database("logging", "level")
+except:
+    LOG_LEVEL = "DEBUG"
+try:
+    LOGGING = notifications_read_database("logging", "logging")
+except:
+    LOGGING = 1
+
+log = logging.getLogger(__name__)
+level = logging._checkLevel(LOG_LEVEL)
+log.setLevel(level)
+
+if LOGGING:
+    log.disabled = False
+else:
+    log.disabled = True
+
 
 def read_database(table, column):
-    log("INFO", "use_database.py:read_database() called with ({}, {})".format(table, column))
+   # log.info( "read_database() called with ({}, {})".format(table, column))
     try:
         connection = mysql.connector.connect(user=db_info.username,
                                       password=db_info.password,
@@ -28,8 +50,29 @@ def read_database(table, column):
         cursor.close()
         connection.close()
     except Error as error :
-        print("Failed to read record from database: {}".format(error))
-        log("WARN", "Failed to read record from database: {}".format(error))
+        log.warning("Failed to read record from database: {}".format(error))
+        exit()
+    finally:
+        if(connection.is_connected()):
+            connection.close
+
+
+def read_database_fill(table, column):
+    log.info("read_database_fill() called with ({}, {})".format(table, column))
+    try:
+        connection = mysql.connector.connect(user=db_info.username,
+                                      password=db_info.password,
+                                      host=db_info.servername,
+                                      database=db_info.database)
+        cursor = connection.cursor(buffered=True)
+        cursor.execute(("SELECT `%s` FROM `%s` ORDER by time DESC LIMIT 1") % (column, table))
+        for data in cursor:
+            database_value = (data[0])
+            return database_value
+        cursor.close()
+        connection.close()
+    except Error as error :
+        log.warning("Failed to read record from database: {}".format(error))
         exit()
     finally:
         if(connection.is_connected()):
@@ -37,7 +80,7 @@ def read_database(table, column):
 
 
 def update_database(table,column,value):
-    log("INFO", "use_database.py:update_database() called with Table:{}, Column:{}, Value:{}".format(table, column, value))
+    log.info("update_database() called with Table:{}, Column:{}, Value:{}".format(table, column, value))
     try:
         connection = mysql.connector.connect(user=db_info.username,
                                       password=db_info.password,
@@ -50,8 +93,7 @@ def update_database(table,column,value):
         cursor.close()
         connection.close()
     except Error as error :
-        print("Failed to Update record in database: {}".format(error))
-        log("WARN", "Failed to UPDATE database: {}".format(error))
+        log.warning("Failed to UPDATE database: {}".format(error))
         exit()
     finally:
         if(connection.is_connected()):
@@ -59,7 +101,7 @@ def update_database(table,column,value):
 
 
 def insert_database(table,column,value):
-    log("INFO", "use_database.py:update_database() called with Table:{}, Column:{}, Value:{}".format(table, column, value))
+    log.info("update_database() called with Table:{}, Column:{}, Value:{}".format(table, column, value))
     try:
         connection = mysql.connector.connect(user=db_info.username,
                                       password=db_info.password,
@@ -72,8 +114,7 @@ def insert_database(table,column,value):
         cursor.close()
         connection.close()
     except Error as error :
-        print("Failed to Update record in database: {}".format(error))
-        log("WARN", "Failed to UPDATE database: {}".format(error))
+        log.warning( "Failed to UPDATE database: {}".format(error))
         exit()
     finally:
         if(connection.is_connected()):
@@ -81,7 +122,7 @@ def insert_database(table,column,value):
 
 
 def read_emoncms_database(type, table):
-    log("INFO", "use_database.py:read_emoncms_database() called with Type: {}, Table: {})".format(type, table))
+    log.info("read_emoncms_database() called with Type: {}, Table: {})".format(type, table))
     try:
         connection = mysql.connector.connect(user=db_info.emoncms_username,
                                       password=db_info.emoncms_password,
@@ -95,12 +136,14 @@ def read_emoncms_database(type, table):
         cursor.close()
         connection.close()
     except Error as error :
-        print("Failed to read record from database: {}".format(error))
-        log("WARN", "Failed to read record from database: {}".format(error))
+        log.warning( "Failed to read record from database: {}".format(error))
         exit()
     finally:
         if(connection.is_connected()):
             connection.close
+
+
+
 
 
 
@@ -109,7 +152,6 @@ def test_emoncms_db():
     data = read_emoncms_database("time", "feed_76")
     get_pool_level_sensor_time = int("%1.0f" % data)
     print("Pool LEVEL sensor last updated at: {}".format(get_pool_level_sensor_time))
-
 
 
 def main():
