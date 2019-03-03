@@ -23,9 +23,8 @@
 
 
 __author__ = 'Richard J. Sears'
-VERSION = "V3.5.1 (2019-03-02)"
+VERSION = "V3.5.1 (2019-03-03)"
 # richard@sears.net
-
 
 import time
 import logging.handlers
@@ -35,6 +34,29 @@ from twilio.rest import Client
 import db_info
 import mysql.connector
 from mysql.connector import Error
+import ConfigParser
+
+config = ConfigParser.ConfigParser()
+
+# Setup Logging Here
+def read_logging_config(file, section, status):
+    pathname = '/var/www/' + file
+    config.read(pathname)
+    if status == "LOGGING":
+        current_status = config.getboolean(section, status)
+    else:
+        current_status = config.get(section, status)
+    return current_status
+
+LOG_LEVEL = read_logging_config("logging_config", "logging", "LEVEL")
+LOGGING = read_logging_config("logging_config", "logging", "LOGGING")
+log = logging.getLogger(__name__)
+if LOGGING:
+    log.disabled = False
+    level = logging._checkLevel(LOG_LEVEL)
+    log.setLevel(level)
+else:
+    log.disabled = True
 
 ## We need to have our database functions here instead of calling use_database.py
 ## This resolves an circular import issue.
@@ -85,28 +107,6 @@ def notifications_update_database(table,column,value):
 
 current_timestamp = int(time.time())
 
-# Setup our Logging:
-
-# If I fail to read from my DB, set logging to DEBUG and turn it on
-try:
-    LOG_LEVEL = notifications_read_database("logging", "level")
-except:
-    LOG_LEVEL = "DEBUG"
-try:
-    LOGGING = notifications_read_database("logging", "logging")
-except:
-    LOGGING = 1
-
-log = logging.getLogger(__name__)
-level = logging._checkLevel(LOG_LEVEL)
-log.setLevel(level)
-if LOGGING:
-    log.disabled = False
-else:
-    log.disabled = True
-## End logging configuration
-
-
 
 # Setup to send email via the builtin linux mail command.
 # Your local system must be configured already to send mail or this will fail.
@@ -127,10 +127,10 @@ def send_sms_notification(body):
 # Notify system for email, pushbullet and sms (via Twilio)
 def notify(sub_system_notifications, title, message):
     log.debug("notify() called with {}, {} and {}.".format(sub_system_notifications, title, message))
-    sub_system_notifications = read_database("notification_settings", sub_system_notifications)
-    EMAIL = read_database("notification_methods", "email")
-    PUSHBULLET = read_database("notification_methods", "pushbullet")
-    SMS = read_database("notification_methods", "sms")
+    sub_system_notifications = notifications_read_database("notification_settings", sub_system_notifications)
+    EMAIL = notifications_read_database("notification_methods", "email")
+    PUSHBULLET = notifications_read_database("notification_methods", "pushbullet")
+    SMS = notifications_read_database("notification_methods", "sms")
 
     if PUSHBULLET and sub_system_notifications:
         send_push_notification(title,message)
