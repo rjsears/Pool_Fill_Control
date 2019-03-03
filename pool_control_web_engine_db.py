@@ -13,6 +13,28 @@ from flask import Flask, render_template, redirect, url_for
 import pool_control_button_monitor
 import pool_control_master_db
 from use_database import update_database, read_database
+import ConfigParser
+
+
+## Setup All of our LOGGING here:
+config = ConfigParser.ConfigParser()
+
+def read_logging_config(file, section, status):
+    pathname = '/var/www/' + file
+    config.read(pathname)
+    if status == "LOGGING":
+        current_status = config.getboolean(section, status)
+    else:
+        current_status = config.get(section, status)
+    return current_status
+
+def update_logging_config(file, section, status, value):
+    pathname = '/var/www/' + file
+    config.read(pathname)
+    cfgfile = open(pathname, 'w')
+    config.set(section, status, value)
+    config.write(cfgfile)
+    cfgfile.close()
 
 
 app = Flask(__name__)
@@ -44,7 +66,7 @@ def pool_control():
     current_military_time = read_database("system_status", "current_military_time")
     pool_fill_total_time = read_database("filling_time", "pool_fill_total_time" )
     debug = read_database("logging", "console" )
-    logging = read_database("logging", "logging" )
+    logging = read_logging_config("logging_config", "logging", "LOGGING")
     pushbullet = read_database("notification_methods", "pushbullet" )
     email = read_database("notification_methods", "email" )
     gallons_current_fill = read_database("filling_gallons", "gallons_current_fill" )
@@ -293,11 +315,11 @@ def toggle_debug():
 
 @app.route('/logging')
 def toggle_logging():
-    logging = read_database("logging", "logging" )
+    logging = read_logging_config("logging_config", "logging", "LOGGING")
     if logging:
-        update_database("logging", "logging", False)
+        update_logging_config("logging_config", "logging", "LOGGING", False)
     else:
-        update_database("logging", "logging", True)
+        update_logging_config("logging_config", "logging", "LOGGING", True)
     return redirect(url_for('pool_control'))
 
 @app.route('/pushbullet')
