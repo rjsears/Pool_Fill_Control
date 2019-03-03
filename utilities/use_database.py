@@ -11,32 +11,34 @@ import db_info
 import mysql.connector
 import logging.handlers
 from mysql.connector import Error
-from notifications_db import notifications_read_database
+import ConfigParser
 
+config = ConfigParser.ConfigParser()
 
-# Setup our Logging:
-# If I fail to read from my DB, set logging to DEBUG and turn it on
-try:
-    LOG_LEVEL = notifications_read_database("logging", "level")
-except:
-    LOG_LEVEL = "DEBUG"
-try:
-    LOGGING = notifications_read_database("logging", "logging")
-except:
-    LOGGING = 1
+# Setup Logging Here
+def read_logging_config(file, section, status):
+    pathname = '/var/www/' + file
+    config.read(pathname)
+    if status == "LOGGING":
+        current_status = config.getboolean(section, status)
+    else:
+        current_status = config.get(section, status)
+    return current_status
 
+LOG_LEVEL = read_logging_config("logging_config", "logging", "LEVEL")
+LOGGING = read_logging_config("logging_config", "logging", "LOGGING")
 log = logging.getLogger(__name__)
-level = logging._checkLevel(LOG_LEVEL)
-log.setLevel(level)
-
 if LOGGING:
     log.disabled = False
+    level = logging._checkLevel(LOG_LEVEL)
+    log.setLevel(level)
 else:
     log.disabled = True
 
 
+
 def read_database(table, column):
-   # log.info( "read_database() called with ({}, {})".format(table, column))
+    log.info( "read_database() called with ({}, {})".format(table, column))
     try:
         connection = mysql.connector.connect(user=db_info.username,
                                       password=db_info.password,
@@ -141,10 +143,6 @@ def read_emoncms_database(type, table):
     finally:
         if(connection.is_connected()):
             connection.close
-
-
-
-
 
 
 def test_emoncms_db():
