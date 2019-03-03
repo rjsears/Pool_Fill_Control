@@ -20,13 +20,18 @@ https://www.hackster.io/user3424878278/pool-fill-control-119ab7
 
 
 __author__ = 'Richard J. Sears'
-VERSION = "V3.5.1 (2019-03-02)"
+VERSION = "V3.5.1 (2019-03-03)"
 # richard@sears.net
 
 #TODO Put more thought into logging. Too much? Too little?
 
 
 # Manage Imports
+import os
+import yaml
+import logging.config
+import logging
+import logging.handlers
 import sys
 sys.path.append('/var/www/utilities')
 import pooldb  # Database information
@@ -48,6 +53,63 @@ import influx_data
 from use_database import update_database, read_database, read_emoncms_database, insert_database, read_database_fill
 from notifications_db import notify
 import db_info
+import ConfigParser
+
+
+## Setup All of our LOGGING here:
+config = ConfigParser.ConfigParser()
+
+def read_logging_config(file, section, status):
+    pathname = '/var/www/' + file
+    config.read(pathname)
+    if status == "LOGGING":
+        current_status = config.getboolean(section, status)
+    else:
+        current_status = config.get(section, status)
+    return current_status
+
+def update_logging_config(file, section, status, value):
+    pathname = '/var/www/' + file
+    config.read(pathname)
+    cfgfile = open(pathname, 'w')
+    config.set(section, status, value)
+    config.write(cfgfile)
+    cfgfile.close()
+
+def setup_logging(default_path='logging.yaml', default_level=logging.CRITICAL, env_key='LOG_CFG'):
+    if LOGGING == 1:
+        path = default_path
+        value = os.getenv(env_key, None)
+        if value:
+            path = value
+        if os.path.exists(path):
+            with open(path, 'rt') as f:
+                try:
+                    config = yaml.safe_load(f.read())
+                    logging.config.dictConfig(config)
+                   # coloredlogs.install()
+                except Exception as e:
+                    print(e)
+                    print('Error in Logging Configuration. Using default configs')
+                    logging.basicConfig(level=default_level)
+                   # coloredlogs.install(level=default_level)
+        else:
+            logging.basicConfig(level=default_level)
+           # coloredlogs.install(level=default_level)
+            print('Failed to load configuration file. Using default configs')
+    else:
+        log.disabled = True
+
+
+LOGGING = read_logging_config("logging_config", "logging", "LOGGING")
+LOG_LEVEL = read_logging_config("logging_config", "logging", "LEVEL")
+log = logging.getLogger(__name__)
+level = logging._checkLevel(LOG_LEVEL)
+log.setLevel(level)
+## End of logging setup
+
+
+
 
 
 #Set our current timestamp & current military time
@@ -99,38 +161,6 @@ GPIO.setup(acid_level_sensor_pin, GPIO.IN)
 GPIO.setup(pool_pump_running_pin, GPIO.IN,pull_up_down=GPIO.PUD_UP)
 
 
-# Setup our Logging before we do anything else:
-#import logging
-import logging.handlers
-from logging.config import dictConfig
-import yaml
-
-with open('logging.yaml') as logging_config:
-    config = yaml.safe_load(logging_config.read())
-    dictConfig(config)
-
-# If I fail to read from my DB, set logging to DEBUG and turn it on
-try:
-    LOG_LEVEL = read_database("logging", "level")
-except:
-    LOG_LEVEL = "DEBUG"
-try:
-    LOGGING = read_database("logging", "logging")
-except:
-    LOGGING = 1
-
-log = logging.getLogger("pool_control_master_db")
-level = logging._checkLevel(LOG_LEVEL)
-log.setLevel(level)
-
-if LOGGING:
-    log.disabled = False
-else:
-    log.disabled = True
-## End logging configuration
-
-
-
 # Do we have internet access? This functions checks for internet access. We then use this to determine
 # which database server we will be using (eventually). If we do not have internet access, we (currently) cannot run
 # this system until I rewrite the code to reference local servers as opposed to remote servers.
@@ -147,15 +177,12 @@ def check_internet():
     True
     """
     log.debug("check_internet() Started")
-#    #verbose_debug("check_internet() Started")
     check_url = pooldb.check_url
     conn = httplib.HTTPConnection(check_url, timeout=3)
     try:
         conn.request("HEAD", "/")
         conn.close()
-#        # debug("We have Internet Access!")
-#       #verbose_debug("check_internet() Completed")
-        log.debug("check_internet(): We have Internet Access")
+        log.info("We have Internet Access")
         log.debug("check_internet() Completed")
         return True
     except:
@@ -221,7 +248,7 @@ def led_control(led, onoff):
 # steel water level sensor sold on Amazon by Elecall Tools. As a result I wrote
 # a new sketch that outputs 3 levels, 0) Low, 1) Mid and 2) Full:
 def get_pool_level_percentage(level):
-    log.debug("get_pool_level_percentage(voltage) called with {}.".format(level))
+    log.debug("get_pool_level_percentage(level) called with {}.".format(level))
 
     """Input a level from our pool sensor and it is converted to
     a percentage for use with our gauge in our web display and
@@ -290,18 +317,13 @@ def check_pump_control_url():
         conn.request("HEAD", "/")
         conn.close()
         update_database ("pump_status", "pump_control_active", True)
-        #verbose_debug("Pump Control System - Online")
-        #verbose_debug("check_pump_control_url() Completed")
-        log.debug("Pump Control System - Online")
+        log.info("Pump Control System - Online")
         log.debug("check_pump_control_url() Completed")
         pump_control_active = True
         return True
     except:
         conn.close()
         update_database ("pump_status", "pump_control_active", False)
-        #verbose_debug("check_pump_control_url() Completed")
-        # debug("Pump Control System - Offline")
-        # debug("")
         log.debug("Pump Control System - Offline")
         log.debug("check_pump_control_url() Completed")
         pump_control_active = False
@@ -313,53 +335,38 @@ def check_pump_control_url():
 # Exception handling due to URL request.
 #TODO Impliment this function and remove get_pump_gpm, get_pump_rpm & alter get_pump_watts
 def get_pump_data(key):
-    #verbose_debug("get_pump_data() Started")
-    #verbose_debug("get_pump_data() called with '{}' ".format(key))
-    log.info("get_pump_data() called with '{}' ".format(key))
+    log.debug("get_pump_data() called with '{}' ".format(key))
     pump_control_active = read_database("pump_status", "pump_control_active")
     if pump_control_active:
-     #   global json
         try:
             req = urllib2.Request(pooldb.PUMP_DATA_URL)
             opener = urllib2.build_opener()
             f = opener.open(req)
             data = json.load(f)
             pump_data = data["pump"]["1"][key]
-            #verbose_debug("get_pump_data() returned {}".format(pump_data))
-            log.info("get_pump_data() returned {}".format(pump_data))
-            #verbose_debug("get_pump_data()  - Completed")
-            log.info("get_pump_data() - Completed")
+            log.debug("get_pump_data() returned {}".format(pump_data))
+            log.debug("get_pump_data() - Completed")
             #TODO Make this all one statement with variable substitution for (key)!
             if key == "gpm":
                 pump_gpm = pump_data
                 update_database("pump_status", "pump_gpm", pump_gpm)
                 log.info("get_pump_gpm() reports Current GPM: {}".format(pump_gpm))
                 log.debug("get_pump_gpm() Completed")
-                # debug("Current GPM: {}".format(pump_gpm))
-                #verbose_debug("get_pump_gpm() Completed")
             elif key == "rpm":
                 pump_rpm = pump_data
                 update_database("pump_status", "pump_rpm", pump_rpm)
                 log.info("get_pump_rpm() reports Current RPM: {}".format(pump_rpm))
                 log.debug("get_pump_rpm() Completed")
-                # debug("Current RPM: {}".format(pump_rpm))
-                #verbose_debug("get_pump_rpm() Completed")
             else:
                 pump_watts = pump_data
                 update_database("pump_status", "pump_watts", pump_watts)
                 log.info("get_pump_watts() reports Current WATTS: {}".format(pump_watts))
                 log.debug("get_pump_watts() Completed")
-                # debug("Current WATTS: {}".format(pump_watts))
-                #verbose_debug("get_pump_watts() Completed")
             return pump_data
         except Exception as error:
             pump_data = 0
-            # debug("EXCEPTION: get_pump_data()")
             log.warning("EXCEPTION: get_pump_data()")
             log.warning(error)
-            # debug(type(error))
-            # debug(error)
-            #verbose_debug("get_pump_data()  - Completed with EXCEPTION")
             log.debug("get_pump_data() - Completed with EXCEPTION")
             return pump_data
     else:
@@ -370,15 +377,15 @@ def get_pump_data(key):
 def get_pump_gpm_test():
     """ Test to see if get_pump_data() is working."""
     test_gpm = get_pump_data("gpm")
-    # debug("Current GPM: {}".format(test_gpm))
+    log.debug("Current GPM: {}".format(test_gpm))
 
 def get_pump_rpm_test():
     test_rpm = get_pump_data("rpm")
-    # debug("Current RPM: {}".format(test_rpm))
+    log.debug("Current RPM: {}".format(test_rpm))
 
 def get_pump_watts_test():
     test_watts = get_pump_data("watts")
-    # debug("Current WATTS: {}".format(test_watts))
+    log.debug("Current WATTS: {}".format(test_watts))
 
 def get_pump_data_test():
     get_pump_gpm_test()
@@ -390,6 +397,7 @@ def get_pump_data_test():
 # so there is no screen debugging outputted as it will never be seen, however
 # we leave it in in case we are running flask in debug mode we will see the messages.
 def pump_control(command):
+    log.debug("pump_control() called with {}.".format(command))
     pump_program_running = read_database("pump_status", "pump_program_running")
     pump_control_notifications = read_database("notification_settings", "pump_control_notifications")
     pump_control_active = read_database("pump_status", "pump_control_active")
@@ -398,8 +406,7 @@ def pump_control(command):
             if command == "START":
                 urllib2.urlopen(pooldb.PUMP_START_URL)
                 update_database("led_status", "pump_run_led", True)
-                # debug("pump_control() called with START command")
-                log.info("pump_control() called with START command")
+                log.debug("pump_control() called with START command")
                 notify("pump_control_notifications", "Your pool pump has been started.", "Your pool pump has been started.")
             elif command == "PROGRAM_1":
                 if pump_program_running == "program_1":
@@ -407,8 +414,7 @@ def pump_control(command):
                 else:
                     urllib2.urlopen(pooldb.PUMP_PROGRAM1_URL)
                     update_database("led_status", "pump_run_led", True)
-                    # debug("pump_control() called with PROGRAM 1 (15 GPM) command")
-                    log.info("pump_control() called with PROGRAM 1 (15 GPM) command")
+                    log.debug("pump_control() called with PROGRAM 1 (15 GPM) command")
                     notify("pump_control_notifications", "Your pool pump has been set to 15 GPM.", "Your pool pump has been set to 15 GPM.")
             elif command == "PROGRAM_2":
                 if pump_program_running == "program_2":
@@ -416,9 +422,7 @@ def pump_control(command):
                 else:
                     urllib2.urlopen(pooldb.PUMP_PROGRAM2_URL)
                     update_database("led_status", "pump_run_led", True)
-                    # debug("pump_control() called with PROGRAM 2 (20 GPM) command")
-                    log.info(
-                        "pump_control() called with PROGRAM 2 (20 GPM) command")
+                    log.debug("pump_control() called with PROGRAM 2 (20 GPM) command")
                     notify("pump_control_notifications", "Your pool pump has been set to 20 GPM.",
                            "Your pool pump has been set to 20 GPM.")
             elif command == "PROGRAM_3":
@@ -427,9 +431,7 @@ def pump_control(command):
                 else:
                     urllib2.urlopen(pooldb.PUMP_PROGRAM3_URL)
                     update_database("led_status", "pump_run_led", True)
-                    # debug("pump_control() called with PROGRAM 3 (30 GPM) command")
-                    log.info(
-                        "pump_control() called with PROGRAM 3 (30 GPM) command")
+                    log.debug("pump_control() called with PROGRAM 3 (30 GPM) command")
                     notify("pump_control_notifications","Your pool pump has been set to 30 GPM.",
                            "Your pool pump has been set to 30 GPM.")
             elif command == "PROGRAM_4":
@@ -438,38 +440,30 @@ def pump_control(command):
                 else:
                     urllib2.urlopen(pooldb.PUMP_PROGRAM4_URL)
                     update_database("led_status", "pump_run_led", True)
-                    # debug("pump_control() called with PROGRAM 4 (50 GPM) command")
-                    log.info(
-                        "pump_control() called with PROGRAM 4 (50 GPM) command")
+                    log.debug("pump_control() called with PROGRAM 4 (50 GPM) command")
                     notify("pump_control_notifications", "Your pool pump has been set to 50 GPM.",
                            "Your pool pump has been set to 50 GPM.")
             else:
                 urllib2.urlopen(pooldb.PUMP_STOP_URL)
                 update_database("led_status", "pump_run_led", False)
-                # debug("pump_control() called with STOP command")
-                log.info("pump_control() called with STOP command")
+                log.debug("pump_control() called with STOP command")
                 notify("pump_control_notifications", "Your pool pump has been stopped.",
                        "Your pool pump has been stopped.")
         except Exception as error:
-            # debug("EXCEPTION: pump_control()")
             log.warning("EXCEPTION: pump_control()")
             log.warning(error)
-            # debug(type(error))
-            # debug(error)
-            #verbose_debug("pump_control()  - Completed with EXCEPTION")
-            log.debug("pump_control() - Completed with EXCEPTION")
+            log.warning("pump_control() - Completed with EXCEPTION")
     else:
         pass
 
 # Called by our web interface to control Pump Control Software
 def pump_control_software(startstop):
-    log.debug("pump_control_software() Started")
+    log.debug("pump_control_software() called with {}.".format(startstop))
     pump_control_software_notifications = read_database("notification_settings", "pump_control_software_notifications")
     if startstop == "START":
         call(["/usr/bin/pm2", "start", "0"])
         update_database("pump_status", "pump_control_active", True)
-        log.info(
-            "pump_control_software() called with 'START' command")
+        log.debug("pump_control_software() called with 'START' command")
         notify("pump_control_software_notifications",
                "Pump Control Software",
                "Your pump control software has started.")
@@ -477,8 +471,7 @@ def pump_control_software(startstop):
     else:
         call(["/usr/bin/pm2", "stop", "0"])
         update_database("pump_status", "pump_control_active", False)
-        log.info(
-            "pump_control_software() called with 'STOP' command")
+        log.debug("pump_control_software() called with 'STOP' command")
         notify("pump_control_software_notifications",
                "Pump Control Software",
                "Your pump control software has been stopped.")
@@ -487,8 +480,8 @@ def pump_control_software(startstop):
 #TODO Can we modify led_control() to also update database LED status?
 #TODO Add sprinkler notifications to web interface and notification system (Done now..???)
 def get_sprinkler_status():
+    log.debug("get_sprinkler_status() Started.")
     """ Function to determine if our sprinklers are currently running. """
-    # debug("get_sprinkler_status() Started")
     if pooldb.sprinkler_type == "Timer":
         SprinklerStart = int(400)
         SprinklerStop = int(1000)
@@ -497,45 +490,35 @@ def get_sprinkler_status():
             update_database("sprinkler_status", "sprinklers_on", True)
             led_control(sprinkler_run_led, "True")
             update_database("led_status", "sprinkler_run_led", True)
-            # debug("Sprinklers are running via TIMER mode.")
             log.debug("Sprinklers are running via TIMER mode.")
-            # debug("Sprinkler Run LED should be ON. This is a BLUE LED.")
             log.debug("Sprinkler Run LED should be ON. This is a BLUE LED.")
         else:
             sprinklers_on = False
             update_database("sprinkler_status", "sprinklers_on", False)
             led_control(sprinkler_run_led, "False")
             update_database("led_status", "sprinkler_run_led", False)
-            # debug("Sprinklers are not running (TIMER)")
-            log.debug("Sprinklers are not running via TIMER mode.")
-            # debug("Sprinkler Run LED should be off. This is a BLUE LED.")
+            log.info("Sprinklers are not running via TIMER mode.")
             log.debug("Sprinkler Run LED should be off. This is a BLUE LED.")
         return sprinklers_on
     else:
-        # debug("Checking to see if sprinklers are running via subprocess call (RACHIO).")
-        log.debug("get_sprinkler_status() called via subprocess")
+
+        log.debug("get_sprinkler_status() called via subprocess (RACHIO)")
         output = subprocess.check_output(pooldb.rachio_url, shell=True)
         if output == "{}":
             sprinklers_on = False
             update_database("sprinkler_status", "sprinklers_on", False)
             led_control(sprinkler_run_led, "False")
             update_database("led_status", "sprinkler_run_led", False)
-            # debug("Sprinklers are not running (RACHIO)")
-            log.debug("Sprinklers are not running via RACHIO mode.")
-            # debug("Sprinkler Run LED should be off. This is a BLUE LED.")
+            log.info("Sprinklers are not running via RACHIO mode.")
             log.debug("Sprinkler Run LED should be off. This is a BLUE LED.")
         else:
             sprinklers_on = True
             update_database("sprinkler_status", "sprinklers_on", True)
             update_database("led_status", "sprinkler_run_led", True)
-            # debug("Sprinklers are running (RACHIO)")
             log.debug("Sprinklers are running via RACHIO mode.")
             led_control(sprinkler_run_led, "True")
-            # debug("Sprinkler Run LED should be ON. This is a BLUE LED.")
             log.debug("Sprinkler Run LED should be ON. This is a BLUE LED.")
-    # debug("get_sprinkler_status() Completed.")
-    log.debug("get_sprinkler_status Completed")
-    # debug("")
+    log.debug("get_sprinkler_status() Completed")
     return sprinklers_on
 
 
@@ -555,24 +538,20 @@ def get_ph_reading():
             ph_value = float(get_ph.get_current_ph_with_temp(pool_temp))
         else:
             ph_value = float(get_ph.get_current_ph_no_temp())
-        # debug("Current pH is: {}".format(ph_value))
         influx_data.write_data("pH", ph_value)
         influx_data.write_data("pool_temp", pool_temp)
         if pooldb.emoncms_server1 == "Yes":
             res = requests.get("http://" + pooldb.server1 + "/" + pooldb.emoncmspath1 + "/input/post?&node=" + str(
                 pooldb.ph_node) + "&csv=" + ph_value + "&apikey=" + pooldb.apikey1)
             log.debug("Sent current pH Value of {} to Emoncms Server 1".format(ph_value))
-            # debug("Sent current pH Value of {} to Emoncms Server 1".format(ph_value))
         if pooldb.emoncms_server2 == "Yes":
             res = requests.get("http://" + pooldb.server2 + "/" + pooldb.emoncmspath2 + "/input/post?&node=" + str(
                 pooldb.ph_node) + "&csv=" + ph_value + "&apikey=" + pooldb.apikey2)
             log.debug("Sent current pH Value of {} to Emoncms Server 2".format(ph_value))
-            # debug("Sent current pH Value of {} to Emoncms Server 2".format(ph_value))
         update_database("pool_chemicals", "pool_current_ph", ph_value)
         log.debug("get_ph_reading() Completed")
     else:
         log.info("Pool Pump is NOT running, cannot get accurate pH reading!")
-        # debug("Pool pump is NOT running, cannot get accurate pH reading!")
         log.debug("get_ph_reading() Completed")
 
 
@@ -589,23 +568,19 @@ def get_orp_reading():
     if pool_pump_running:
         orp_value = float(get_orp.get_current_orp())
         influx_data.write_data("orp", orp_value)
-        # debug("Current ORP is: {}".format(orp_value))
         if pooldb.emoncms_server1 == "Yes":
             res = requests.get("http://" + pooldb.server1 + "/" + pooldb.emoncmspath1 + "/input/post.json?&node=" + str(
                 pooldb.orp_node) + "&csv=" + orp_value + "&apikey=" + pooldb.apikey1)
             log.debug("Sent current ORP Value of {} to Emoncms Server 1".format(orp_value))
-            # debug("Sent current ORP Value of {} to Emoncms Server 1".format(orp_value))
         if pooldb.emoncms_server2 == "Yes":
             res = requests.get("http://" + pooldb.server2 + "/" + pooldb.emoncmspath2 + "/input/post.json?&node=" + str(
                 pooldb.orp_node) + "&csv=" + orp_value + "&apikey=" + pooldb.apikey2)
             log.debug("Sent current ORP Value of {} to Emoncms Server 2".format(orp_value))
-            # debug("Sent current ORP Value of {} to Emoncms Server 2".format(orp_value))
         update_database("pool_chemicals", "pool_current_orp", orp_value)
 
         log.debug("get_orp_reading() Completed")
     else:
         log.info("Pool Pump is NOT running, cannot get accurate ORP reading!")
-        # debug("Pool pump is NOT running, cannot get accurate ORP reading!")
         log.debug("get_orp_reading() Completed")
 
 # Track total gallons added to pool during fill times
@@ -613,22 +588,18 @@ def get_gallons_total():
     log.debug("get_gallons_total() Started")
     get_gallons_total = read_emoncms_database("data", pooldb.pool_gallons_total)
     pool_gallons_total = int("%1.0f" % get_gallons_total)
-    # debug("Total Gallons: {}".format(pool_gallons_total))
-    # debug("")
-    log.debug("get_gallons_total() returned: Total Gallons: {}".format(pool_gallons_total))
+    log.info("Total Gallons: {}".format(pool_gallons_total))
     log.debug("get_gallons_total() Completed")
     return pool_gallons_total
 
 def calculate_current_fill_gallons():
     log.debug("calculate_current_fill_gallons() Started")
-    # debug("calculate_current_gallons() Started")
     fill_gallons_start = get_gallons_total()
     fill_gallons_stop = read_database("filling_gallons","gallons_stop")
     current_fill_gallons = int(fill_gallons_start) - int(fill_gallons_stop)
     update_database("filling_gallons", "gallons_current_fill", current_fill_gallons)
-    log.debug("calculate_current_fill_gallons() returned: Current Fill Gallons: {}".format(current_fill_gallons))
+    log.info("Current Fill Gallons: {}".format(current_fill_gallons))
     log.debug("calculate_current_fill_gallons() Completed")
-    # debug("calculate_current_gallons() Completed")
     return current_fill_gallons
 
 def calculate_gallons_used():
@@ -638,7 +609,7 @@ def calculate_gallons_used():
     gallons_used = int(gallons_stop) - int(gallons_start)
     update_database("filling_gallons", "gallons_last_fill", gallons_used)
     insert_database("pool_filling_history", "gallons", gallons_used)
-    log.debug("calculate_gallons_used() returned: Gallons Used: {}".format(gallons_used))
+    log.info("Gallons Used: {}".format(gallons_used))
     log.debug("calculate_gallons_used() Completed")
     return gallons_used
 
@@ -654,7 +625,6 @@ def reset_gallon_stop_meter():
 # TODO - Update logging for pfv_disable function
 def pfv_disabled():
     pool_fill_notifications = read_database("notification_settings", "pool_fill_notifications")
-#    pool_fill_notifications = read_pool_sensor_status_values("pool_sensor_status", "notification_settings", "pool_fill_notifications")
     # TODO Complete and test pfv_disabled() function
     """ Function to determine if our PFV has been manually disabled. """
     if DEBUG == "True":
@@ -1417,6 +1387,9 @@ def get_last_fill_date():
 
 # Here we go.......
 def main():
+    setup_logging()
+ #   notify("pool_database_notifications", "Pool Control System Started", "Your Pool System Has Started!")
+    log.debug("pool_control_master_db() Starting.")
     check_internet()  # If we have no internet, immediately exit() and check again in 1 minute. 
     is_database_online() # If we cannot communicate to our DB, immediately exit() and check again in 1 minute.
     check_pump_control_url()
@@ -1438,8 +1411,10 @@ def main():
     get_ph_reading()
     get_orp_reading()
     get_last_fill_date()
-
-
+    log.debug("pool_control_master_db() Completed.")
+ #   notify("pool_database_notifications", "Pool Control System Completed", "Your Pool System Has Completed!")
 
 if __name__ == '__main__':
     main()
+
+
