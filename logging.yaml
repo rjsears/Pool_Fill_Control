@@ -1,0 +1,50 @@
+# logging.yaml file for use with pool_control_master_db version 3.5.1
+# 2019-03-02
+
+version: 1
+disable_existing_loggers: False
+
+formatters:
+  default:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  extended:
+    format: '%(asctime)s - %(name)2s:%(lineno)s - %(funcName)3s: %(levelname)3s %(message)s'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: extended
+    stream: ext://sys.stdout
+  logfile:
+    class: logging.handlers.RotatingFileHandler
+    formatter: extended
+    filename: '/var/log/pool_control/pool_control_master_db.log'
+    maxBytes: 2097152
+    backupCount: 5
+  db_logfile:
+    class: logging.handlers.RotatingFileHandler
+    formatter: extended
+    filename: '/var/log/pool_control/db_logfile.log'
+    maxBytes: 2097152
+    backupCount: 5
+  notification_logfile:
+    class: logging.handlers.RotatingFileHandler
+    formatter: extended
+    filename: '/var/log/pool_control/notifications.log'
+    maxBytes: 2097152
+    backupCount: 5
+
+loggers:
+  pool_control_master_db:
+    handlers: ['console', 'logfile']
+    propagate: no
+  notifications_db:
+    handlers: ['console', 'notification_logfile']
+    propagate: no
+  use_database:
+    handlers: ['console', 'logfile']
+    propagate: no
+
+root:
+  level: NOTSET
+  handlers: ['logfile']
