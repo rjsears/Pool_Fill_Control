@@ -280,6 +280,7 @@ V3.5.0 (2019-02-16)
 - Updated notifications_db.py to include a flask specific logging function log_flask().
 
 <br>
+
 V3.5.1 (2019-03-02)
 - Reworked logging (again)!
 - Added additional error checking for logging.
