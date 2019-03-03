@@ -23,12 +23,12 @@
 
 
 __author__ = 'Richard J. Sears'
-VERSION = "V3.5.0 (2019-02-16)"
+VERSION = "V3.5.1 (2019-03-02)"
 # richard@sears.net
 
 
 import time
-import logging
+import logging.handlers
 import subprocess
 from pushbullet import Pushbullet
 from twilio.rest import Client
@@ -36,12 +36,11 @@ import db_info
 import mysql.connector
 from mysql.connector import Error
 
-
 ## We need to have our database functions here instead of calling use_database.py
 ## This resolves an circular import issue.
 
 
-def read_database(table, column):
+def notifications_read_database(table, column):
     try:
         connection = mysql.connector.connect(user=db_info.username,
                                       password=db_info.password,
@@ -56,14 +55,14 @@ def read_database(table, column):
         connection.close()
     except Error as error :
         print("Failed to read record from database: {}".format(error))
-        log("WARN", "Failed to read record from database: {}".format(error))
+        log.warning( "Failed to read record from database: {}".format(error))
         exit()
     finally:
         if(connection.is_connected()):
             connection.close
-            #log("INFO", "use_database.py:read_database() Database connection closed.")
+            #log.info( "use_database.py:read_database() Database connection closed.")
 
-def update_database(table,column,value):
+def notifications_update_database(table,column,value):
     try:
         connection = mysql.connector.connect(user=db_info.username,
                                       password=db_info.password,
@@ -77,7 +76,7 @@ def update_database(table,column,value):
         connection.close()
     except Error as error :
         print("Failed to Update record in database: {}".format(error))
-        log("WARN", "Failed to UPDATE database: {}".format(error))
+        log.warning( "Failed to UPDATE database: {}".format(error))
         exit()
     finally:
         if(connection.is_connected()):
@@ -85,6 +84,28 @@ def update_database(table,column,value):
 
 
 current_timestamp = int(time.time())
+
+# Setup our Logging:
+
+# If I fail to read from my DB, set logging to DEBUG and turn it on
+try:
+    LOG_LEVEL = notifications_read_database("logging", "level")
+except:
+    LOG_LEVEL = "DEBUG"
+try:
+    LOGGING = notifications_read_database("logging", "logging")
+except:
+    LOGGING = 1
+
+log = logging.getLogger(__name__)
+level = logging._checkLevel(LOG_LEVEL)
+log.setLevel(level)
+if LOGGING:
+    log.disabled = False
+else:
+    log.disabled = True
+## End logging configuration
+
 
 
 # Setup to send email via the builtin linux mail command.
@@ -101,76 +122,32 @@ def send_push_notification(title, message):
 # Setup to send SMS Text messages via Twilio. Configured in pooldb.py
 def send_sms_notification(body):
     client = Client(db_info.twilio_account, db_info.twilio_token)
-    message = client.messages.create(to=db_info.twilio_to, from_=db_info.twilio_from,
-                                         body=body)
-
-# Output debugging messages to the console if set via the web interface
-def debug(message):
-    DEBUG = read_database("notification_methods", "debug")
-    if DEBUG:
-        print(message)
-
-def verbose_debug(message):
-    VERBOSE_DEBUG = read_database("notification_methods", "verbose_debug")
-    if VERBOSE_DEBUG:
-        print(message)
-
-# System wide logging configuration
-def log(loglevel, message):
-    LOGGING = read_database("notification_methods", "logging")
-    if LOGGING:
-        logger = logging.getLogger(__name__)
-        if not len(logger.handlers):
-            level = logging._checkLevel(loglevel)
-            handler = logging.FileHandler('/var/log/pool_control_master_db.log')
-            formatter = logging.Formatter('%(filename)2s:%(lineno)s - %(funcName)3s: %(asctime)s %(levelname)3s %(message)s')
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
-            logger.setLevel("DEBUG")
-            logger.filemode = 'a'
-            logger.log(level, message)
-        else:
-            level = logging._checkLevel(loglevel)
-            logger.log(level, message)
-
-def log_flask(loglevel, message):
-    LOGGING = read_database("notification_methods", "logging")
-    if LOGGING:
-        logger = logging.getLogger(__name__)
-        if not len(logger.handlers):
-            level = logging._checkLevel(loglevel)
-            handler = logging.FileHandler('/var/log/flask_logging.log')
-            formatter = logging.Formatter('%(filename)2s:%(lineno)s - %(funcName)3s: %(asctime)s %(levelname)3s %(message)s')
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
-            logger.setLevel("DEBUG")
-            logger.filemode = 'a'
-            logger.log(level, message)
-        else:
-            level = logging._checkLevel(loglevel)
-            logger.log(level, message)
-
+    message = client.messages.create(to=db_info.twilio_to, from_=db_info.twilio_from, body=body)
 
 # Notify system for email, pushbullet and sms (via Twilio)
 def notify(sub_system_notifications, title, message):
+    log.debug("notify() called with {}, {} and {}.".format(sub_system_notifications, title, message))
     sub_system_notifications = read_database("notification_settings", sub_system_notifications)
     EMAIL = read_database("notification_methods", "email")
     PUSHBULLET = read_database("notification_methods", "pushbullet")
     SMS = read_database("notification_methods", "sms")
 
-
     if PUSHBULLET and sub_system_notifications:
         send_push_notification(title,message)
+        log.info( "PB Notification Sent with: {}".format(message))
     else:
         pass
     if EMAIL and sub_system_notifications:
         send_email(db_info.alert_email, title, message)
+        log.info( "Email sent with: {}".format(message))
     else:
         pass
     if SMS and sub_system_notifications:
         send_sms_notification(message)
+        log.info( "SMS sent with: {}".format(message))
     else:
         pass
+    log.debug( "notify() completed.")
 
 def main():
     print("Not intended to be run directly.")
