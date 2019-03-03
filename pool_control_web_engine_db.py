@@ -4,7 +4,7 @@
 # Running on port 8080 for right now statically (not via Apache) [TESTING]
 
 __author__ = 'Richard J. Sears'
-VERSION = "V3.5.0 (2019-02-19)"
+VERSION = "V3.5.1 (2019-03-02)"
 # richard@sears.net
 
 import sys
@@ -33,6 +33,8 @@ def pool_control():
     pool_manual_fill = read_database("filling_status", "pool_manual_fill")
     alexa_manual_fill = read_database("filling_status", "alexa_manual_fill")
     pool_level_percentage = read_database("pool_level", "pool_level_percentage")
+    pool_level_sensor_ok = read_database("sensor_status", "pool_level_sensor_ok")
+    pool_temp_sensor_ok = read_database("sensor_status", "pool_level_sensor_ok")
     pool_temp_sensor_humidity = read_database("system_status", "pool_temp_sensor_humidity")
     acid_level_ok = read_database("acid_level", "acid_level_ok")
     pump_run_led = read_database("led_status", "pump_run_led")
@@ -41,8 +43,8 @@ def pool_control():
     sprinkler_run_led = read_database("led_status", "sprinkler_run_led")
     current_military_time = read_database("system_status", "current_military_time")
     pool_fill_total_time = read_database("filling_time", "pool_fill_total_time" )
-    debug = read_database("notification_methods", "debug" )
-    logging = read_database("notification_methods", "logging" )
+    debug = read_database("logging", "console" )
+    logging = read_database("logging", "logging" )
     pushbullet = read_database("notification_methods", "pushbullet" )
     email = read_database("notification_methods", "email" )
     gallons_current_fill = read_database("filling_gallons", "gallons_current_fill" )
@@ -69,6 +71,7 @@ def pool_control():
     pool_pump_error_notifications = read_database("notification_settings", "pump_error_notifications")
     system_reset_required = read_database("reset_status", "system_reset_required")
     pool_level_sensor_humidity = read_database("system_status", "pool_level_sensor_humidity")
+    pool_last_fill_date = pool_control_master_db.get_last_fill_date()
     return render_template("index_db.html", current_pool_watts = current_pool_watts,
             filter_current_psi = filter_current_psi,
             pool_current_temp = pool_current_temp,
@@ -116,6 +119,9 @@ def pool_control():
             pool_autofill_active = pool_autofill_active,
             system_reset_required = system_reset_required,
             alexa_manual_fill = alexa_manual_fill,
+            pool_last_fill_date = pool_last_fill_date,
+            pool_level_sensor_ok = pool_level_sensor_ok,
+            pool_temp_sensor_ok=pool_temp_sensor_ok,
             pool_level_sensor_humidity = pool_level_sensor_humidity,
             pool_level_batt_percentage = pool_level_batt_percentage)
 
@@ -278,20 +284,20 @@ def toggle_notifications_pool_database():
 
 @app.route('/debug')
 def toggle_debug():
-    debug = read_database("notification_methods", "debug" )
+    debug = read_database("logging", "console" )
     if debug:
-        update_database("notification_methods", "debug", False)
+        update_database("logging", "console", False)
     else:
-        update_database("notification_methods", "debug", True)
+        update_database("logging", "console", True)
     return redirect(url_for('pool_control'))
 
 @app.route('/logging')
 def toggle_logging():
-    logging = read_database("notification_methods", "logging" )
+    logging = read_database("logging", "logging" )
     if logging:
-        update_database("notification_methods", "logging", False)
+        update_database("logging", "logging", False)
     else:
-        update_database("notification_methods", "logging", True)
+        update_database("logging", "logging", True)
     return redirect(url_for('pool_control'))
 
 @app.route('/pushbullet')
