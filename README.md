@@ -282,6 +282,7 @@ V3.5.0 (2019-02-16)
 <br>
 V3.5.1 (2019-03-02)
 - Reworked logging (again)!
+- Added additional error checking for logging.
 <hr>
 
 ## Author
