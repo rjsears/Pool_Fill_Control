@@ -1,0 +1,3 @@
+[logging]
+LOGGING = 1
+LEVEL = INFO
