@@ -1,50 +1,114 @@
 # logging.yaml file for use with pool_control_master_db version 3.5.1
-# 2019-03-02
+# 2019-03-03
 
 version: 1
 disable_existing_loggers: False
 
+
+
 formatters:
-  default:
-    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-  extended:
-    format: '%(asctime)s - %(name)2s:%(lineno)s - %(funcName)3s: %(levelname)3s %(message)s'
+    standard:
+        format: '%(asctime)s - %(name)2s:%(lineno)s - %(funcName)3s: %(levelname)3s %(message)s'
+    error:
+        format: "%(levelname)s <PID %(process)d:%(processName)s> %(name)s.%(funcName)s(): %(message)s"
+
 
 handlers:
-  console:
-    class: logging.StreamHandler
-    formatter: extended
-    stream: ext://sys.stdout
-  logfile:
-    class: logging.handlers.RotatingFileHandler
-    formatter: extended
-    filename: '/var/log/pool_control/pool_control_master_db.log'
-    maxBytes: 2097152
-    backupCount: 5
-  db_logfile:
-    class: logging.handlers.RotatingFileHandler
-    formatter: extended
-    filename: '/var/log/pool_control/db_logfile.log'
-    maxBytes: 2097152
-    backupCount: 5
-  notification_logfile:
-    class: logging.handlers.RotatingFileHandler
-    formatter: extended
-    filename: '/var/log/pool_control/notifications.log'
-    maxBytes: 2097152
-    backupCount: 5
+    console:
+        class: logging.StreamHandler
+      #  level: DEBUG
+        formatter: standard
+        stream: ext://sys.stdout
 
-loggers:
-  pool_control_master_db:
-    handlers: ['console', 'logfile']
-    propagate: no
-  notifications_db:
-    handlers: ['console', 'notification_logfile']
-    propagate: no
-  use_database:
-    handlers: ['console', 'logfile']
-    propagate: no
+    info_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: standard
+        filename: /var/log/pool_control/info.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+    error_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: ERROR
+        formatter: error
+        filename: /var/log/pool_control/errors.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+    debug_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: DEBUG
+        formatter: standard
+        filename: /var/log/pool_control/debug.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+    critical_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: CRITICAL
+        formatter: standard
+        filename: /var/log/pool_control/critical.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+    warning_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: WARNING
+        formatter: standard
+        filename: /var/log/pool_control/warning.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+    notification_file_handler:
+      class: logging.handlers.RotatingFileHandler
+     # level: DEBUG
+      formatter: standard
+      filename: /var/log/pool_control/notifications_db.log
+      maxBytes: 10485760 # 10MB
+      backupCount: 20
+      encoding: utf8
+
+    use_database_file_handler:
+      class: logging.handlers.RotatingFileHandler
+     # level: DEBUG
+      formatter: standard
+      filename: /var/log/pool_control/use_database.log
+      maxBytes: 10485760 # 10MB
+      backupCount: 20
+      encoding: utf8
+
+    pool_control_master_db_handler:
+      class: logging.handlers.RotatingFileHandler
+     # level: DEBUG
+      formatter: standard
+      filename: /var/log/pool_control/pool_control_master_db.log
+      maxBytes: 10485760 # 10MB
+      backupCount: 20
+      encoding: utf8
 
 root:
-  level: NOTSET
-  handlers: ['logfile']
+    level: NOTSET
+    handlers:
+    propogate: no
+
+loggers:
+    __main__:
+     #   level: DEBUG
+        handlers: [console, info_file_handler, error_file_handler, critical_file_handler, debug_file_handler, warning_file_handler, pool_control_master_db_handler]
+        propogate: no
+
+    notifications_db:
+     #   level: DEBUG
+        handlers: [info_file_handler, error_file_handler, critical_file_handler, debug_file_handler, warning_file_handler, notification_file_handler]
+        propogate: yes
+
+    use_database:
+     #   level: DEBUG
+        handlers: [console, info_file_handler, error_file_handler, critical_file_handler, debug_file_handler, warning_file_handler, use_database_file_handler]
+        propogate: yes
