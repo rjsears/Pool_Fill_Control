@@ -16,7 +16,6 @@ formatters:
 handlers:
     console:
         class: logging.StreamHandler
-      #  level: DEBUG
         formatter: standard
         stream: ext://sys.stdout
 
@@ -66,31 +65,28 @@ handlers:
         encoding: utf8
 
     notification_file_handler:
-      class: logging.handlers.RotatingFileHandler
-     # level: DEBUG
-      formatter: standard
-      filename: /var/log/pool_control/notifications_db.log
-      maxBytes: 10485760 # 10MB
-      backupCount: 20
-      encoding: utf8
+        class: logging.handlers.RotatingFileHandler
+        formatter: standard
+        filename: /var/log/pool_control/notifications_db.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
 
     use_database_file_handler:
-      class: logging.handlers.RotatingFileHandler
-     # level: DEBUG
-      formatter: standard
-      filename: /var/log/pool_control/use_database.log
-      maxBytes: 10485760 # 10MB
-      backupCount: 20
-      encoding: utf8
+        class: logging.handlers.RotatingFileHandler
+        formatter: standard
+        filename: /var/log/pool_control/use_database.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
 
     pool_control_master_db_handler:
-      class: logging.handlers.RotatingFileHandler
-     # level: DEBUG
-      formatter: standard
-      filename: /var/log/pool_control/pool_control_master_db.log
-      maxBytes: 10485760 # 10MB
-      backupCount: 20
-      encoding: utf8
+        class: logging.handlers.RotatingFileHandler
+        formatter: standard
+        filename: /var/log/pool_control/pool_control_master_db.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
 
 root:
     level: NOTSET
