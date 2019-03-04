@@ -1,9 +1,9 @@
--- phpMyAdmin SQL Dump
--- version 4.6.6deb5
--- https://www.phpmyadmin.net/
+-- pool_control_master MySQL Dump
+-- version 3.5.1
+-- 
 --
 -- Host: localhost:3306
--- Generation Time: Feb 16, 2019 at 06:22 PM
+-- Generation Time: Mar 04, 2019 at 04:36 PM
 -- Server version: 5.7.25-0ubuntu0.18.04.2
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -30,13 +30,6 @@ CREATE TABLE `acid_level` (
   `acid_level_ok` bit(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
---
--- Dumping data for table `acid_level`
---
-
-INSERT INTO `acid_level` (`acid_level_ok`) VALUES
-(b'1');
-
 -- --------------------------------------------------------
 
 --
@@ -49,13 +42,6 @@ CREATE TABLE `filling_gallons` (
   `gallons_last_fill` smallint(5) UNSIGNED NOT NULL,
   `gallons_current_fill` smallint(5) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `filling_gallons`
---
-
-INSERT INTO `filling_gallons` (`gallons_start`, `gallons_stop`, `gallons_last_fill`, `gallons_current_fill`) VALUES
-(170444, 171652, 1208, 0);
 
 -- --------------------------------------------------------
 
@@ -72,13 +58,6 @@ CREATE TABLE `filling_status` (
   `alexa_test_pool_is_filling` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
---
--- Dumping data for table `filling_status`
---
-
-INSERT INTO `filling_status` (`pool_is_filling`, `fill_critical_stop`, `pool_manual_fill`, `alexa_manual_fill`, `alexa_test_sprinkler_running`, `alexa_test_pool_is_filling`) VALUES
-(0, 0, 0, 0, 0, 0);
-
 -- --------------------------------------------------------
 
 --
@@ -89,13 +68,6 @@ CREATE TABLE `filling_time` (
   `pool_fill_start_time` int(10) UNSIGNED NOT NULL,
   `pool_fill_total_time` int(3) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `filling_time`
---
-
-INSERT INTO `filling_time` (`pool_fill_start_time`, `pool_fill_total_time`) VALUES
-(1550017512, 0);
 
 -- --------------------------------------------------------
 
@@ -114,12 +86,17 @@ CREATE TABLE `led_status` (
   `test_led` varchar(5) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'FALSE'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `led_status`
+-- Table structure for table `logging`
 --
 
-INSERT INTO `led_status` (`sprinkler_run_led`, `pump_run_led`, `system_run_led`, `system_error_led`, `pool_filling_led`, `pool_fill_valve_disabled_led`, `manual_fill_button_led`, `test_led`) VALUES
-(0, 1, 1, 0, 0, 0, 0, '0');
+CREATE TABLE `logging` (
+  `console` tinyint(1) NOT NULL,
+  `logging` tinyint(1) NOT NULL,
+  `level` varchar(8) COLLATE utf8_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -131,13 +108,6 @@ CREATE TABLE `manual_buttons` (
   `pool_manual_fill_button` bit(1) NOT NULL,
   `pool_valve_disabled_button` bit(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `manual_buttons`
---
-
-INSERT INTO `manual_buttons` (`pool_manual_fill_button`, `pool_valve_disabled_button`) VALUES
-(b'0', b'0');
 
 -- --------------------------------------------------------
 
@@ -153,13 +123,6 @@ CREATE TABLE `notification_methods` (
   `debug` bit(1) NOT NULL,
   `verbose_debug` bit(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `notification_methods`
---
-
-INSERT INTO `notification_methods` (`pushbullet`, `email`, `sms`, `logging`, `debug`, `verbose_debug`) VALUES
-(b'1', b'0', b'0', b'0', b'1', b'1');
 
 -- --------------------------------------------------------
 
@@ -179,13 +142,6 @@ CREATE TABLE `notification_settings` (
   `pool_database_notifications` bit(1) NOT NULL,
   `pump_error_notifications` bit(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `notification_settings`
---
-
-INSERT INTO `notification_settings` (`pump_control_notifications`, `pump_control_software_notifications`, `pool_fill_notifications`, `pool_level_sensor_notifications`, `pool_temp_sensor_notifications`, `pool_filter_psi_notifications`, `pool_acid_level_notifications`, `pool_fill_control_reset_notifications`, `pool_database_notifications`, `pump_error_notifications`) VALUES
-(b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'1', b'1');
 
 -- --------------------------------------------------------
 
@@ -209,13 +165,6 @@ CREATE TABLE `notification_status` (
   `pump_not_running_error_alert_sent` bit(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
---
--- Dumping data for table `notification_status`
---
-
-INSERT INTO `notification_status` (`pool_level_sensor_timeout_alert_sent`, `pool_level_low_voltage_alert_sent`, `pool_temp_sensor_timeout_alert_sent`, `pool_temp_low_voltage_alert_sent`, `pool_filter_psi_alert_sent`, `pool_filling_sent`, `critical_time_warning_sent`, `critical_stop_warning_sent`, `critical_stop_enabled_warning_sent`, `pool_database_error_alert_sent`, `acid_level_low_alert_sent`, `acid_level_low_alert_sent_time`, `pump_not_running_error_alert_sent`) VALUES
-(b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', 1548875942, b'0');
-
 -- --------------------------------------------------------
 
 --
@@ -226,13 +175,6 @@ CREATE TABLE `pool_chemicals` (
   `pool_current_ph` decimal(5,3) NOT NULL,
   `pool_current_orp` decimal(5,1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `pool_chemicals`
---
-
-INSERT INTO `pool_chemicals` (`pool_current_ph`, `pool_current_orp`) VALUES
-('7.586', '721.4');
 
 -- --------------------------------------------------------
 
@@ -245,13 +187,6 @@ CREATE TABLE `pool_filling_history` (
   `gallons` smallint(5) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
---
--- Dumping data for table `pool_filling_history`
---
-
-INSERT INTO `pool_filling_history` (`time`, `gallons`) VALUES
-('2019-02-13 03:39:11', 1208);
-
 -- --------------------------------------------------------
 
 --
@@ -262,13 +197,6 @@ CREATE TABLE `pool_level` (
   `pool_level` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
   `pool_level_percentage` int(3) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `pool_level`
---
-
-INSERT INTO `pool_level` (`pool_level`, `pool_level_percentage`) VALUES
-('MIDWAY', 85);
 
 -- --------------------------------------------------------
 
@@ -281,13 +209,6 @@ CREATE TABLE `power_solar` (
   `total_current_power_import` smallint(5) NOT NULL,
   `total_current_solar_production` smallint(5) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `power_solar`
---
-
-INSERT INTO `power_solar` (`total_current_power_utilization`, `total_current_power_import`, `total_current_solar_production`) VALUES
-(1973, 1971, 2);
 
 -- --------------------------------------------------------
 
@@ -304,13 +225,6 @@ CREATE TABLE `pump_status` (
   `pump_program_running` varchar(10) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
---
--- Dumping data for table `pump_status`
---
-
-INSERT INTO `pump_status` (`pump_control_active`, `pump_running`, `pump_watts`, `pump_gpm`, `pump_rpm`, `pump_program_running`) VALUES
-(1, 1, 237, 20, 1435, 'program_2');
-
 -- --------------------------------------------------------
 
 --
@@ -320,13 +234,6 @@ INSERT INTO `pump_status` (`pump_control_active`, `pump_running`, `pump_watts`, 
 CREATE TABLE `reset_status` (
   `system_reset_required` bit(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `reset_status`
---
-
-INSERT INTO `reset_status` (`system_reset_required`) VALUES
-(b'0');
 
 -- --------------------------------------------------------
 
@@ -339,13 +246,6 @@ CREATE TABLE `sensor_status` (
   `pool_temp_sensor_ok` bit(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
---
--- Dumping data for table `sensor_status`
---
-
-INSERT INTO `sensor_status` (`pool_level_sensor_ok`, `pool_temp_sensor_ok`) VALUES
-(b'1', b'1');
-
 -- --------------------------------------------------------
 
 --
@@ -355,13 +255,6 @@ INSERT INTO `sensor_status` (`pool_level_sensor_ok`, `pool_temp_sensor_ok`) VALU
 CREATE TABLE `sprinkler_status` (
   `sprinklers_on` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `sprinkler_status`
---
-
-INSERT INTO `sprinkler_status` (`sprinklers_on`) VALUES
-(0);
 
 -- --------------------------------------------------------
 
@@ -386,13 +279,6 @@ CREATE TABLE `system_status` (
   `attic_current_temp` decimal(5,2) NOT NULL,
   `garage_current_temp` decimal(5,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `system_status`
---
-
-INSERT INTO `system_status` (`current_military_time`, `filter_current_psi`, `pool_current_temp`, `pool_level_batt_percentage`, `pool_temp_batt_percentage`, `pool_autofill_active`, `garage_temp_batt_percentage`, `attic_temp_batt_percentage`, `pool_temp_sensor_humidity`, `pool_level_sensor_humidity`, `garage_temp_sensor_humidity`, `pool_level_sensor_temp`, `pool_temp_sensor_temp`, `attic_current_temp`, `garage_current_temp`) VALUES
-('Saturday Feb 16, 2019  18:22:02', '3.00', '56.00', 100, 100, b'1', 100, 100, 42, 29, 39, '56.67', '54.50', '67.30', '67.10');
 
 --
 -- Indexes for dumped tables
@@ -427,6 +313,12 @@ ALTER TABLE `filling_time`
 --
 ALTER TABLE `led_status`
   ADD UNIQUE KEY `sprinkler_run_led` (`sprinkler_run_led`);
+
+--
+-- Indexes for table `logging`
+--
+ALTER TABLE `logging`
+  ADD UNIQUE KEY `console` (`console`);
 
 --
 -- Indexes for table `manual_buttons`
