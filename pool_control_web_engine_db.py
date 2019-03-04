@@ -4,7 +4,7 @@
 # Running on port 8080 for right now statically (not via Apache) [TESTING]
 
 __author__ = 'Richard J. Sears'
-VERSION = "V3.5.1 (2019-03-02)"
+VERSION = "V3.5.1 (2019-03-03)"
 # richard@sears.net
 
 import sys
