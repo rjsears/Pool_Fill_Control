@@ -17,9 +17,9 @@
 # Twilio (SMS)
 
 # This script is not intended to be run manually, rather it is called by other modules.
-# For use with pool_control_master_db.py V3.5.0
+# For use with pool_control_master_db.py V3.5.1
 
-# Last updated 2019-02-16 - Switch to MySQL DB from flat file.
+# Last updated 2019-03-03
 
 
 __author__ = 'Richard J. Sears'
