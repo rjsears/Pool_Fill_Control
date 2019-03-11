@@ -278,7 +278,7 @@ V3.5.0 (2019-02-16)
 - Added web interface ability to force a system reset if necessary. 
 - Starting the process of looking at every single *global* variable to see if I can rewrite my code to eliminate as many of them as possible. 
 - Updated notifications_db.py to include a flask specific logging function log_flask().
-- Added sensor timeout LEDs on Pool Temp and Pool LEvel sensors. If they timeout, a Red flashing LED shows up on the face of the gauges until the timeout is over.
+- Added sensor timeout LEDs on Pool Temp and Pool Level sensors. If they timeout, a Red flashing LED shows up on the face of the gauges until the timeout is over.
 
 <br>
 
