@@ -481,10 +481,10 @@ def pump_control_software(startstop):
 #TODO Add sprinkler notifications to web interface and notification system (Done now..???)
 def get_sprinkler_status():
     log.debug("get_sprinkler_status() Started.")
+    SprinklerStart = int(400)
+    SprinklerStop = int(600)
     """ Function to determine if our sprinklers are currently running. """
     if pooldb.sprinkler_type == "Timer":
-        SprinklerStart = int(400)
-        SprinklerStop = int(1000)
         if SprinklerStart < current_military_time < SprinklerStop:
             sprinklers_on = True
             update_database("sprinkler_status", "sprinklers_on", True)
@@ -499,9 +499,7 @@ def get_sprinkler_status():
             update_database("led_status", "sprinkler_run_led", False)
             log.info("Sprinklers are not running via TIMER mode.")
             log.debug("Sprinkler Run LED should be off. This is a BLUE LED.")
-        return sprinklers_on
-    else:
-
+    elif pooldb.sprinkler_type == "Rachio":
         log.debug("get_sprinkler_status() called via subprocess (RACHIO)")
         output = subprocess.check_output(pooldb.rachio_url, shell=True)
         if output == "{}":
@@ -511,6 +509,22 @@ def get_sprinkler_status():
             update_database("led_status", "sprinkler_run_led", False)
             log.info("Sprinklers are not running via RACHIO mode.")
             log.debug("Sprinkler Run LED should be off. This is a BLUE LED.")
+        elif 'errors' in output:
+            log.debug('Rachio returned an Error: {}. Falling back to TIMER MODE'.format(output))
+            if SprinklerStart < current_military_time < SprinklerStop:
+                sprinklers_on = True
+                update_database("sprinkler_status", "sprinklers_on", True)
+                led_control(sprinkler_run_led, "True")
+                update_database("led_status", "sprinkler_run_led", True)
+                log.debug("Sprinklers are running via TIMER mode.")
+                log.debug("Sprinkler Run LED should be ON. This is a BLUE LED.")
+            else:
+                sprinklers_on = False
+                update_database("sprinkler_status", "sprinklers_on", False)
+                led_control(sprinkler_run_led, "False")
+                update_database("led_status", "sprinkler_run_led", False)
+                log.info("Sprinklers are not running via TIMER mode.")
+                log.debug("Sprinkler Run LED should be off. This is a BLUE LED.")
         else:
             sprinklers_on = True
             update_database("sprinkler_status", "sprinklers_on", True)
@@ -518,6 +532,13 @@ def get_sprinkler_status():
             log.debug("Sprinklers are running via RACHIO mode.")
             led_control(sprinkler_run_led, "True")
             log.debug("Sprinkler Run LED should be ON. This is a BLUE LED.")
+    else:
+        sprinklers_on = read_database('sprinkler_status', 'sprinklers_on')
+        if sprinklers_on == 0:
+            sprinklers_on = False
+        else:
+            sprinklers_on = True
+        log.debug('Reading sprinklers status from database, Sprinkler Status is: {}'.format(sprinklers_on))
     log.debug("get_sprinkler_status() Completed")
     return sprinklers_on
 
