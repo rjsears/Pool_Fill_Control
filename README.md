@@ -288,7 +288,7 @@ V3.5.1 (2019-03-02)
 <hr>
 
 ## Author
-**Richard J. Sears** - *richard@sears.net* - [The RS Technical Group, Inc.](http://github.com/rjsears)
+**Richard J. Sears** - *richardjsears@gmail.com* - [The RS Technical Group, Inc.](http://github.com/rjsears)
 
 ## License
 This project is licensed under the MIT License - see the MIT License for details
